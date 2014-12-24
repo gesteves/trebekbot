@@ -129,8 +129,8 @@ def get_slack_name(user_id, username)
     request = HTTParty.get(uri)
     response = JSON.parse(request.body)
     if response["ok"]
-      user = response["members"].find { |u| u["id"] == slack_id }
-      name = user["profile"]["first_name"].nil? ? "@#{username}" : "@#{user["profile"]["first_name"]}"
+      user = response["members"].find { |u| u["id"] == user_id }
+      name = user["profile"]["first_name"].nil? ? "@#{username}" : user["profile"]["first_name"]
       $redis.setex(key, 3600, name)
     end
   end
