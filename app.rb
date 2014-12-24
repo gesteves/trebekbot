@@ -4,6 +4,7 @@ require "json"
 require "httparty"
 require "redis"
 require "dotenv"
+require "text"
 
 configure do
   # Load .env vars
@@ -46,7 +47,7 @@ def get_question(params)
   question = "`#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
   key = "current_question:#{params[:channel_id]}"
   $redis.setex(key, ENV["SECONDS_TO_ANSWER"].to_i, response.to_json)
-  puts response
+  puts "Answer: #{response["answer"]}"
   json_response_for_slack(question)
 end
 
@@ -57,7 +58,9 @@ def get_answer(params)
     reply = ""
   else
     current_question = JSON.parse(current_question)
-    if params[:text].downcase.match(current_question["answer"].downcase)
+    current_answer = current_question["answer"]
+    user_answer = params[:text]
+    if is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
       reply = "That is the correct answer, #{get_slack_name(params[:user_id], params[:user_name])}. Your total score is #{format_score(score)}."
       $redis.del(key)
@@ -77,7 +80,9 @@ def get_other_response(params)
     reply = ""
   else
     current_question = JSON.parse(current_question)
-    if params[:text].downcase.match(current_question["answer"].downcase)
+    current_answer = current_question["answer"]
+    user_answer = params[:text]
+    if is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], (current_question["value"] * -1))
       reply = "That is correct, #{get_slack_name(params[:user_id], params[:user_name])}, but responses have to be in the form of a question. Your total score is #{format_score(score)}."
       $redis.del(key)
@@ -88,6 +93,16 @@ def get_other_response(params)
     end
   end
   json_response_for_slack(reply)
+end
+
+def is_correct_answer?(correct, answer)
+  correct = correct.gsub(/[^\w\d\s]/i, "").gsub(/^the|a/i, "").strip.downcase
+  puts "Correct answer: #{correct}"
+  answer = answer.gsub(/[^\w\d\s]/i, "").gsub(/^((what|whats|where|wheres|who|whos) (is|are|was|were)? (the|a)?)/i, "").gsub(/\?+$/, "").strip.downcase
+  puts "User answer: #{answer}"
+  white = Text::WhiteSimilarity.new
+  puts "Similarity: #{white.similarity(correct, answer)}"
+  white.similarity(correct, answer) >= 0.5
 end
 
 def get_user_score(params)
