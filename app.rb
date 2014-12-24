@@ -43,7 +43,7 @@ def get_question(params)
   uri = "http://jservice.io/api/random?count=1"
   request = HTTParty.get(uri)
   response = JSON.parse(request.body).first
-  question = "\"#{response["category"]["title"]}\" for $#{response["value"]}: \"#{response["question"]}\""
+  question = "`#{response["category"]["title"]}` for $#{response["value"]}: > #{response["question"]}"
   key = "current_question:#{params[:channel_id]}"
   $redis.setex(key, ENV["SECONDS_TO_ANSWER"].to_i, response.to_json)
   puts response
@@ -63,7 +63,7 @@ def get_answer(params)
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, @#{params[:user_name]}, the correct answer is #{current_question["answer"]}. Your score is now #{format_score(score)}."
+      reply = "Sorry, @#{params[:user_name]}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
       $redis.del(key)
     end
   end
@@ -83,7 +83,7 @@ def get_other_response(params)
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, @#{params[:user_name]}, the correct answer is #{current_question["answer"]}. Your score is now #{format_score(score)}."
+      reply = "Sorry, @#{params[:user_name]}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
       $redis.del(key)
     end
   end
