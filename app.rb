@@ -43,7 +43,7 @@ def get_question(params)
   uri = "http://jservice.io/api/random?count=1"
   request = HTTParty.get(uri)
   response = JSON.parse(request.body).first
-  question = "`#{response["category"]["title"]}` for $#{response["value"]}: > #{response["question"]}"
+  question = "`#{response["category"]["title"]}` for $#{response["value"]}: >>> #{response["question"]}"
   key = "current_question:#{params[:channel_id]}"
   $redis.setex(key, ENV["SECONDS_TO_ANSWER"].to_i, response.to_json)
   puts response
