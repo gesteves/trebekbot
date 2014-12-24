@@ -5,6 +5,7 @@ require "httparty"
 require "redis"
 require "dotenv"
 require "text"
+require "sanitize"
 
 configure do
   # Load .env vars
@@ -65,7 +66,7 @@ def get_answer(params)
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{Sanitize.fragment(current_question["answer"])}`. Your score is now #{format_score(score)}."
       $redis.del(key)
     end
   end
@@ -87,7 +88,7 @@ def get_other_response(params)
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{Sanitize.fragment(current_question["answer"])}`. Your score is now #{format_score(score)}."
       $redis.del(key)
     end
   end
@@ -95,6 +96,7 @@ def get_other_response(params)
 end
 
 def is_correct_answer?(correct, answer)
+  correct = Sanitize.fragment(correct)
   correct = correct.gsub(/[^\w\d\s]/i, "").gsub(/^the|a/i, "").strip.downcase
   answer = answer.gsub(/[^\w\d\s]/i, "").gsub(/^((what|whats|where|wheres|who|whos) (is|are|was|were)? (the|a)?)/i, "").gsub(/\?+$/, "").strip.downcase
   white = Text::WhiteSimilarity.new

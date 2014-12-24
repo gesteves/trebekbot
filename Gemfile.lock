@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    crass (1.0.1)
     daemons (1.1.9)
     dotenv (1.0.2)
     eventmachine (1.0.4)
@@ -11,11 +12,20 @@ GEM
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     json (1.8.1)
+    mini_portile (0.6.1)
     multi_xml (0.5.5)
+    nokogiri (1.6.5)
+      mini_portile (~> 0.6.0)
+    nokogumbo (1.2.0)
+      nokogiri
     rack (1.6.0)
     rack-protection (1.5.3)
       rack
     redis (3.2.0)
+    sanitize (3.1.0)
+      crass (~> 1.0.1)
+      nokogiri (>= 1.4.4)
+      nokogumbo (= 1.2.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -36,6 +46,7 @@ DEPENDENCIES
   foreman
   httparty
   redis
+  sanitize
   sinatra
   text
   thin
