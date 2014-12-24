@@ -47,7 +47,6 @@ def get_question(params)
   question = "`#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
   key = "current_question:#{params[:channel_id]}"
   $redis.setex(key, ENV["SECONDS_TO_ANSWER"].to_i, response.to_json)
-  puts "Answer: #{response["answer"]}"
   json_response_for_slack(question)
 end
 
@@ -97,11 +96,8 @@ end
 
 def is_correct_answer?(correct, answer)
   correct = correct.gsub(/[^\w\d\s]/i, "").gsub(/^the|a/i, "").strip.downcase
-  puts "Correct answer: #{correct}"
   answer = answer.gsub(/[^\w\d\s]/i, "").gsub(/^((what|whats|where|wheres|who|whos) (is|are|was|were)? (the|a)?)/i, "").gsub(/\?+$/, "").strip.downcase
-  puts "User answer: #{answer}"
   white = Text::WhiteSimilarity.new
-  puts "Similarity: #{white.similarity(correct, answer)}"
   white.similarity(correct, answer) >= 0.5
 end
 
