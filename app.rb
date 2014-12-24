@@ -97,10 +97,12 @@ end
 
 def is_correct_answer?(correct, answer)
   correct = Sanitize.fragment(correct)
-  correct = correct.gsub(/[^\w\d\s]/i, "").gsub(/^the|a/i, "").strip.downcase
-  answer = answer.gsub(/[^\w\d\s]/i, "").gsub(/^((what|whats|where|wheres|who|whos) (is|are|was|were)? (the|a)?)/i, "").gsub(/\?+$/, "").strip.downcase
+  correct = correct.gsub(/[^\w\d\s]/i, "").gsub(/^(the|a)/i, "").strip.downcase
+  answer = answer.gsub(/[^\w\d\s]/i, "").gsub(/^(what|whats|where|wheres|who|whos) /i, "").gsub(/^(is|are|was|were) /, "").gsub(/^(the|a)/i, "").gsub(/\?+$/, "").strip.downcase
   white = Text::WhiteSimilarity.new
-  white.similarity(correct, answer) >= 0.5
+  similarity = white.similarity(correct, answer)
+  puts "[LOG] Correct answer: #{correct} | User answer: #{answer} | Similarity: #{similarity}"
+  similarity >= 0.5
 end
 
 def get_user_score(params)
