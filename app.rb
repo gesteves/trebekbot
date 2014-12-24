@@ -55,7 +55,7 @@ def get_answer(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
-    reply = ""
+    reply = trebek_me(params)
   else
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
@@ -77,7 +77,7 @@ def get_other_response(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
-    reply = ""
+    reply = trebek_me(params)
   else
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
@@ -150,6 +150,32 @@ def get_slack_name(user_id, username)
     end
   end
   name
+end
+
+def trebek_me(params)
+  responses = [ "Welcome back to _Slack Jeopardy_. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
+    "Okay. Turd Ferguson.",
+    "I hate my job.",
+    "That is incorrect.",
+    "Let's just get this over with.",
+    "Do you have an answer?",
+    "I don't believe this. Where did you get that magic marker? We frisked you in on the way in here.",
+    "What a ride it has been, but boy, oh boy, these Slack users did not know the right answers to any of the questions.",
+    "Back off. I don't have to take that from you.",
+    "That is _awful_.",
+    "Okay, for the sake of tradition, let's take a look at the answers.",
+    "Beautiful. Just beautiful.",
+    "Good for you. Well, as always, three perfectly good charities have been deprived of money, here on Slack Jeopardy. I'm Alex Trebek, and all of you should be ashamed of yourselves! Good night!",
+    "And welcome back to Slack Jeopardy. Because of what just happened before during the commercial, I'd like to apologize to all blind people and children.",
+    "Thank you, thank you. Moving on.",
+    "I really thought that was going to work.",
+    "Wonderful. Let's take a look at the categories. They are: Potent Potables, Point to your own head, Letters or Numbers, Will this hurt if you put it in your mouth, An album cover, Make any noise, and finally, Famous Muppet Frogs. I should add that the answer to every question in that category is Kermit.",
+    "For the last time, that is not a category.",
+    "Unbelievable.",
+    "Great. Let's take a look at the final board. And the categories are: Potent Potables; Sharp Things; Movies That Start with the Word Jaws; A Petit Déjeuner - that category is about French phrases, so let's just skip it.",
+    "Enough. Let's just get this over with. Here are the categories, they are: Potent Potables, Countries Between Mexico and Canada, Members of Simon and Garfunkel, I Have a Chardonnay - you choose this category, you automatically get the points and I get to have a glass of wine. Things You Do With a Pencil Sharpener, Tie Your Shoe, and finally, Toast.",
+    "Better luck to all of you, in the next round. It's time for Double Jeopardy, let's take a look at the board. And the categories are: Potent Potables, Literature - which is just a big word for books - Therapists, Current U.S. Presidents, Show and Tell, Household Objects, and finally, One-Letter Words."]
+    responses.sample
 end
 
 def json_response_for_slack(reply)
