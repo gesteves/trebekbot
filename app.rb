@@ -59,11 +59,11 @@ def get_answer(params)
     current_question = JSON.parse(current_question)
     if params[:text].downcase.match(current_question["answer"].downcase)
       score = update_score(params[:user_id], current_question["value"])
-      reply = "That is the correct answer, @#{params[:user_name]}. Your total score is #{format_score(score)}."
+      reply = "That is the correct answer, #{get_slack_name(params[:user_id], params[:user_name])}. Your total score is #{format_score(score)}."
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, @#{params[:user_name]}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
       $redis.del(key)
     end
   end
@@ -79,11 +79,11 @@ def get_other_response(params)
     current_question = JSON.parse(current_question)
     if params[:text].downcase.match(current_question["answer"].downcase)
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "That is correct, @#{params[:user_name]}, but responses have to be in the form of a question. Your total score is #{format_score(score)}."
+      reply = "That is correct, #{get_slack_name(params[:user_id], params[:user_name])}, but responses have to be in the form of a question. Your total score is #{format_score(score)}."
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, @#{params[:user_name]}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{format_score(score)}."
       $redis.del(key)
     end
   end
@@ -97,7 +97,7 @@ def get_user_score(params)
     $redis.set(key, 0)
     user_score = 0
   end
-  reply = "@#{params[:user_name]}, your score is #{format_score(user_score.to_i)}."
+  reply = "#{get_slack_name(params[:user_id], params[:user_name])}, your score is #{format_score(user_score.to_i)}."
   json_response_for_slack(reply)
 end
 
@@ -119,6 +119,22 @@ def format_score(score)
   else
     "-$#{score * -1}"
   end
+end
+
+def get_slack_name(user_id, username)
+  key = "user_names:#{user_id}"
+  name = $redis.get(key)
+  if name.nil?
+    uri = "https://slack.com/api/users.list?token=#{ENV["API_TOKEN"]}"
+    request = HTTParty.get(uri)
+    response = JSON.parse(request.body)
+    if response["ok"]
+      user = response["members"].find { |u| u["id"] == slack_id }
+      name = user.nil? ? username : "@#{user["name"]}"
+      $redis.setex(key, 3600, name)
+    end
+  end
+  name
 end
 
 def json_response_for_slack(reply)
