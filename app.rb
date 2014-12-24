@@ -54,7 +54,7 @@ def get_answer(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
-    reply = "I haven't asked anything in this channel yet."
+    reply = ""
   else
     current_question = JSON.parse(current_question)
     if params[:text].downcase.match(current_question["answer"].downcase)
@@ -74,7 +74,7 @@ def get_other_response(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
-    reply = "I haven't asked anything in this channel yet."
+    reply = ""
   else
     current_question = JSON.parse(current_question)
     if params[:text].downcase.match(current_question["answer"].downcase)
