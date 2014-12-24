@@ -130,7 +130,7 @@ def get_slack_name(user_id, username)
     response = JSON.parse(request.body)
     if response["ok"]
       user = response["members"].find { |u| u["id"] == slack_id }
-      name = user.nil? ? username : "@#{user["name"]}"
+      name = user["profile"]["first_name"].nil? ? username : "@#{user["profile"]["first_name"]}"
       $redis.setex(key, 3600, name)
     end
   end
