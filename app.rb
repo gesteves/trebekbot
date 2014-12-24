@@ -55,7 +55,7 @@ def get_answer(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
-    reply = trebek_me(params)
+    reply = trebek_me
   else
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
@@ -77,7 +77,7 @@ def get_other_response(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
-    reply = trebek_me(params)
+    reply = trebek_me
   else
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
@@ -152,7 +152,7 @@ def get_slack_name(user_id, username)
   name
 end
 
-def trebek_me(params)
+def trebek_me
   responses = [ "Welcome back to _Slack Jeopardy_. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
     "Okay. Turd Ferguson.",
     "I hate my job.",
