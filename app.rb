@@ -187,11 +187,11 @@ def trebek_me
 end
 
 def get_help
-  reply = <<-help
-  Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
-  Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. Remember, responses must be in the form of a question.
-  Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
-  help
+  reply = <<help
+Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
+Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
+Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
+help
   json_response_for_slack(reply)
 end
 
