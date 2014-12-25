@@ -47,7 +47,7 @@ def get_question(params)
   response = JSON.parse(request.body).first
   question = "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
   key = "current_question:#{params[:channel_id]}"
-  $redis.setex(key, ENV["SECONDS_TO_ANSWER"].to_i, response.to_json)
+  $redis.set(key, response.to_json)
   json_response_for_slack(question)
 end
 
