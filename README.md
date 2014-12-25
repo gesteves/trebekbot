@@ -4,14 +4,15 @@ A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. S
 
 ## Installation
 
-Clone the repo, set up a Heroku app with RedisCloud (free is more than enough), and set up a Slack outgoing webhook to post to it. Make sure to set up the environment variables (look at
-[.env.example](https://github.com/gesteves/trebekbot/blob/master/.env.example)).
+Clone the repo, set up a Heroku app with RedisCloud (the free level is more than enough), and set up a Slack outgoing webhook to post to it. Make sure to set up the config variables in
+[.env.example](https://github.com/gesteves/trebekbot/blob/master/.env.example) in your Heroku app's settings screen.
 
 ## Usage
 
 * `trebekbot jeopardy me`: starts a round of Jeopardy! trebekbot will pick a category and score for you.
 * `trebekbot what/who is/are [answer]`: sends an answer. Remember, responses must be in the form of a question!
 * `trebekbot what's my score`: shows your current score.
+* `trebekbot help`: shows this help information.
 
 ## To-do
 
