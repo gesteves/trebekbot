@@ -34,13 +34,15 @@ end
 # text=trebekbot jeopardy me
 # trigger_word=trebekbot
 post "/" do
-  params[:text] = params[:text].sub(params[:trigger_word], '').strip 
+  params[:text] = params[:text].sub(params[:trigger_word], "").strip 
   if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
     response = "Invalid token"
   elsif params[:text].match(/^jeopardy me/i)
     response = get_question(params)
   elsif params[:text].match(/my score$/i)
     response = get_user_score(params)
+  elsif params[:text].match(/^help$/i)
+    response = get_help
   else
     response = get_answer(params)
   end
@@ -163,7 +165,7 @@ def trebek_me
     "That is _awful_.",
     "Okay, for the sake of tradition, let's take a look at the answers.",
     "Beautiful. Just beautiful.",
-    "Good for you. Well, as always, three perfectly good charities have been deprived of money, here on Slack Jeopardy. I'm trebekbot, and all of you should be ashamed of yourselves! Good night!",
+    "Good for you. Well, as always, three perfectly good charities have been deprived of money, here on Slack Jeopardy. I'm #{ENV["BOT_USERNAME"]}, and all of you should be ashamed of yourselves! Good night!",
     "And welcome back to Slack Jeopardy. Because of what just happened before during the commercial, I'd like to apologize to all blind people and children.",
     "Thank you, thank you. Moving on.",
     "I really thought that was going to work.",
@@ -182,6 +184,15 @@ def trebek_me
     "Let's take a look at the board. The categories are: `Potent Potables`, `The Pen is Mightier` - that category is all about quotes from famous authors, so you'll all probably be more comfortable with our next category - `Shiny Objects`, continuing with `Opposites`, `Things you Shouldn't Put in Your Mouth`, `What Time is It?`; and, finally, `Months That Start With Feb`."
   ]
     responses.sample
+end
+
+def get_help
+  reply = <<-help
+  Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
+  Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. Remember, responses must be in the form of a question.
+  Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
+  help
+  json_response_for_slack(reply)
 end
 
 def json_response_for_slack(reply)
