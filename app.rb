@@ -38,23 +38,31 @@ post "/" do
   if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
     response = "Invalid token"
   elsif params[:text].match(/^jeopardy me/i)
-    response = get_question(params)
+    response = send_question(params)
   elsif params[:text].match(/my score$/i)
     response = get_user_score(params)
   elsif params[:text].match(/^help$/i)
     response = get_help
   else
-    response = get_answer(params)
+    response = process_answer(params)
   end
 
   status 200
   body response
 end
 
-def get_question(params)
+def get_question
   uri = "http://jservice.io/api/random?count=1"
   request = HTTParty.get(uri)
   response = JSON.parse(request.body).first
+  if response["question"].nil? || response["question"].strip == ""
+    response = get_question
+  end
+  response
+end
+
+def send_question(params)
+  response = get_question
   response["value"] = 100 if response["value"].nil?
   question = "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
@@ -63,7 +71,7 @@ def get_question(params)
   json_response_for_slack(question)
 end
 
-def get_answer(params)
+def process_answer(params)
   key = "current_question:#{params[:channel_id]}"
   current_question = $redis.get(key)
   if current_question.nil?
