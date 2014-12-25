@@ -2,6 +2,8 @@
 
 A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. Sets up a perpetual game of Jeorpardy! in your Slack channels.
 
+![](http://i.imgur.com/BjMDf6Z.png)
+
 ## Installation
 
 Clone the repo, set up a Heroku app with RedisCloud (the free level is more than enough), and set up a Slack outgoing webhook to post to it. Make sure to set up the config variables in
