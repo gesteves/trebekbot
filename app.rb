@@ -23,6 +23,16 @@ configure do
   $redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
 end
 
+# params:
+# token=abc123
+# team_id=T0001
+# channel_id=C123456
+# channel_name=test
+# timestamp=1355517523.000005
+# user_id=U123456
+# user_name=Steve
+# text=trebekbot jeopardy me
+# trigger_word=trebekbot
 post "/" do
   params[:text] = params[:text].sub(params[:trigger_word], '').strip 
   if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
@@ -130,9 +140,11 @@ def get_slack_name(user_id, username)
     response = JSON.parse(request.body)
     if response["ok"]
       user = response["members"].find { |u| u["id"] == user_id }
-      name = user["profile"]["first_name"].nil? ? "@#{username}" : user["profile"]["first_name"]
-      $redis.setex(key, 3600, name)
+      name = user["profile"]["first_name"].nil? ? username : user["profile"]["first_name"]
+    else
+      name = username
     end
+    $redis.setex(key, 3600, name)
   end
   name
 end
