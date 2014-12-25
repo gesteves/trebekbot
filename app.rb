@@ -24,14 +24,14 @@ configure do
 end
 
 post "/" do
-  command = params[:text].sub(params[:trigger_word], '').strip
+  params[:text] = params[:text].sub(params[:trigger_word], '').strip 
   if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
     response = "Invalid token"
-  elsif command.match(/^jeopardy me/i)
+  elsif params[:text].match(/^jeopardy me/i)
     response = get_question(params)
-  elsif command.match(/my score$/i)
+  elsif params[:text].match(/my score$/i)
     response = get_user_score(params)
-  elsif command.match(/^(what|where|who|when)/i)
+  elsif params[:text].match(/^(what|where|who|when)/i)
     response = get_answer(params)
   else
     response = get_other_response(params)
