@@ -31,10 +31,8 @@ post "/" do
     response = get_question(params)
   elsif params[:text].match(/my score$/i)
     response = get_user_score(params)
-  elsif params[:text].match(/^(what|where|who|when)/i)
-    response = get_answer(params)
   else
-    response = get_other_response(params)
+    response = get_answer(params)
   end
 
   status 200
@@ -60,29 +58,11 @@ def get_answer(params)
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
     user_answer = params[:text]
-    if is_correct_answer?(current_answer, user_answer)
+    if is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
       reply = "That is the correct answer, #{get_slack_name(params[:user_id], params[:user_name])}. Your total score is #{format_score(score)}."
       $redis.del(key)
-    else
-      score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{Sanitize.fragment(current_question["answer"])}`. Your score is now #{format_score(score)}."
-      $redis.del(key)
-    end
-  end
-  json_response_for_slack(reply)
-end
-
-def get_other_response(params)
-  key = "current_question:#{params[:channel_id]}"
-  current_question = $redis.get(key)
-  if current_question.nil?
-    reply = trebek_me
-  else
-    current_question = JSON.parse(current_question)
-    current_answer = current_question["answer"]
-    user_answer = params[:text]
-    if is_correct_answer?(current_answer, user_answer)
+    elsif is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], (current_question["value"] * -1))
       reply = "That is correct, #{get_slack_name(params[:user_id], params[:user_name])}, but responses have to be in the form of a question. Your total score is #{format_score(score)}."
       $redis.del(key)
@@ -93,6 +73,10 @@ def get_other_response(params)
     end
   end
   json_response_for_slack(reply)
+end
+
+def is_question_format?(answer)
+  answer.gsub(/[^\w\s]/i, "").match(/^(what|whats|where|wheres|who|whos) /i)
 end
 
 def is_correct_answer?(correct, answer)
