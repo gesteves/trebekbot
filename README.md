@@ -21,6 +21,10 @@ I literally built this in 20 minutes, so there's a lot to do.
 * Speak out the answers after time runs out
 * Let users select category and scores
 
+## Credits & acknowledgements
+
+Big thanks to [Steve Ottenad](https://github.com/sottenad) for building [jService](http://jservice.io/), the service that powers this bot.
+
 ## Contributing
 
 1. Fork it
