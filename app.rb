@@ -45,7 +45,7 @@ def get_question(params)
   uri = "http://jservice.io/api/random?count=1"
   request = HTTParty.get(uri)
   response = JSON.parse(request.body).first
-  question = "`#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
+  question = "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
   key = "current_question:#{params[:channel_id]}"
   $redis.setex(key, ENV["SECONDS_TO_ANSWER"].to_i, response.to_json)
   json_response_for_slack(question)
@@ -174,7 +174,7 @@ def trebek_me
     "Unbelievable.",
     "Great. Let's take a look at the final board. And the categories are: Potent Potables; Sharp Things; Movies That Start with the Word Jaws; A Petit Déjeuner - that category is about French phrases, so let's just skip it.",
     "Enough. Let's just get this over with. Here are the categories, they are: Potent Potables, Countries Between Mexico and Canada, Members of Simon and Garfunkel, I Have a Chardonnay - you choose this category, you automatically get the points and I get to have a glass of wine. Things You Do With a Pencil Sharpener, Tie Your Shoe, and finally, Toast.",
-    "Better luck to all of you, in the next round. It's time for Double Jeopardy, let's take a look at the board. And the categories are: Potent Potables, Literature - which is just a big word for books - Therapists, Current U.S. Presidents, Show and Tell, Household Objects, and finally, One-Letter Words."]
+    "Better luck to all of you, in the next round. It's time for Slack Jeopardy, let's take a look at the board. And the categories are: Potent Potables, Literature - which is just a big word for books - Therapists, Current U.S. Presidents, Show and Tell, Household Objects, and finally, One-Letter Words."]
     responses.sample
 end
 
