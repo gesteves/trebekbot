@@ -161,7 +161,13 @@ def trebek_me
     "Enough. Let's just get this over with. Here are the categories, they are: `Potent Potables`, `Countries Between Mexico and Canada`, `Members of Simon and Garfunkel`, `I Have a Chardonnay` - you choose this category, you automatically get the points and I get to have a glass of wine - `Things You Do With a Pencil Sharpener`, `Tie Your Shoe`, and finally, `Toast`.",
     "Better luck to all of you, in the next round. It's time for Slack Jeopardy, let's take a look at the board. And the categories are: `Potent Potables`, `Literature` - which is just a big word for books - `Therapists`, `Current U.S. Presidents`, `Show and Tell`, `Household Objects`, and finally, `One-Letter Words`.",
     "Uh, I see. Get back to your podium.",
-    "You look pretty sure of yourself. Think you've got the right answer?"]
+    "You look pretty sure of yourself. Think you've got the right answer?",
+    "Welcome back to Slack Jeopardy. We've got a real barnburner on our hands here.",
+    "And welcome back to Slack Jeopardy. I'd like to once again remind our contestants that there are proper bathroom facilities located _in_ the studio.",
+    "Welcome back to Slack Jeopardy. Once again, I'm going to recommend that our viewers watch something else.",
+    "Great. Better luck to all of you in the next round. It's time for Slack Jeopardy. Let's take a look at the board. And the categories are: `Potent Potables`, `The Vowels`, `Presidents Who Are On the One Dollar Bill`, `Famous Titles`, `Ponies`, `The Number 10`, and finally: `Foods That End In \"Amburger\"`.",
+    "Let's take a look at the board. The categories are: `Potent Potables`, `The Pen is Mightier` - that category is all about quotes from famous authors, so you'll all probably be more comfortable with our next category - `Shiny Objects`, continuing with `Opposites`, `Things you Shouldn't Put in Your Mouth`, `What Time is It?`; and, finally, `Months That Start With Feb`."
+  ]
     responses.sample
 end
 
