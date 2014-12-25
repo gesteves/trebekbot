@@ -135,19 +135,23 @@ def format_score(score)
 end
 
 def get_slack_name(user_id, username)
-  key = "user_names:#{user_id}"
-  name = $redis.get(key)
-  if name.nil?
-    uri = "https://slack.com/api/users.list?token=#{ENV["API_TOKEN"]}"
-    request = HTTParty.get(uri)
-    response = JSON.parse(request.body)
-    if response["ok"]
-      user = response["members"].find { |u| u["id"] == user_id }
-      name = user["profile"]["first_name"].nil? ? username : user["profile"]["first_name"]
-    else
-      name = username
+  if ENV["API_TOKEN"].nil?
+    name = username
+  else
+    key = "user_names:#{user_id}"
+    name = $redis.get(key)
+    if name.nil?
+      uri = "https://slack.com/api/users.list?token=#{ENV["API_TOKEN"]}"
+      request = HTTParty.get(uri)
+      response = JSON.parse(request.body)
+      if response["ok"]
+        user = response["members"].find { |u| u["id"] == user_id }
+        name = user["profile"]["first_name"].nil? ? username : user["profile"]["first_name"]
+      else
+        name = username
+      end
+      $redis.setex(key, 3600, name)
     end
-    $redis.setex(key, 3600, name)
   end
   name
 end
