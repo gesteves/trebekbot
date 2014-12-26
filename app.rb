@@ -77,7 +77,7 @@ def ask_question(params)
   end
   question += "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
-  $redis.set(key, response.to_json)
+  $redis.setex(key, 3600, response.to_json)
   question
 end
 
