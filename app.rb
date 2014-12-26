@@ -165,7 +165,7 @@ def get_slack_name(user_id, username)
       response = JSON.parse(request.body)
       if response["ok"]
         user = response["members"].find { |u| u["id"] == user_id }
-        name = user["profile"]["first_name"].nil? ? username : user["profile"]["first_name"]
+        name = user["profile"]["first_name"].nil? || user["profile"]["first_name"].strip == "" ? username : user["profile"]["first_name"]
       else
         name = username
       end
