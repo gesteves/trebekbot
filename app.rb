@@ -64,9 +64,15 @@ end
 def send_question(params)
   response = get_question
   response["value"] = 100 if response["value"].nil?
-  question = "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
-  puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
   key = "current_question:#{params[:channel_id]}"
+  question = ""
+  previous_question = $redis.get(key)
+  if !previous_question.nil?
+    previous_question = Sanitize.fragment(JSON.parse(previous_question)["answer"])
+    question = "The answer is `#{previous_question}`. Moving on… "
+  end
+  question += "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
+  puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
   $redis.set(key, response.to_json)
   json_response_for_slack(question)
 end
