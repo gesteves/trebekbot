@@ -8,7 +8,8 @@
   ],
   "repository": "https://github.com/gesteves/trebekbot",
   "addons": [
-    "rediscloud"
+    "rediscloud",
+    "papertrail"
   ],
   "success_url": "https://github.com/gesteves/trebekbot#usage",
   "env": {
