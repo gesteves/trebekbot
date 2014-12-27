@@ -167,7 +167,7 @@ def get_slack_name(user_id, username)
       else
         name = username
       end
-      $redis.setex(key, 3600, name)
+      $redis.setex(key, 86400, name)
     end
   end
   name
