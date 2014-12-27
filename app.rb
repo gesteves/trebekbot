@@ -89,15 +89,15 @@ def process_answer(params)
     user_answer = params[:text]
     if is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
-      reply = "That is the correct answer, #{get_slack_name(params[:user_id], params[:user_name])}. Your total score is #{currency_format(score)}."
+      reply = "That is the correct answer, #{get_slack_name(params[:user_id])}. Your total score is #{currency_format(score)}."
       $redis.del(key)
     elsif is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "That is correct, #{get_slack_name(params[:user_id], params[:user_name])}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
+      reply = "That is correct, #{get_slack_name(params[:user_id])}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{currency_format(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{currency_format(score)}."
       $redis.del(key)
     end
   end
@@ -135,7 +135,7 @@ def get_user_score(params)
     $redis.set(key, 0)
     user_score = 0
   end
-  reply = "#{get_slack_name(params[:user_id], params[:user_name])}, your score is #{currency_format(user_score.to_i)}."
+  reply = "#{get_slack_name(params[:user_id])}, your score is #{currency_format(user_score.to_i)}."
   json_response_for_slack(reply)
 end
 
@@ -151,26 +151,38 @@ def update_score(user_id, score = 0)
   end
 end
 
-def get_slack_name(user_id, username)
-  if ENV["API_TOKEN"].nil?
-    name = username
+def get_slack_name(user_id, options = {})
+  { :use_real_name => false }.merge(options)
+  key = "slack_user_names:#{user_id}"
+  names = $redis.get(key)
+  if names.nil?
+    names = get_slack_names_hash(user_id)
+    $redis.setex(key, 86400, names)
+  end
+  if options[:use_real_name]
+    name = names["real_name"].nil? ? names[:name] : names["real_name"]
   else
-    key = "user_names:#{user_id}"
-    name = $redis.get(key)
-    if name.nil?
-      uri = "https://slack.com/api/users.list?token=#{ENV["API_TOKEN"]}"
-      request = HTTParty.get(uri)
-      response = JSON.parse(request.body)
-      if response["ok"]
-        user = response["members"].find { |u| u["id"] == user_id }
-        name = user["profile"]["first_name"].nil? || user["profile"]["first_name"].strip == "" ? username : user["profile"]["first_name"]
-      else
-        name = username
-      end
-      $redis.setex(key, 86400, name)
-    end
+    name = names["first_name"].nil? ? names[:name] : names["first_name"]
   end
   name
+end
+
+def get_slack_names_hash(user_id)
+  uri = "https://slack.com/api/users.list?token=#{ENV["API_TOKEN"]}"
+  request = HTTParty.get(uri)
+  response = JSON.parse(request.body)
+  if response["ok"]
+    user = response["members"].find { |u| u["id"] == user_id }
+    names = { :id => user_id, :name => user["name"]}
+    unless user["profile"].nil?
+      names["real_name"] = user["profile"]["real_name"] unless user["profile"]["real_name"].nil?
+      names["first_name"] = user["profile"]["first_name"] unless user["profile"]["first_name"].nil?
+      names["last_name"] = user["profile"]["last_name"] unless user["profile"]["last_name"].nil?
+    end
+  else
+    names = { :id => user_id, :name => "Sean Connery" }
+  end
+  names
 end
 
 def trebek_me
