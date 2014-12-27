@@ -71,7 +71,7 @@ def ask_question(params)
     previous_question = Sanitize.fragment(JSON.parse(previous_question)["answer"])
     question = "The answer is `#{previous_question}`.\n"
   end
-  question += "The category is `#{response["category"]["title"]}` for $#{response["value"]}: `#{response["question"]}`"
+  question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
   $redis.setex(key, 3600, response.to_json)
   json_response_for_slack(question)
