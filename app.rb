@@ -64,11 +64,12 @@ end
 def ask_question(params)
   response = get_question
   response["value"] = 100 if response["value"].nil?
+  response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
   key = "current_question:#{params[:channel_id]}"
   question = ""
   previous_question = $redis.get(key)
   if !previous_question.nil?
-    previous_question = Sanitize.fragment(JSON.parse(previous_question)["answer"])
+    previous_question = JSON.parse(previous_question)["answer"]
     question = "The answer is `#{previous_question}`.\n"
   end
   question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
@@ -96,7 +97,7 @@ def process_answer(params)
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{Sanitize.fragment(current_question["answer"])}`. Your score is now #{currency_format(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{currency_format(score)}."
       $redis.del(key)
     end
   end
@@ -108,9 +109,19 @@ def is_question_format?(answer)
 end
 
 def is_correct_answer?(correct, answer)
-  correct = Sanitize.fragment(correct)
-  correct = correct.gsub(/[^\w\s]/i, "").gsub(/^(the|a|an) /i, "").strip.downcase
-  answer = answer.gsub(/[^\w\s]/i, "").gsub(/^(what|whats|where|wheres|who|whos) /i, "").gsub(/^(is|are|was|were) /, "").gsub(/^(the|a) /i, "").gsub(/\?+$/, "").strip.downcase
+  correct = correct.gsub(/[^\w\s]/i, "")
+            .gsub(/^(the|a|an) /i, "")
+            .strip
+            .downcase
+  answer = answer
+           .gsub(/\s+(&nbsp;|&)\s+/i, " and ")
+           .gsub(/[^\w\s]/i, "")
+           .gsub(/^(what|whats|where|wheres|who|whos) /i, "")
+           .gsub(/^(is|are|was|were) /, "")
+           .gsub(/^(the|a|an) /i, "")
+           .gsub(/\?+$/, "")
+           .strip
+           .downcase
   white = Text::WhiteSimilarity.new
   similarity = white.similarity(correct, answer)
   puts "[LOG] Correct answer: #{correct} | User answer: #{answer} | Similarity: #{similarity}"
