@@ -143,7 +143,7 @@ def get_user_score(user_id)
     $redis.set(key, 0)
     user_score = 0
   end
-  user_score
+  user_score.to_i
 end
 
 def update_score(user_id, score = 0)
@@ -153,11 +153,9 @@ def update_score(user_id, score = 0)
     $redis.set(key, score)
     score
   else
-    if user_score.is_a?(String)
-      user_score = user_score.to_i
-    end
-    $redis.set(key, user_score + score)
-    user_score + score
+    new_score = user_score.to_i + score
+    $redis.set(key, new_score)
+    new_score
   end
 end
 
@@ -221,10 +219,9 @@ end
 def get_score_leaders(options = {})
   { :limit => 5 }.merge(options)
   leaders = []
-  $redis.scan_each(:match => "slack_user_names:1:*"){ |key| user_id = key.gsub("slack_user_names:1:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
-  puts leaders.to_s
+  $redis.scan_each(:match => "user_score:*"){ |key| user_id = key.gsub("user_score:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
   if leaders.size > 1
-    leaders.uniq!{ |l| l[:user_id] }.sort_by!{ |a, b| a[:score] <=> b[:score] }.slice!(0, options[:limit])
+    leaders = leaders.uniq{ |l| l[:user_id] }.sort_by{ |a, b| a[:score] <=> b[:score] }.slice(0, options[:limit])
   else
     leaders
   end
@@ -275,9 +272,6 @@ help
 end
 
 def currency_format(number, currency = "$")
-  if number.is_a?(String)
-    number = number.to_i
-  end
   prefix = number >= 0 ? currency : "-#{currency}"
   moneys = number.abs.to_s
   while moneys.match(/(\d+)(\d\d\d)/)
