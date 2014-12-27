@@ -160,7 +160,7 @@ def update_score(user_id, score = 0)
 end
 
 def get_slack_name(user_id, options = {})
-  { :use_real_name => false }.merge(options)
+  options = { :use_real_name => false }.merge(options)
   key = "slack_user_names:1:#{user_id}"
   names = $redis.get(key)
   if names.nil?
@@ -217,11 +217,11 @@ def respond_with_leaderboard
 end
 
 def get_score_leaders(options = {})
-  { :limit => 5 }.merge(options)
+  options = { :limit => 5 }.merge(options)
   leaders = []
   $redis.scan_each(:match => "user_score:*"){ |key| user_id = key.gsub("user_score:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
   if leaders.size > 1
-    leaders = leaders.uniq{ |l| l[:user_id] }.sort_by{ |a, b| a[:score] <=> b[:score] }.slice(0, options[:limit])
+    leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| b[:score] <=> a[:score] }.slice(0, options[:limit])
   else
     leaders
   end
