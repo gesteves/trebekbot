@@ -220,6 +220,7 @@ def get_score_leaders(options = {})
   options = { :limit => 5 }.merge(options)
   leaders = []
   $redis.scan_each(:match => "user_score:*"){ |key| user_id = key.gsub("user_score:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
+  puts "[LOG] Leaderboard: #{leaders.to_s}"
   if leaders.size > 1
     leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| b[:score] <=> a[:score] }.slice(0, options[:limit])
   else
