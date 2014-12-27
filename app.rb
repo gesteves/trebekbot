@@ -217,7 +217,7 @@ help
 end
 
 def currency_format(number, currency = "$")
-  prefix = number > 0 ? currency : "-#{currency}"
+  prefix = number >= 0 ? currency : "-#{currency}"
   moneys = number.abs.to_s
   while moneys.match(/(\d+)(\d\d\d)/)
     moneys.to_s.gsub!(/(\d+)(\d\d\d)/, "\\1,\\2")
