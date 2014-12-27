@@ -38,11 +38,13 @@ post "/" do
   if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
     response = "Invalid token"
   elsif params[:text].match(/^jeopardy me/i)
-    response = ask_question(params)
+    response = respond_with_question(params)
   elsif params[:text].match(/my score$/i)
-    response = get_user_score(params[:user_id])
+    response = respond_with_user_score(params[:user_id])
   elsif params[:text].match(/^help$/i)
-    response = get_help
+    response = respond_with_help
+  elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
+    response = respond_with_leaderboard
   else
     response = process_answer(params)
   end
@@ -61,7 +63,7 @@ def get_question
   response
 end
 
-def ask_question(params)
+def respond_with_question(params)
   response = get_question
   response["value"] = 100 if response["value"].nil?
   response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
@@ -128,6 +130,12 @@ def is_correct_answer?(correct, answer)
   similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
 end
 
+def respond_with_user_score(user_id)
+  user_score = get_user_score(user_id)
+  reply = "#{get_slack_name(user_id)}, your score is #{currency_format(user_score)}."
+  json_response_for_slack(reply)
+end
+
 def get_user_score(user_id)
   key = "user_score:#{user_id}"
   user_score = $redis.get(key)
@@ -135,8 +143,7 @@ def get_user_score(user_id)
     $redis.set(key, 0)
     user_score = 0
   end
-  reply = "#{get_slack_name(user_id)}, your score is #{currency_format(user_score.to_i)}."
-  json_response_for_slack(reply)
+  user_score
 end
 
 def update_score(user_id, score = 0)
@@ -146,8 +153,11 @@ def update_score(user_id, score = 0)
     $redis.set(key, score)
     score
   else
-    $redis.set(key, user_score.to_i + score)
-    user_score.to_i + score
+    if user_score.is_a?(String)
+      user_score = user_score.to_i
+    end
+    $redis.set(key, user_score + score)
+    user_score + score
   end
 end
 
@@ -187,6 +197,39 @@ def get_slack_names_hash(user_id)
   names
 end
 
+def respond_with_leaderboard
+  key = "leaderboard:1"
+  response = $redis.get(key)
+  if response.nil?
+    leaders = []
+    get_score_leaders.each_with_index do |leader, i|
+      user_id = leader[:user_id]
+      name = get_slack_name(leader[:user_id], { :use_real_name => true })
+      score = currency_format(get_user_score(user_id))
+      leaders << "#{i + 1}. #{name} - #{score}"
+    end
+    if leaders.size > 0
+      response = "Let's take a look at the top scores:\n\n#{leaders.join("\n")}"
+    else
+      response = "There are no scores yet!"
+    end
+    $redis.setex(key, 1, response)
+  end
+  json_response_for_slack(response)
+end
+
+def get_score_leaders(options = {})
+  { :limit => 5 }.merge(options)
+  leaders = []
+  $redis.scan_each(:match => "slack_user_names:1:*"){ |key| user_id = key.gsub("slack_user_names:1:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
+  puts leaders.to_s
+  if leaders.size > 1
+    leaders.uniq!{ |l| l[:user_id] }.sort_by!{ |a, b| a[:score] <=> b[:score] }.slice!(0, options[:limit])
+  else
+    leaders
+  end
+end
+
 def trebek_me
   responses = [ "Welcome back to Slack Jeopardy. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
     "Okay, Turd Ferguson.",
@@ -221,16 +264,20 @@ def trebek_me
     responses.sample
 end
 
-def get_help
+def respond_with_help
   reply = <<help
 Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
 Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
+Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.
 help
   json_response_for_slack(reply)
 end
 
 def currency_format(number, currency = "$")
+  if number.is_a?(String)
+    number = number.to_i
+  end
   prefix = number >= 0 ? currency : "-#{currency}"
   moneys = number.abs.to_s
   while moneys.match(/(\d+)(\d\d\d)/)

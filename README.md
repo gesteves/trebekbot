@@ -18,6 +18,7 @@ Or, just click this button:
 * `trebekbot jeopardy me`: starts a round of Jeopardy! trebekbot will pick a category and score for you.
 * `trebekbot what/who is/are [answer]`: sends an answer. Remember, responses must be in the form of a question!
 * `trebekbot what's my score`: shows your current score.
+* `trebekbot show the leaderboard`: shows the current top scores.
 * `trebekbot help`: shows this help information.
 
 ## To-do
