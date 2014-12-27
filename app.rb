@@ -40,7 +40,7 @@ post "/" do
   elsif params[:text].match(/^jeopardy me/i)
     response = ask_question(params)
   elsif params[:text].match(/my score$/i)
-    response = get_user_score(params)
+    response = get_user_score(params[:user_id])
   elsif params[:text].match(/^help$/i)
     response = get_help
   else
@@ -128,14 +128,14 @@ def is_correct_answer?(correct, answer)
   similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
 end
 
-def get_user_score(params)
-  key = "user_score:#{params[:user_id]}"
+def get_user_score(user_id)
+  key = "user_score:#{user_id}"
   user_score = $redis.get(key)
   if user_score.nil?
     $redis.set(key, 0)
     user_score = 0
   end
-  reply = "#{get_slack_name(params[:user_id])}, your score is #{currency_format(user_score.to_i)}."
+  reply = "#{get_slack_name(user_id)}, your score is #{currency_format(user_score.to_i)}."
   json_response_for_slack(reply)
 end
 
@@ -153,16 +153,18 @@ end
 
 def get_slack_name(user_id, options = {})
   { :use_real_name => false }.merge(options)
-  key = "slack_user_names:#{user_id}"
+  key = "slack_user_names:1:#{user_id}"
   names = $redis.get(key)
   if names.nil?
     names = get_slack_names_hash(user_id)
-    $redis.setex(key, 86400, names)
+    $redis.setex(key, 86400, names.to_json)
+  else
+    names = JSON.parse(names)
   end
   if options[:use_real_name]
-    name = names["real_name"].nil? ? names[:name] : names["real_name"]
+    name = names["real_name"].nil? ? names["name"] : names["real_name"]
   else
-    name = names["first_name"].nil? ? names[:name] : names["first_name"]
+    name = names["first_name"].nil? ? names["name"] : names["first_name"]
   end
   name
 end
