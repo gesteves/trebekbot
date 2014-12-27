@@ -88,15 +88,15 @@ def process_answer(params)
     user_answer = params[:text]
     if is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
-      reply = "That is the correct answer, #{get_slack_name(params[:user_id], params[:user_name])}. Your total score is #{format_score(score)}."
+      reply = "That is the correct answer, #{get_slack_name(params[:user_id], params[:user_name])}. Your total score is #{currency_format(score)}."
       $redis.del(key)
     elsif is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "That is correct, #{get_slack_name(params[:user_id], params[:user_name])}, but responses have to be in the form of a question. Your total score is #{format_score(score)}."
+      reply = "That is correct, #{get_slack_name(params[:user_id], params[:user_name])}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
       $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{Sanitize.fragment(current_question["answer"])}`. Your score is now #{format_score(score)}."
+      reply = "Sorry, #{get_slack_name(params[:user_id], params[:user_name])}, the correct answer is `#{Sanitize.fragment(current_question["answer"])}`. Your score is now #{currency_format(score)}."
       $redis.del(key)
     end
   end
@@ -124,7 +124,7 @@ def get_user_score(params)
     $redis.set(key, 0)
     user_score = 0
   end
-  reply = "#{get_slack_name(params[:user_id], params[:user_name])}, your score is #{format_score(user_score.to_i)}."
+  reply = "#{get_slack_name(params[:user_id], params[:user_name])}, your score is #{currency_format(user_score.to_i)}."
   json_response_for_slack(reply)
 end
 
@@ -137,14 +137,6 @@ def update_score(user_id, score = 0)
   else
     $redis.set(key, user_score.to_i + score)
     user_score.to_i + score
-  end
-end
-
-def format_score(score)
-  if score >= 0
-    "$#{score}"
-  else
-    "-$#{score * -1}"
   end
 end
 
@@ -211,6 +203,15 @@ Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to 
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
 help
   json_response_for_slack(reply)
+end
+
+def currency_format(number, currency = "$")
+  prefix = number > 0 ? currency : "-#{currency}"
+  moneys = number.abs.to_s
+  while moneys.match(/(\d+)(\d\d\d)/)
+    moneys.to_s.gsub!(/(\d+)(\d\d\d)/, "\\1,\\2")
+  end
+  "#{prefix}#{moneys}"
 end
 
 def json_response_for_slack(reply)
