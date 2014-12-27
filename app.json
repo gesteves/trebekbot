@@ -1,0 +1,29 @@
+{
+  "name": "trebekbot",
+  "description": "A Jeopardy! bot for Slack.",
+  "keywords": [
+    "slack",
+    "bot",
+    "jeopardy"
+  ],
+  "repository": "https://github.com/gesteves/trebekbot",
+  "addons": [
+    "rediscloud"
+  ],
+  "success_url": "https://github.com/gesteves/trebekbot#usage",
+  "env": {
+    "OUTGOING_WEBHOOK_TOKEN": {
+      "description": "The token of the Slack outgoing webhook you'll use for this. Set it up at https://slack.com/services/new/outgoing-webhook. You'll have to point it to this app's URL once it's deployed.",
+      "required": true
+    },
+    "API_TOKEN": {
+      "description": "The Slack API key. Get it at https://api.slack.com/#auth",
+      "required": true
+    },
+    "BOT_USERNAME": {
+      "description": "The trigger word you set for the outgoing webhook.",
+      "required": true,
+      "value": "trebekbot"
+    }
+  }
+}
