@@ -25,6 +25,11 @@
       "description": "The trigger word you set for the outgoing webhook.",
       "required": true,
       "value": "trebekbot"
+    },
+    "SIMILARITY_THRESHOLD": {
+      "description": "From 0 to 1, how similar user answers need to be to the actual answer to be accepted. 1 means exact match; lower values give users some margin for errors (e.g typos,) but could cause false positives.",
+      "required": true,
+      "value": "0.5"
     }
   }
 }
