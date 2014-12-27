@@ -161,7 +161,7 @@ end
 
 def get_slack_name(user_id, options = {})
   options = { :use_real_name => false }.merge(options)
-  key = "slack_user_names:1:#{user_id}"
+  key = "slack_user_names:2:#{user_id}"
   names = $redis.get(key)
   if names.nil?
     names = get_slack_names_hash(user_id)
@@ -185,9 +185,9 @@ def get_slack_names_hash(user_id)
     user = response["members"].find { |u| u["id"] == user_id }
     names = { :id => user_id, :name => user["name"]}
     unless user["profile"].nil?
-      names["real_name"] = user["profile"]["real_name"] unless user["profile"]["real_name"].nil?
-      names["first_name"] = user["profile"]["first_name"] unless user["profile"]["first_name"].nil?
-      names["last_name"] = user["profile"]["last_name"] unless user["profile"]["last_name"].nil?
+      names["real_name"] = user["profile"]["real_name"] unless user["profile"]["real_name"].nil? || user["profile"]["real_name"] == ""
+      names["first_name"] = user["profile"]["first_name"] unless user["profile"]["first_name"].nil? || user["profile"]["first_name"] == ""
+      names["last_name"] = user["profile"]["last_name"] unless user["profile"]["last_name"].nil? || user["profile"]["last_name"] == ""
     end
   else
     names = { :id => user_id, :name => "Sean Connery" }
