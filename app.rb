@@ -76,7 +76,7 @@ def respond_with_question(params)
   end
   question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
-  $redis.setex(key, 3600, response.to_json)
+  $redis.setex(key, 60, response.to_json)
   json_response_for_slack(question)
 end
 
@@ -165,7 +165,7 @@ def get_slack_name(user_id, options = {})
   names = $redis.get(key)
   if names.nil?
     names = get_slack_names_hash(user_id)
-    $redis.setex(key, 86400, names.to_json)
+    $redis.setex(key, 60*60*24*30, names.to_json)
   else
     names = JSON.parse(names)
   end
@@ -211,7 +211,7 @@ def respond_with_leaderboard
     else
       response = "There are no scores yet!"
     end
-    $redis.setex(key, 1, response)
+    $redis.setex(key, 60*5, response)
   end
   json_response_for_slack(response)
 end
