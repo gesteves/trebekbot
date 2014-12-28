@@ -67,6 +67,7 @@ def respond_with_question(params)
   response = get_question
   response["value"] = 100 if response["value"].nil?
   response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
+  response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
   key = "current_question:#{params[:channel_id]}"
   question = ""
   previous_question = $redis.get(key)
@@ -76,7 +77,7 @@ def respond_with_question(params)
   end
   question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
-  $redis.setex(key, 30, response.to_json)
+  $redis.set(key, response.to_json)
   json_response_for_slack(question)
 end
 
@@ -89,7 +90,10 @@ def process_answer(params)
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
     user_answer = params[:text]
-    if is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
+    if params["timestamp"].to_f > current_question["expiration"]
+      reply = "Time's up, #{get_slack_name(params[:user_id])}! The answer is, of course, `#{current_question["answer"]}`."
+      $redis.del(key)
+    elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
       reply = "That is the correct answer, #{get_slack_name(params[:user_id])}. Your total score is #{currency_format(score)}."
       $redis.del(key)

@@ -27,9 +27,14 @@
       "value": "trebekbot"
     },
     "SIMILARITY_THRESHOLD": {
-      "description": "From 0 to 1, how similar user answers need to be to the actual answer to be accepted. 1 means exact match; lower values give users some margin for errors (e.g typos,) but could cause false positives.",
+      "description": "From 0 to 1, how similar user answers need to be to the actual answer to be accepted. 1 means exact match; lower values give users some margin for error (e.g typos) but could cause false positives.",
       "required": true,
       "value": "0.5"
+    },
+    "SECONDS_TO_ANSWER": {
+      "description": "Time, in seconds, users have to answer each round.",
+      "required": true,
+      "value": "30"
     }
   }
 }
