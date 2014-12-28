@@ -91,7 +91,8 @@ def process_answer(params)
     current_answer = current_question["answer"]
     user_answer = params[:text]
     if params["timestamp"].to_f > current_question["expiration"]
-      reply = "Time's up, #{get_slack_name(params[:user_id])}! The answer is, of course, `#{current_question["answer"]}`."
+      reply = "Time's up, #{get_slack_name(params[:user_id])}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
+      reply += " The correct answer is `#{current_question["answer"]}`." if !is_correct_answer?(current_answer, user_answer)
       $redis.del(key)
     elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
