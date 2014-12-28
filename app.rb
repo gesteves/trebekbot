@@ -65,7 +65,7 @@ end
 
 def respond_with_question(params)
   response = get_question
-  response["value"] = 100 if response["value"].nil?
+  response["value"] = 200 if response["value"].nil?
   response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
   response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
   key = "current_question:#{params[:channel_id]}"
