@@ -76,7 +76,7 @@ def respond_with_question(params)
   end
   question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
-  $redis.setex(key, 60, response.to_json)
+  $redis.setex(key, 30, response.to_json)
   json_response_for_slack(question)
 end
 
