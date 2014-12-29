@@ -209,7 +209,7 @@ def respond_with_leaderboard
       user_id = leader[:user_id]
       name = get_slack_name(leader[:user_id], { :use_real_name => true })
       score = currency_format(get_user_score(user_id))
-      leaders << "#{i + 1}. #{name} - #{score}"
+      leaders << "#{i + 1}. #{name}: #{score}"
     end
     if leaders.size > 0
       response = "Let's take a look at the scores:\n\n#{leaders.join("\n")}"
