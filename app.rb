@@ -132,7 +132,7 @@ def is_correct_answer?(correct, answer)
   white = Text::WhiteSimilarity.new
   similarity = white.similarity(correct, answer)
   puts "[LOG] Correct answer: #{correct} | User answer: #{answer} | Similarity: #{similarity}"
-  similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
+  correct == answer || similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
 end
 
 def respond_with_user_score(user_id)
