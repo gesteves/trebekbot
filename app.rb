@@ -222,7 +222,7 @@ def respond_with_leaderboard
 end
 
 def get_score_leaders(options = {})
-  options = { :limit => 5 }.merge(options)
+  options = { :limit => 10 }.merge(options)
   leaders = []
   $redis.scan_each(:match => "user_score:*"){ |key| user_id = key.gsub("user_score:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
   puts "[LOG] Leaderboard: #{leaders.to_s}"
