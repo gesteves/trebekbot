@@ -212,7 +212,7 @@ def respond_with_leaderboard
       leaders << "#{i + 1}. #{name} - #{score}"
     end
     if leaders.size > 0
-      response = "Let's take a look at the top scores:\n\n#{leaders.join("\n")}"
+      response = "Let's take a look at the scores:\n\n#{leaders.join("\n")}"
     else
       response = "There are no scores yet!"
     end
@@ -221,13 +221,12 @@ def respond_with_leaderboard
   json_response_for_slack(response)
 end
 
-def get_score_leaders(options = {})
-  options = { :limit => 5 }.merge(options)
+def get_score_leaders
   leaders = []
   $redis.scan_each(:match => "user_score:*"){ |key| user_id = key.gsub("user_score:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
   puts "[LOG] Leaderboard: #{leaders.to_s}"
   if leaders.size > 1
-    leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| b[:score] <=> a[:score] }.slice(0, options[:limit])
+    leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| b[:score] <=> a[:score] }
   else
     leaders
   end
