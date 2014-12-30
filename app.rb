@@ -34,6 +34,7 @@ end
 # text=trebekbot jeopardy me
 # trigger_word=trebekbot
 post "/" do
+  puts "[LOG] #{params}"
   params[:text] = params[:text].sub(params[:trigger_word], "").strip 
   if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
     response = "Invalid token"
@@ -56,6 +57,7 @@ end
 def get_question
   uri = "http://jservice.io/api/random?count=1"
   request = HTTParty.get(uri)
+  puts "[LOG] #{request.body}"
   response = JSON.parse(request.body).first
   if response["question"].nil? || response["question"].strip == ""
     response = get_question
