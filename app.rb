@@ -82,9 +82,10 @@ def respond_with_question(params)
 end
 
 def process_answer(params)
-  key = "current_question:#{params[:channel_id]}"
+  channel_id = params[:channel_id]
+  key = "current_question:#{channel_id}"
   current_question = $redis.get(key)
-  if current_question.nil?
+  if current_question.nil? && $redis.exists("shush:#{channel_id}")
     reply = trebek_me
   else
     current_question = JSON.parse(current_question)
@@ -93,11 +94,11 @@ def process_answer(params)
     if params["timestamp"].to_f > current_question["expiration"]
       reply = "Time's up, #{get_slack_name(params[:user_id])}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
       reply += " The correct answer is `#{current_question["answer"]}`." if !is_correct_answer?(current_answer, user_answer)
-      $redis.del(key)
+      mark_question_as_answered(params[:channel_id])
     elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], current_question["value"])
       reply = "That is the correct answer, #{get_slack_name(params[:user_id])}. Your total score is #{currency_format(score)}."
-      $redis.del(key)
+      mark_question_as_answered(params[:channel_id])
     elsif is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], (current_question["value"] * -1))
       reply = "That is correct, #{get_slack_name(params[:user_id])}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
@@ -131,6 +132,13 @@ def is_correct_answer?(correct, answer)
   similarity = white.similarity(correct, answer)
   puts "[LOG] Correct answer: #{correct} | User answer: #{answer} | Similarity: #{similarity}"
   correct == answer || similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
+end
+
+def mark_question_as_answered(channel_id)
+  $redis.pipelined do
+    $redis.del("current_question:#{channel_id}")
+    $redis.setex("shush:#{channel_id}", 5, "true")
+  end
 end
 
 def respond_with_user_score(user_id)
