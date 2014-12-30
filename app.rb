@@ -41,6 +41,8 @@ post "/" do
     response = respond_with_question(params)
   elsif params[:text].match(/my score$/i)
     response = respond_with_user_score(params[:user_id])
+  elsif params[:text].match(/move along/i)
+    response = process_answer(params)
   elsif params[:text].match(/^help$/i)
     response = respond_with_help
   elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
