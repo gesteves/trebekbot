@@ -6,7 +6,7 @@ A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. S
 
 ## Installation
 
-1. Set up a Slack outgoing webhook at https://my.slack.com/services/new. Make sure to pick a trigger word, such as `trebekbot`. You might also want to set this up in a single room, if you value your team's productivity.
+1. Set up a Slack outgoing webhook at https://slack.com/services/new/outgoing-webhook. Make sure to pick a trigger word, such as `trebekbot`. You might also want to set this up in a single room, if you value your team's productivity.
 
 2. Grab the token for the outgoing webhook you just created, and a Slack API token, which you can get from https://api.slack.com/web.
 
