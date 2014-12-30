@@ -64,21 +64,27 @@ def get_question
 end
 
 def respond_with_question(params)
-  response = get_question
-  response["value"] = 200 if response["value"].nil?
-  response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
-  response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
-  key = "current_question:#{params[:channel_id]}"
-  question = ""
-  previous_question = $redis.get(key)
-  if !previous_question.nil?
-    previous_question = JSON.parse(previous_question)["answer"]
-    question = "The answer is, of course, `#{previous_question}`.\n"
+  channel_id = params[:channel_id]
+  unless $redis.exists("shush:#{channel_id}")
+    response = get_question
+    response["value"] = 200 if response["value"].nil?
+    response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
+    response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
+    key = "current_question:#{channel_id}"
+    question = ""
+    previous_question = $redis.get(key)
+    if !previous_question.nil?
+      previous_question = JSON.parse(previous_question)["answer"]
+      question = "The answer is, of course, `#{previous_question}`.\n"
+    end
+    question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
+    puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
+    $redis.pipelined do
+      $redis.set(key, response.to_json)
+      $redis.setex("shush:#{channel_id}", 5, "true")
+    end
+    json_response_for_slack(question)
   end
-  question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
-  puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
-  $redis.set(key, response.to_json)
-  json_response_for_slack(question)
 end
 
 def process_answer(params)
