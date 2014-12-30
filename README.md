@@ -4,6 +4,10 @@ A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. S
 
 ![](http://i.imgur.com/BjMDf6Z.png)
 
+## Requirements
+
+You'll need a [Slack](https://slack.com) account, obviously, and a free [Heroku](https://www.heroku.com/) account to host the bot. You'll also need to be able to set up new integrations in Slack; if you're not able to do this, contact someone with admin access in your organization.
+
 ## Installation
 
 1. Set up a Slack outgoing webhook at https://slack.com/services/new/outgoing-webhook. Make sure to pick a trigger word, such as `trebekbot`. You might also want to set this up in a single room, if you value your team's productivity.
@@ -28,13 +32,17 @@ If you'd rather do it manually, then just clone this repo, set up a Heroku app w
 
 I literally built this in 20 minutes, so there's a lot to do.
 
-* Better matching of answers (it's very strict)
+* <del>Better matching of answers (it's very strict)</del>
 * Speak out the answers after time runs out
 * Let users select category and scores
 
 ## Credits & acknowledgements
 
 Big thanks to [Steve Ottenad](https://github.com/sottenad) for building [jService](http://jservice.io/), the service that powers this bot.
+
+## Issues
+
+Feel free to open a new issue if you have questions, concerns, bugs, or feature requests. Just remember that I'm doing this for fun, for free, in my free time, and I may not be able to help you, respond in a timely manner, or implement any feature requests.
 
 ## Contributing
 
