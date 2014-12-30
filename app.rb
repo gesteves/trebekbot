@@ -73,7 +73,7 @@ def respond_with_question(params)
   previous_question = $redis.get(key)
   if !previous_question.nil?
     previous_question = JSON.parse(previous_question)["answer"]
-    question = "The answer is `#{previous_question}`.\n"
+    question = "The answer is, of course, `#{previous_question}`.\n"
   end
   question += "The category is `#{response["category"]["title"]}` for #{currency_format(response["value"])}: `#{response["question"]}`"
   puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
@@ -101,11 +101,9 @@ def process_answer(params)
     elsif is_correct_answer?(current_answer, user_answer)
       score = update_score(params[:user_id], (current_question["value"] * -1))
       reply = "That is correct, #{get_slack_name(params[:user_id])}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
-      $redis.del(key)
     else
       score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "Sorry, #{get_slack_name(params[:user_id])}, the correct answer is `#{current_question["answer"]}`. Your score is now #{currency_format(score)}."
-      $redis.del(key)
+      reply = "That is incorrect, #{get_slack_name(params[:user_id])}. Your score is now #{currency_format(score)}."
     end
   end
   json_response_for_slack(reply)
