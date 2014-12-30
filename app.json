@@ -18,7 +18,7 @@
       "required": true
     },
     "API_TOKEN": {
-      "description": "The Slack API key. Get it at https://api.slack.com/#auth",
+      "description": "The Slack API key. Get it at https://api.slack.com/web",
       "required": true
     },
     "BOT_USERNAME": {
