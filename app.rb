@@ -85,7 +85,7 @@ def process_answer(params)
   channel_id = params[:channel_id]
   key = "current_question:#{channel_id}"
   current_question = $redis.get(key)
-  if current_question.nil? && $redis.exists("shush:#{channel_id}")
+  if current_question.nil? && !$redis.exists("shush:#{channel_id}")
     reply = trebek_me
   else
     current_question = JSON.parse(current_question)
