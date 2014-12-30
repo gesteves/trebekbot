@@ -41,6 +41,8 @@ post "/" do
     response = respond_with_question(params)
   elsif params[:text].match(/my score$/i)
     response = respond_with_user_score(params[:user_id])
+  elsif params[:text].match(/end game/i)
+    response = clear_score
   elsif params[:text].match(/^help$/i)
     response = respond_with_help
   elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
@@ -174,6 +176,11 @@ def update_score(user_id, score = 0)
     $redis.set(key, new_score)
     new_score
   end
+end
+
+def clear_leaderboard
+  $redis.flushdb
+  json_response_for_slack("Lets being again")
 end
 
 def get_slack_name(user_id, options = {})
