@@ -223,6 +223,7 @@ end
 def mark_question_as_answered(channel_id)
   $redis.pipelined do
     $redis.del("current_question:#{channel_id}")
+    $redis.del("shush:question:#{channel_id}")
     $redis.setex("shush:answer:#{channel_id}", 5, "true")
   end
 end
