@@ -93,7 +93,7 @@ def respond_with_question(params)
     puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
     $redis.pipelined do
       $redis.set(key, response.to_json)
-      $redis.setex("shush:question:#{channel_id}", 5, "true")
+      $redis.setex("shush:question:#{channel_id}", 10, "true")
     end
   end
   question
