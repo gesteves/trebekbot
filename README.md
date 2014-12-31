@@ -26,6 +26,7 @@ If you'd rather do it manually, then just clone this repo, set up a Heroku app w
 * `trebekbot what/who is/are [answer]`: sends an answer. Remember, responses must be in the form of a question!
 * `trebekbot what's my score`: shows your current score.
 * `trebekbot show the leaderboard`: shows the current top scores.
+* `trebekbot show the loserboard`: shows the current bottom scores.
 * `trebekbot help`: shows this help information.
 
 ## To-do

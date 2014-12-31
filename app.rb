@@ -50,6 +50,8 @@ post "/" do
       response = respond_with_help
     elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
       response = respond_with_leaderboard
+    elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
+      response = respond_with_loserboard
     else
       response = process_answer(params)
     end
@@ -331,15 +333,43 @@ def respond_with_leaderboard
   response
 end
 
-# Gets the top X (default is 10) scores from redis
+# Speaks the bottom scores across Slack.
+# The response is cached for 5 minutes.
+# 
+def respond_with_loserboard
+  key = "loserboard:1"
+  response = $redis.get(key)
+  if response.nil?
+    leaders = []
+    get_score_leaders({ :order => "asc" }).each_with_index do |leader, i|
+      user_id = leader[:user_id]
+      name = get_slack_name(leader[:user_id], { :use_real_name => true })
+      score = currency_format(get_user_score(user_id))
+      leaders << "#{i + 1}. #{name}: #{score}"
+    end
+    if leaders.size > 0
+      response = "Let's take a look at the bottom scores:\n\n#{leaders.join("\n")}"
+    else
+      response = "There are no scores yet!"
+    end
+    $redis.setex(key, 60*5, response)
+  end
+  response
+end
+
+# Gets N scores from redis, with optional sorting.
 # 
 def get_score_leaders(options = {})
-  options = { :limit => 10 }.merge(options)
+  options = { :limit => 10, :order => "desc" }.merge(options)
   leaders = []
   $redis.scan_each(:match => "user_score:*"){ |key| user_id = key.gsub("user_score:", ""); leaders << { :user_id => user_id, :score => get_user_score(user_id) } }
   puts "[LOG] Leaderboard: #{leaders.to_s}"
   if leaders.size > 1
-    leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| b[:score] <=> a[:score] }.slice(0, options[:limit])
+    if options[:order] == "desc"
+      leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| b[:score] <=> a[:score] }.slice(0, options[:limit])
+    else
+      leaders = leaders.uniq{ |l| l[:user_id] }.sort{ |a, b| a[:score] <=> b[:score] }.slice(0, options[:limit])
+    end
   else
     leaders
   end
@@ -389,6 +419,7 @@ Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy
 Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
 Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.
+Type `#{ENV["BOT_USERNAME"]} show the loserboard` to see the bottom scores.
 help
   reply
 end
