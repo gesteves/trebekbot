@@ -115,6 +115,7 @@ end
 # Processes an answer submitted by a user in response to a Jeopardy round:
 # If there's no round, returns a funny SNL Trebek quote.
 # Otherwise, responds appropriately if:
+# The user already tried to answer;
 # The time to answer the round is up;
 # The answer is correct and in the form of a question;
 # The answer is correct and not in the form of a question;
@@ -123,6 +124,7 @@ end
 # 
 def process_answer(params)
   channel_id = params[:channel_id]
+  user_id = params[:user_id]
   key = "current_question:#{channel_id}"
   current_question = $redis.get(key)
   if current_question.nil? && !$redis.exists("shush:answer:#{channel_id}")
@@ -131,20 +133,25 @@ def process_answer(params)
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
     user_answer = params[:text]
-    if params["timestamp"].to_f > current_question["expiration"]
-      reply = "Time's up, #{get_slack_name(params[:user_id])}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
+    answered_key = "user_answer:#{channel_id}:#{user_id}"
+    if $redis.exists(answered_key)
+      reply = "You had your chance, #{get_slack_name(user_id)}. Let someone else answer."
+    elsif params["timestamp"].to_f > current_question["expiration"]
+      reply = "Time's up, #{get_slack_name(user_id)}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
       reply += " The correct answer is `#{current_question["answer"]}`." if !is_correct_answer?(current_answer, user_answer)
       mark_question_as_answered(params[:channel_id])
     elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
-      score = update_score(params[:user_id], current_question["value"])
-      reply = "That is the correct answer, #{get_slack_name(params[:user_id])}. Your total score is #{currency_format(score)}."
+      score = update_score(user_id, current_question["value"])
+      reply = "That is the correct answer, #{get_slack_name(user_id)}. Your total score is #{currency_format(score)}."
       mark_question_as_answered(params[:channel_id])
     elsif is_correct_answer?(current_answer, user_answer)
-      score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "That is correct, #{get_slack_name(params[:user_id])}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
+      score = update_score(user_id, (current_question["value"] * -1))
+      reply = "That is correct, #{get_slack_name(user_id)}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
+      $redis.setex(answered_key, ENV["SECONDS_TO_ANSWER"], "true")
     else
-      score = update_score(params[:user_id], (current_question["value"] * -1))
-      reply = "That is incorrect, #{get_slack_name(params[:user_id])}. Your score is now #{currency_format(score)}."
+      score = update_score(user_id, (current_question["value"] * -1))
+      reply = "That is incorrect, #{get_slack_name(user_id)}. Your score is now #{currency_format(score)}."
+      $redis.setex(answered_key, ENV["SECONDS_TO_ANSWER"], "true")
     end
   end
   reply
