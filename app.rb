@@ -80,14 +80,11 @@ end
 # 
 def respond_with_question(params)
   channel_id = params[:channel_id]
-  key = "current_question:#{channel_id}"
-  previous_question = $redis.get(key)
   question = ""
-  if $redis.exists("shush:question:#{channel_id}")
-    time = previous_question.nil? ? ENV["SECONDS_TO_ANSWER"] : previous_question["expiration"] - params["timestamp"].to_f
-    question = "Please wait #{time.to_i} seconds before starting a new round."
-  else
+  unless $redis.exists("shush:question:#{channel_id}")
     response = get_question
+    key = "current_question:#{channel_id}"
+    previous_question = $redis.get(key)
     if !previous_question.nil?
       previous_question = JSON.parse(previous_question)["answer"]
       question = "The answer is `#{previous_question}`.\n"
