@@ -23,7 +23,9 @@ configure do
   $redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
 end
 
-# params:
+# Handles the POST request made by the Slack Outgoing webhook
+# Params sent in the request:
+# 
 # token=abc123
 # team_id=T0001
 # channel_id=C123456
@@ -33,6 +35,7 @@ end
 # user_name=Steve
 # text=trebekbot jeopardy me
 # trigger_word=trebekbot
+# 
 post "/" do
   puts "[LOG] #{params}"
   params[:text] = params[:text].sub(params[:trigger_word], "").strip 
@@ -49,31 +52,31 @@ post "/" do
   else
     response = process_answer(params)
   end
-
   status 200
-  body response
+  body json_response_for_slack(response)
 end
 
-def get_question
-  uri = "http://jservice.io/api/random?count=1"
-  request = HTTParty.get(uri)
-  puts "[LOG] #{request.body}"
-  response = JSON.parse(request.body).first
-  if response["question"].nil? || response["question"].strip == ""
-    response = get_question
-  end
-  response
+# Puts together the json payload that needs to be sent back to Slack
+# 
+def json_response_for_slack(reply)
+  response = { text: reply, link_names: 1 }
+  response[:username] = ENV["BOT_USERNAME"] unless ENV["BOT_USERNAME"].nil?
+  response[:icon_emoji] = ENV["BOT_ICON"] unless ENV["BOT_ICON"].nil?
+  response.to_json
 end
 
+# Puts together the response to a request to start a new round (`jeopardy me`):
+# If the bot has been "shushed", says nothing.
+# Otherwise, speaks the answer to the previous round (if any),
+# speaks the category, value, and the new question, and shushes the bot for 5 seconds
+# (this is so two or more users can't do `jeopardy me` within 5 seconds of each other.)
+# 
 def respond_with_question(params)
   channel_id = params[:channel_id]
+  question = ""
   unless $redis.exists("shush:question:#{channel_id}")
     response = get_question
-    response["value"] = 200 if response["value"].nil?
-    response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
-    response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
     key = "current_question:#{channel_id}"
-    question = ""
     previous_question = $redis.get(key)
     if !previous_question.nil?
       previous_question = JSON.parse(previous_question)["answer"]
@@ -85,10 +88,39 @@ def respond_with_question(params)
       $redis.set(key, response.to_json)
       $redis.setex("shush:question:#{channel_id}", 5, "true")
     end
-    json_response_for_slack(question)
   end
+  question
 end
 
+# Gets a random answer from the jService API, and does some cleanup on it:
+# If the question is not present, requests another one
+# If the answer doesn't have a value, sets a default of $200
+# If there's HTML in the answer, sanitizes it (otherwise it won't match the user answer)
+# Adds an "expiration" value, which is the timestamp of the Slack request + the seconds to answer config var
+# 
+def get_question
+  uri = "http://jservice.io/api/random?count=1"
+  request = HTTParty.get(uri)
+  puts "[LOG] #{request.body}"
+  response = JSON.parse(request.body).first
+  if response["question"].nil? || response["question"].strip == ""
+    response = get_question
+  end
+  response["value"] = 200 if response["value"].nil?
+  response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
+  response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
+  response
+end
+
+# Processes an answer submitted by a user in response to a Jeopardy round:
+# If there's no round, returns a funny SNL Trebek quote.
+# Otherwise, responds appropriately if:
+# The time to answer the round is up;
+# The answer is correct and in the form of a question;
+# The answer is correct and not in the form of a question;
+# The answer is incorrect.
+# Update the score and marks the round as answer, depending on the case.
+# 
 def process_answer(params)
   channel_id = params[:channel_id]
   key = "current_question:#{channel_id}"
@@ -115,13 +147,38 @@ def process_answer(params)
       reply = "That is incorrect, #{get_slack_name(params[:user_id])}. Your score is now #{currency_format(score)}."
     end
   end
-  json_response_for_slack(reply)
+  reply
 end
 
+# Formats a number as currency.
+# For example -10000 becomes -$10,000
+# 
+def currency_format(number, currency = "$")
+  prefix = number >= 0 ? currency : "-#{currency}"
+  moneys = number.abs.to_s
+  while moneys.match(/(\d+)(\d\d\d)/)
+    moneys.to_s.gsub!(/(\d+)(\d\d\d)/, "\\1,\\2")
+  end
+  "#{prefix}#{moneys}"
+end
+
+# Checks if the respose is in the form of a question:
+# Removes punctuation and check if it begins with what/where/who
+# (I don't care if there's no question mark)
+# 
 def is_question_format?(answer)
   answer.gsub(/[^\w\s]/i, "").match(/^(what|whats|where|wheres|who|whos) /i)
 end
 
+# Checks if the user answer matches the correct answer.
+# Does processing on both to make matching easier:
+# Replaces "&" with "and";
+# Removes punctuation;
+# Removes question elements ("what is a")
+# Strips leading/trailing whitespace and downcases.
+# Finally, if the match is not exact, uses White similarity algorithm for "fuzzy" matching,
+# to account for typos, etc.
+# 
 def is_correct_answer?(correct, answer)
   correct = correct.gsub(/[^\w\s]/i, "")
             .gsub(/^(the|a|an) /i, "")
@@ -142,6 +199,12 @@ def is_correct_answer?(correct, answer)
   correct == answer || similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
 end
 
+# Marks question as answered by:
+# Deleting the current question from redis,
+# and "shushing" the bot for 5 seconds, so if two users
+# answer at the same time, the second one won't trigger
+# a response from the bot.
+# 
 def mark_question_as_answered(channel_id)
   $redis.pipelined do
     $redis.del("current_question:#{channel_id}")
@@ -149,12 +212,15 @@ def mark_question_as_answered(channel_id)
   end
 end
 
+# Returns the given user's score.
+# 
 def respond_with_user_score(user_id)
   user_score = get_user_score(user_id)
-  reply = "#{get_slack_name(user_id)}, your score is #{currency_format(user_score)}."
-  json_response_for_slack(reply)
+  "#{get_slack_name(user_id)}, your score is #{currency_format(user_score)}."
 end
 
+# Gets the given user's score from redis
+# 
 def get_user_score(user_id)
   key = "user_score:#{user_id}"
   user_score = $redis.get(key)
@@ -165,6 +231,9 @@ def get_user_score(user_id)
   user_score.to_i
 end
 
+# Updates the given user's score in redis.
+# If the user doesn't have a score, initializes it at zero.
+# 
 def update_score(user_id, score = 0)
   key = "user_score:#{user_id}"
   user_score = $redis.get(key)
@@ -178,6 +247,13 @@ def update_score(user_id, score = 0)
   end
 end
 
+# Gets the given user's name(s) from redis.
+# If it's not in redis, makes an API request to Slack to get it,
+# and caches it in redis for a month.
+# 
+# Options:
+# use_real_name => returns the users full name instead of just the first name
+# 
 def get_slack_name(user_id, options = {})
   options = { :use_real_name => false }.merge(options)
   key = "slack_user_names:2:#{user_id}"
@@ -196,6 +272,10 @@ def get_slack_name(user_id, options = {})
   name
 end
 
+# Makes an API request to Slack to get a user's set of names.
+# (Slack's outgoing webhooks only send the user ID, so we need this to
+# make the bot reply using the user's actual name.)
+# 
 def get_slack_names_hash(user_id)
   uri = "https://slack.com/api/users.list?token=#{ENV["API_TOKEN"]}"
   request = HTTParty.get(uri)
@@ -214,6 +294,9 @@ def get_slack_names_hash(user_id)
   names
 end
 
+# Speaks the top scores across Slack.
+# The response is cached for 5 minutes.
+# 
 def respond_with_leaderboard
   key = "leaderboard:1"
   response = $redis.get(key)
@@ -232,9 +315,11 @@ def respond_with_leaderboard
     end
     $redis.setex(key, 60*5, response)
   end
-  json_response_for_slack(response)
+  response
 end
 
+# Gets the top X (default is 10) scores from redis
+# 
 def get_score_leaders(options = {})
   options = { :limit => 10 }.merge(options)
   leaders = []
@@ -247,11 +332,13 @@ def get_score_leaders(options = {})
   end
 end
 
+# Funny quotes from SNL's Celebrity Jeopardy, to speak
+# when someone invokes trebekbot and there's no active round.
+# 
 def trebek_me
-  responses = [ "Welcome back to Slack Jeopardy. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
+  [ "Welcome back to Slack Jeopardy. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
     "Okay, Turd Ferguson.",
     "I hate my job.",
-    "That is incorrect.",
     "Let's just get this over with.",
     "Do you have an answer?",
     "I don't believe this. Where did you get that magic marker? We frisked you on the way in here.",
@@ -277,32 +364,15 @@ def trebek_me
     "Welcome back to Slack Jeopardy. Once again, I'm going to recommend that our viewers watch something else.",
     "Great. Better luck to all of you in the next round. It's time for Slack Jeopardy. Let's take a look at the board. And the categories are: `Potent Potables`, `The Vowels`, `Presidents Who Are On the One Dollar Bill`, `Famous Titles`, `Ponies`, `The Number 10`, and finally: `Foods That End In \"Amburger\"`.",
     "Let's take a look at the board. The categories are: `Potent Potables`, `The Pen is Mightier` -- that category is all about quotes from famous authors, so you'll all probably be more comfortable with our next category -- `Shiny Objects`, continuing with `Opposites`, `Things you Shouldn't Put in Your Mouth`, `What Time is It?`, and, finally, `Months That Start With Feb`."
-  ]
-    responses.sample
+  ].sample
 end
 
+# Shows the help text.
+# If you add a new command, make sure to add some help text for it here.
+# 
 def respond_with_help
-  reply = <<help
-Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
-Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
-Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
-Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.
-help
-  json_response_for_slack(reply)
-end
-
-def currency_format(number, currency = "$")
-  prefix = number >= 0 ? currency : "-#{currency}"
-  moneys = number.abs.to_s
-  while moneys.match(/(\d+)(\d\d\d)/)
-    moneys.to_s.gsub!(/(\d+)(\d\d\d)/, "\\1,\\2")
-  end
-  "#{prefix}#{moneys}"
-end
-
-def json_response_for_slack(reply)
-  response = { text: reply, link_names: 1 }
-  response[:username] = ENV["BOT_USERNAME"] unless ENV["BOT_USERNAME"].nil?
-  response[:icon_emoji] = ENV["BOT_ICON"] unless ENV["BOT_ICON"].nil?
-  response.to_json
+  "Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.\n
+  Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.\n
+  Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.\n
+  Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores."
 end
