@@ -141,7 +141,7 @@ def process_answer(params)
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
     user_answer = params[:text]
-    answered_key = "user_answer:#{channel_id}:#{user_id}"
+    answered_key = "user_answer:#{channel_id}:#{current_question["id"]}:#{user_id}"
     if $redis.exists(answered_key)
       reply = "You had your chance, #{get_slack_name(user_id)}. Let someone else answer."
     elsif params["timestamp"].to_f > current_question["expiration"]
