@@ -42,6 +42,8 @@ post "/" do
     params[:text] = params[:text].sub(params[:trigger_word], "").strip 
     if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
       response = "Invalid token"
+    elsif is_channel_blacklisted?(params[:channel_name])
+      response = "Sorry, can't play in this channel."
     elsif params[:text].match(/^jeopardy me/i)
       response = respond_with_question(params)
     elsif params[:text].match(/my score$/i)
@@ -70,6 +72,12 @@ def json_response_for_slack(reply)
   response[:username] = ENV["BOT_USERNAME"] unless ENV["BOT_USERNAME"].nil?
   response[:icon_emoji] = ENV["BOT_ICON"] unless ENV["BOT_ICON"].nil?
   response.to_json
+end
+
+# Determines if a game of Jeopardy is allowed in the given channel
+# 
+def is_channel_blacklisted(channel_name)
+  !ENV["CHANNEL_BLACKLIST"].nil? && ENV["CHANNEL_BLACKLIST"].split(",").find{ |a| a.gsub("#", "").strip == channel_name }
 end
 
 # Puts together the response to a request to start a new round (`jeopardy me`):
