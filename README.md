@@ -26,23 +26,12 @@ If you'd rather do it manually, then just clone this repo, set up a Heroku app w
 * `trebekbot what/who is/are [answer]`: sends an answer. Remember, responses must be in the form of a question!
 * `trebekbot what's my score`: shows your current score.
 * `trebekbot show the leaderboard`: shows the current top scores.
+* `trebekbot show the loserboard`: shows the current bottom scores.
 * `trebekbot help`: shows this help information.
-
-## To-do
-
-I literally built this in 20 minutes, so there's a lot to do.
-
-* <del>Better matching of answers (it's very strict)</del>
-* Speak out the answers after time runs out
-* Let users select category and scores
 
 ## Credits & acknowledgements
 
 Big thanks to [Steve Ottenad](https://github.com/sottenad) for building [jService](http://jservice.io/), the service that powers this bot.
-
-## Issues
-
-Feel free to open a new issue if you have questions, concerns, bugs, or feature requests. Just remember that I'm doing this for fun, for free, in my free time, and I may not be able to help you, respond in a timely manner, or implement any feature requests.
 
 ## Contributing
 
@@ -51,6 +40,8 @@ Feel free to open a new issue if you have questions, concerns, bugs, or feature 
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+Feel free to open a new issue if you have questions, concerns, bugs, or feature requests. Just remember that I'm doing this for fun, for free, in my free time, and I may not be able to help you, respond in a timely manner, or implement any feature requests.
 
 ## License 
 
