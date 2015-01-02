@@ -76,7 +76,7 @@ end
 
 # Determines if a game of Jeopardy is allowed in the given channel
 # 
-def is_channel_blacklisted(channel_name)
+def is_channel_blacklisted?(channel_name)
   !ENV["CHANNEL_BLACKLIST"].nil? && ENV["CHANNEL_BLACKLIST"].split(",").find{ |a| a.gsub("#", "").strip == channel_name }
 end
 
