@@ -153,9 +153,14 @@ def process_answer(params)
     if $redis.exists(answered_key)
       reply = "You had your chance, #{get_slack_name(user_id)}. Let someone else answer."
     elsif params["timestamp"].to_f > current_question["expiration"]
-      reply = "Time's up, #{get_slack_name(user_id)}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
-      reply += " The correct answer is `#{current_question["answer"]}`." if !is_correct_answer?(current_answer, user_answer)
+      if is_correct_answer?(current_answer, user_answer)
+        reply = "Yes, `#{current_question["answer"]}` is the correct answer #{get_slack_name(user_id)}, however time is up! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
+      else
+        reply = "Time's up, #{get_slack_name(user_id)}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. The correct answer is `#{current_question["answer"]}`."
+      end
+
       mark_question_as_answered(params[:channel_id])
+
     elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
       score = update_score(user_id, current_question["value"])
       reply = "That is the correct answer, #{get_slack_name(user_id)}. Your total score is #{currency_format(score)}."
