@@ -204,12 +204,17 @@ end
 # Strips leading/trailing whitespace and downcases.
 # Finally, if the match is not exact, uses White similarity algorithm for "fuzzy" matching,
 # to account for typos, etc.
+# Checks both the sanitized correct, and correct with parentheticals removed, e.g.
+# "The Pope (Benedict XVI)" checks answer against "pope benedict xvi" and "pope"
 # 
 def is_correct_answer?(correct, answer)
-  correct = correct.gsub(/[^\w\s]/i, "")
-            .gsub(/^(the|a|an) /i, "")
+  correct = correct.gsub(/^(the|a|an) /i, "")
             .strip
             .downcase
+
+  correct_no_parenthetical = correct.gsub(/\(.*\)/, "").gsub(/[^\w\s]/i, "").strip
+  correct_sanitized = correct.gsub(/[^\w\s]/i, "")
+
   answer = answer
            .gsub(/\s+(&nbsp;|&)\s+/i, " and ")
            .gsub(/[^\w\s]/i, "")
@@ -219,10 +224,17 @@ def is_correct_answer?(correct, answer)
            .gsub(/\?+$/, "")
            .strip
            .downcase
-  white = Text::WhiteSimilarity.new
-  similarity = white.similarity(correct, answer)
-  puts "[LOG] Correct answer: #{correct} | User answer: #{answer} | Similarity: #{similarity}"
-  correct == answer || similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
+
+
+  [correct_sanitized, correct_no_parenthetical].each do |solution|
+    white = Text::WhiteSimilarity.new
+    similarity = white.similarity(solution, answer)
+    puts "[LOG] Correct answer: #{solution} | User answer: #{answer} | Similarity: #{similarity}"
+    if solution == answer || similarity >= ENV["SIMILARITY_THRESHOLD"].to_f
+      return true
+    end
+  end
+  false
 end
 
 # Marks question as answered by:
