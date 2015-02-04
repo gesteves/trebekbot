@@ -42,6 +42,8 @@ post "/" do
     params[:text] = params[:text].sub(params[:trigger_word], "").strip 
     if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
       response = "Invalid token"
+    elsif params[:text].match(/^tbh/i)
+      response = ""
     elsif is_channel_blacklisted?(params[:channel_name])
       response = "Sorry, can't play in this channel."
     elsif params[:text].match(/^jeopardy me/i)
