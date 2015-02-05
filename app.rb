@@ -39,11 +39,10 @@ end
 post "/" do
   begin
     puts "[LOG] #{params}"
-    params[:original_text] = params[:text]
     params[:text] = params[:text].sub(params[:trigger_word], "").strip 
     if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
       response = "Invalid token"
-    elsif params[:original_text].match(/^tbh/i)
+    elsif params[:text].match(/^tbh/i)
       response = ""
     elsif is_channel_blacklisted?(params[:channel_name])
       response = "Sorry, can't play in this channel."
