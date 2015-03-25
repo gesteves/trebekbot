@@ -193,7 +193,7 @@ end
 # (I don't care if there's no question mark)
 # 
 def is_question_format?(answer)
-  answer.gsub(/[^\w\s]/i, "").match(/^(what|whats|where|wheres|who|whos) /i)
+  answer.gsub(/[^\w\s]/i, "").match(/^(what|whats|where|wheres|who|whos|when|whens) /i)
 end
 
 # Checks if the user answer matches the correct answer.
@@ -428,7 +428,7 @@ end
 def respond_with_help
   reply = <<help
 Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
-Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
+Type `#{ENV["BOT_USERNAME"]} [what|where|who|where] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
 Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.
 Type `#{ENV["BOT_USERNAME"]} show the loserboard` to see the bottom scores.
