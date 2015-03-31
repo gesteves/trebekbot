@@ -40,6 +40,11 @@
       "description": "Comma-separated list of channel names in which this bot is not allowed to respond",
       "required": false,
       "value": "general"
+    },
+    "START_ROUND_TRIGGER": {
+      "description": "use this to replace the default - jeopardy me - to start a round ",
+      "required": false,
+      "value": "jeopardy me"
     }
   }
 }

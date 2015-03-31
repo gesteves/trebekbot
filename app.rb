@@ -33,7 +33,7 @@ end
 # timestamp=1355517523.000005
 # user_id=U123456
 # user_name=Steve
-# text=trebekbot jeopardy me
+# text=trebekbot (#{ENV["START_ROUND_TRIGGER"] || "jeopardy me")
 # trigger_word=trebekbot
 # 
 post "/" do
@@ -44,7 +44,7 @@ post "/" do
       response = "Invalid token"
     elsif is_channel_blacklisted?(params[:channel_name])
       response = "Sorry, can't play in this channel."
-    elsif params[:text].match(/^jeopardy me/i)
+    elsif params[:text].match(/^#{ENV["START_ROUND_TRIGGER"] || "jeopardy me"}/i)
       response = respond_with_question(params)
     elsif params[:text].match(/my score$/i)
       response = respond_with_user_score(params[:user_id])
@@ -80,11 +80,11 @@ def is_channel_blacklisted?(channel_name)
   !ENV["CHANNEL_BLACKLIST"].nil? && ENV["CHANNEL_BLACKLIST"].split(",").find{ |a| a.gsub("#", "").strip == channel_name }
 end
 
-# Puts together the response to a request to start a new round (`jeopardy me`):
+# Puts together the response to a request to start a new round (`#{ENV["START_ROUND_TRIGGER"] || "jeopardy me"`):
 # If the bot has been "shushed", says nothing.
 # Otherwise, speaks the answer to the previous round (if any),
 # speaks the category, value, and the new question, and shushes the bot for 5 seconds
-# (this is so two or more users can't do `jeopardy me` within 5 seconds of each other.)
+# (this is so two or more users can't do `#{ENV["START_ROUND_TRIGGER"] || "jeopardy me"` within 5 seconds of each other.)
 # 
 def respond_with_question(params)
   channel_id = params[:channel_id]
@@ -408,6 +408,7 @@ def trebek_me
     "I really thought that was going to work.",
     "Wonderful. Let's take a look at the categories. They are: `Potent Potables`, `Point to your own head`, `Letters or Numbers`, `Will this hurt if you put it in your mouth`, `An album cover`, `Make any noise`, and finally, `Famous Muppet Frogs`. I should add that the answer to every question in that category is `Kermit`.",
     "For the last time, that is not a category.",
+    "Kiss your mother with that mouth?",
     "Unbelievable.",
     "Great. Let's take a look at the final board. And the categories are: `Potent Potables`, `Sharp Things`, `Movies That Start with the Word Jaws`, `A Petit Déjeuner` -- that category is about French phrases, so let's just skip it.",
     "Enough. Let's just get this over with. Here are the categories, they are: `Potent Potables`, `Countries Between Mexico and Canada`, `Members of Simon and Garfunkel`, `I Have a Chardonnay` -- you choose this category, you automatically get the points and I get to have a glass of wine -- `Things You Do With a Pencil Sharpener`, `Tie Your Shoe`, and finally, `Toast`.",
@@ -427,7 +428,7 @@ end
 # 
 def respond_with_help
   reply = <<help
-Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
+Type `#{ENV["BOT_USERNAME"]} #{ENV["START_ROUND_TRIGGER"] || "jeopardy me"}` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
 Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
 Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.
