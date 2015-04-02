@@ -7,6 +7,37 @@ require "dotenv"
 require "text"
 require "sanitize"
 
+#
+def start_listener()
+  uri = URI.parse(ENV["REDISCLOUD_URL"])
+  redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
+  Thread.new do
+    begin
+      redis.subscribe("__keyevent@0__:expired") do |on|
+        on.subscribe do |channel, subscriptions|
+          puts "Subscribed to ##{channel} (#{subscriptions} subscriptions)"
+        end
+
+        on.message do |channel, message|
+          puts "got a message"
+          round_over
+          redis.unsubscribe if message == "exit"
+        end
+
+        on.unsubscribe do |channel, subscriptions|
+          puts "Unsubscribed from ##{channel} (#{subscriptions} subscriptions)"
+        end
+      end
+    rescue Redis::BaseConnectionError => error
+      puts "#{error}, retrying in 1s"
+      sleep 1
+      retry
+    ensure
+      #no db connection anyway
+    end
+  end
+end
+
 configure do
   # Load .env vars
   Dotenv.load
@@ -21,6 +52,7 @@ configure do
     uri = URI.parse(ENV["REDISCLOUD_URL"])
   end
   $redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
+  #start_listener
 end
 
 # Handles the POST request made by the Slack Outgoing webhook
@@ -33,7 +65,7 @@ end
 # timestamp=1355517523.000005
 # user_id=U123456
 # user_name=Steve
-# text=trebekbot (#{ENV["START_ROUND_TRIGGER"] || "jeopardy me")
+# text=trebekbot (#{(ENV["START_ROUND_TRIGGER"] || "jeopardy me"))
 # trigger_word=trebekbot
 # 
 post "/" do
@@ -44,7 +76,7 @@ post "/" do
       response = "Invalid token"
     elsif is_channel_blacklisted?(params[:channel_name])
       response = "Sorry, can't play in this channel."
-    elsif params[:text].match(/^#{ENV["START_ROUND_TRIGGER"] || "jeopardy me"}/i)
+    elsif params[:text].match(/^#{(ENV["START_ROUND_TRIGGER"] || "jeopardy me")}/i)
       response = respond_with_question(params)
     elsif params[:text].match(/my score$/i)
       response = respond_with_user_score(params[:user_id])
@@ -65,6 +97,16 @@ post "/" do
   body json_response_for_slack(response)
 end
 
+def round_over
+  channel_id = params[:channel_id]
+  mark_question_as_answered(params[:channel_id])
+  reponse = "The correct answer is `#{current_question["answer"]}`."
+  status 200
+  body json_response_for_slack(response)
+end
+
+
+
 # Puts together the json payload that needs to be sent back to Slack
 # 
 def json_response_for_slack(reply)
@@ -80,11 +122,11 @@ def is_channel_blacklisted?(channel_name)
   !ENV["CHANNEL_BLACKLIST"].nil? && ENV["CHANNEL_BLACKLIST"].split(",").find{ |a| a.gsub("#", "").strip == channel_name }
 end
 
-# Puts together the response to a request to start a new round (`#{ENV["START_ROUND_TRIGGER"] || "jeopardy me"`):
+# Puts together the response to a request to start a new round (`#{(ENV["START_ROUND_TRIGGER"] || "jeopardy me")}`):
 # If the bot has been "shushed", says nothing.
 # Otherwise, speaks the answer to the previous round (if any),
 # speaks the category, value, and the new question, and shushes the bot for 5 seconds
-# (this is so two or more users can't do `#{ENV["START_ROUND_TRIGGER"] || "jeopardy me"` within 5 seconds of each other.)
+# (this is so two or more users can't do `#{(ENV["START_ROUND_TRIGGER"] || "jeopardy me")}` within 5 seconds of each other.)
 # 
 def respond_with_question(params)
   channel_id = params[:channel_id]
@@ -150,27 +192,34 @@ def process_answer(params)
     current_answer = current_question["answer"]
     user_answer = params[:text]
     answered_key = "user_answer:#{channel_id}:#{current_question["id"]}:#{user_id}"
-    if $redis.exists(answered_key)
-      reply = "You had your chance, #{get_slack_name(user_id)}. Let someone else answer."
-    elsif params["timestamp"].to_f > current_question["expiration"]
-      if is_correct_answer?(current_answer, user_answer)
-        reply = "That is correct, #{get_slack_name(user_id)}, but time's up! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
-      else
-        reply = "Time's up, #{get_slack_name(user_id)}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. The correct answer is `#{current_question["answer"]}`."
-      end
+    if user_answer == (ENV["ANSWER_TRIGGER"] || "answer")
+      reply = "The correct answer is `#{current_question["answer"]}`."
       mark_question_as_answered(params[:channel_id])
-    elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
-      score = update_score(user_id, current_question["value"])
-      reply = "That is correct, #{get_slack_name(user_id)}. Your total score is #{currency_format(score)}."
-      mark_question_as_answered(params[:channel_id])
-    elsif is_correct_answer?(current_answer, user_answer)
-      score = update_score(user_id, (current_question["value"] * -1))
-      reply = "That is correct, #{get_slack_name(user_id)}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
-      $redis.setex(answered_key, ENV["SECONDS_TO_ANSWER"], "true")
+    elsif params[:text].empty?
+      #ignore blank answer with just trigger word
     else
-      score = update_score(user_id, (current_question["value"] * -1))
-      reply = "That is incorrect, #{get_slack_name(user_id)}. Your score is now #{currency_format(score)}."
-      $redis.setex(answered_key, ENV["SECONDS_TO_ANSWER"], "true")
+      if $redis.exists(answered_key)
+        reply = "You had your chance, #{get_slack_name(user_id)}. Let someone else answer."
+      elsif params["timestamp"].to_f > current_question["expiration"]
+        if is_correct_answer?(current_answer, user_answer)
+          reply = "That is correct, #{get_slack_name(user_id)}, but time's up! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer."
+        else
+          reply = "Time's up, #{get_slack_name(user_id)}! Remember, you have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. The correct answer is `#{current_question["answer"]}`."
+        end
+        mark_question_as_answered(params[:channel_id])
+      elsif is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
+        score = update_score(user_id, current_question["value"])
+        reply = "That is correct, #{get_slack_name(user_id)}. Your total score is #{currency_format(score)}."
+        mark_question_as_answered(params[:channel_id])
+      elsif is_correct_answer?(current_answer, user_answer)
+        score = update_score(user_id, (current_question["value"] * -1))
+        reply = "That is correct, #{get_slack_name(user_id)}, but responses have to be in the form of a question. Your total score is #{currency_format(score)}."
+        $redis.setex(answered_key, ENV["SECONDS_TO_ANSWER"], "true")
+      else
+        score = update_score(user_id, (current_question["value"] * -1))
+        reply = "That is incorrect, #{get_slack_name(user_id)}. Your score is now #{currency_format(score)}."
+        $redis.setex(answered_key, ENV["SECONDS_TO_ANSWER"], "true")
+      end
     end
   end
   reply
@@ -428,7 +477,8 @@ end
 # 
 def respond_with_help
   reply = <<help
-Type `#{ENV["BOT_USERNAME"]} #{ENV["START_ROUND_TRIGGER"] || "jeopardy me"}` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
+Type `#{ENV["BOT_USERNAME"]} #{(ENV["START_ROUND_TRIGGER"] || "jeopardy me")}` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
+Type `#{ENV["BOT_USERNAME"]} #{(ENV["ANSWER_TRIGGER"] || "answer")}` to show the answer and end the round.
 Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
 Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.

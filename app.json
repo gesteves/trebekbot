@@ -42,9 +42,14 @@
       "value": "general"
     },
     "START_ROUND_TRIGGER": {
-      "description": "use this to replace the default - jeopardy me - to start a round ",
+      "description": "Use this to replace the default - jeopardy me - to start a round.",
       "required": false,
       "value": "jeopardy me"
+    },
+    "ANSWER_TRIGGER": {
+      "description": "Use this to end the round and display the answer.",
+      "required": false,
+      "value": "answer"
     }
   }
 }
