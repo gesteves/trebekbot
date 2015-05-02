@@ -54,6 +54,10 @@ post "/" do
       response = respond_with_leaderboard
     elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
       response = respond_with_loserboard
+    elsif params[:text].match(/^show (me\s+)?(the\s+)?categories$/i)
+      response = respond_with_categories
+    elsif matches = params[:text].match(/^I.ll take (.*)/i)
+      response = respond_with_question(params, matches[1])
     else
       response = process_answer(params)
     end
@@ -86,11 +90,11 @@ end
 # speaks the category, value, and the new question, and shushes the bot for 5 seconds
 # (this is so two or more users can't do `jeopardy me` within 5 seconds of each other.)
 # 
-def respond_with_question(params)
+def respond_with_question(params, category = nil)
   channel_id = params[:channel_id]
   question = ""
   unless $redis.exists("shush:question:#{channel_id}")
-    response = get_question
+    response = get_question category
     key = "current_question:#{channel_id}"
     previous_question = $redis.get(key)
     if !previous_question.nil?
@@ -113,8 +117,13 @@ end
 # If there's HTML in the answer, sanitizes it (otherwise it won't match the user answer)
 # Adds an "expiration" value, which is the timestamp of the Slack request + the seconds to answer config var
 # 
-def get_question
-  uri = "http://jservice.io/api/random?count=1"
+def get_question(category = nil)
+  if !category.nil? && category_id = $redis.get("category:#{category}")
+    uri = "http://jservice.io/api/clues?category=#{category_id}"
+  else
+    uri = "http://jservice.io/api/random?count=1"
+  end
+  puts "[LOG] #{uri}"
   request = HTTParty.get(uri)
   puts "[LOG] #{request.body}"
   response = JSON.parse(request.body).first
@@ -124,6 +133,25 @@ def get_question
   response["value"] = 200 if response["value"].nil?
   response["answer"] = Sanitize.fragment(response["answer"].gsub(/\s+(&nbsp;|&)\s+/i, " and "))
   response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
+  response
+end
+
+# Puts together the response to a request for categories:
+#
+def respond_with_categories
+  uri = "http://jservice.io/api/categories?count=5"
+  request = HTTParty.get(uri)
+  puts "[LOG] #{request.body}"
+
+  category_titles = []
+  data = JSON.parse(request.body)
+  data.each do |child|
+    category_titles << child['title']
+    key = "category:#{child['title']}"
+    $redis.set(key, child['id'])
+  end
+  response = "Wonderful. Let's take a look at the categories. They are: `"
+  response += category_titles.join("`, `") + "`."
   response
 end
 
@@ -429,6 +457,8 @@ def respond_with_help
   reply = <<help
 Type `#{ENV["BOT_USERNAME"]} jeopardy me` to start a new round of Slack Jeopardy. I will pick the category and price. Anyone in the channel can respond.
 Type `#{ENV["BOT_USERNAME"]} [what|where|who] [is|are] [answer]?` to respond to the active round. You have #{ENV["SECONDS_TO_ANSWER"]} seconds to answer. Remember, responses must be in the form of a question, e.g. `#{ENV["BOT_USERNAME"]} what is dirt?`.
+Type `#{ENV["BOT_USERNAME"]} show the categories` to see a list of 5 categories to choose.
+Type `#{ENV["BOT_USERNAME"]} I'll take [category]` start a new round with a specific category. I will pick the price.
 Type `#{ENV["BOT_USERNAME"]} what is my score` to see your current score.
 Type `#{ENV["BOT_USERNAME"]} show the leaderboard` to see the top scores.
 Type `#{ENV["BOT_USERNAME"]} show the loserboard` to see the bottom scores.
