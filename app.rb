@@ -106,6 +106,7 @@ def respond_with_question(params, category = nil)
     $redis.pipelined do
       $redis.set(key, response.to_json)
       $redis.setex("shush:question:#{channel_id}", 10, "true")
+      $redis.set("category:#{response['category']['title']}", "#{response['category'].to_json}")
     end
   end
   question
@@ -117,9 +118,11 @@ end
 # If there's HTML in the answer, sanitizes it (otherwise it won't match the user answer)
 # Adds an "expiration" value, which is the timestamp of the Slack request + the seconds to answer config var
 # 
-def get_question(category = nil)
-  if !category.nil? && category_id = $redis.get("category:#{category}")
-    uri = "http://jservice.io/api/clues?category=#{category_id}"
+def get_question(category_key = nil)
+	if !category_key.nil? && data = $redis.get("category:#{category_key}")
+		category = JSON.parse(data)
+		offset = rand(category['clues_count'])
+    uri = "http://jservice.io/api/clues?category=#{category['id']}&offset=#{offset}"
   else
     uri = "http://jservice.io/api/random?count=1"
   end
@@ -139,7 +142,8 @@ end
 # Puts together the response to a request for categories:
 #
 def respond_with_categories
-  uri = "http://jservice.io/api/categories?count=5"
+	max_category = 18418
+  uri = "http://jservice.io/api/categories?count=5&offset=#{1+rand(max_category/5)}"
   request = HTTParty.get(uri)
   puts "[LOG] #{request.body}"
 
@@ -148,7 +152,7 @@ def respond_with_categories
   data.each do |child|
     category_titles << child['title']
     key = "category:#{child['title']}"
-    $redis.set(key, child['id'])
+    $redis.set(key, child.to_json)
   end
   response = "Wonderful. Let's take a look at the categories. They are: `"
   response += category_titles.join("`, `") + "`."
