@@ -35,13 +35,7 @@ Big thanks to [Steve Ottenad](https://github.com/sottenad) for building [jServic
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
-
-Feel free to open a new issue if you have questions, concerns, bugs, or feature requests. Just remember that I'm doing this for fun, for free, in my free time, and I may not be able to help you, respond in a timely manner, or implement any feature requests.
+Feel free to open a new issue if you have questions, concerns, bugs, or feature requests. Just remember that I did this for fun, for free, in my free time, and I may not be able to help you, respond in a timely manner, or implement any feature requests.
 
 ## License 
 
