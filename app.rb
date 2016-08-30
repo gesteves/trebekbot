@@ -109,6 +109,7 @@ end
 
 # Gets a random answer from the jService API, and does some cleanup on it:
 # If the question is not present, requests another one
+# If the question contains a blacklisted substring, request another one
 # If the answer doesn't have a value, sets a default of $200
 # If there's HTML in the answer, sanitizes it (otherwise it won't match the user answer)
 # Adds an "expiration" value, which is the timestamp of the Slack request + the seconds to answer config var
@@ -118,7 +119,8 @@ def get_question
   request = HTTParty.get(uri)
   puts "[LOG] #{request.body}"
   response = JSON.parse(request.body).first
-  if response["question"].nil? || response["question"].strip == ""
+  question = response["question"]
+  if question.nil? || question.strip == "" || ENV["QUESTION_SUBSTRING_BLACKLIST"].any? { |phrase| question.include?(phrase) }
     response = get_question
   end
   response["value"] = 200 if response["value"].nil?
