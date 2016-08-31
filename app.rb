@@ -120,7 +120,7 @@ def get_question
   puts "[LOG] #{request.body}"
   response = JSON.parse(request.body).first
   question = response["question"]
-  if question.nil? || question.strip == "" || ENV["QUESTION_SUBSTRING_BLACKLIST"].any? { |phrase| question.include?(phrase) }
+  if question.nil? || question.strip == "" || ENV["QUESTION_SUBSTRING_BLACKLIST"].split(",").any? { |phrase| question.include?(phrase) }
     response = get_question
   end
   response["value"] = 200 if response["value"].nil?
