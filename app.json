@@ -34,7 +34,7 @@
     "SECONDS_TO_ANSWER": {
       "description": "Time, in seconds, users have to answer each round.",
       "required": true,
-      "value": "30"
+      "value": "45"
     },
     "CHANNEL_BLACKLIST": {
       "description": "Comma-separated list of channel names in which this bot is not allowed to respond",

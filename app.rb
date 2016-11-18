@@ -54,6 +54,21 @@ post "/" do
       response = respond_with_leaderboard
     elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
       response = respond_with_loserboard
+    elsif params[:text].match(/^bet [0-9]\d*$/i)
+      response = place_bet(params)
+      return json_response_for_user(response, params)
+    elsif params[:text].match(/^final question$/i)
+      response = respond_with_final_question(params)
+    elsif params[:text].match(/^final answer$/i)
+      response = respond_with_final_answer(params)
+      return json_response_for_user(response, params)
+    elsif params[:text].match(/^final jeopardy$/i)
+      response = process_final_answer(params)
+    elsif params[:text].match(/^end jeopardy$/i)
+      response = end_game(params)
+    elsif params[:text].match(/^opt in$/i)
+      response = "Please place your bet and answer via direct message!"
+      return json_response_for_user(response, params)
     else
       response = process_answer(params)
     end
@@ -69,6 +84,15 @@ end
 # 
 def json_response_for_slack(reply)
   response = { text: reply, link_names: 1 }
+  response[:username] = ENV["BOT_USERNAME"] unless ENV["BOT_USERNAME"].nil?
+  response[:icon_emoji] = ENV["BOT_ICON"] unless ENV["BOT_ICON"].nil?
+  response.to_json
+end
+
+# sends a response to the user's channel
+def json_response_for_user(reply, params)
+  user_id = params[:user_id]
+  response = { text: reply, link_names: 1,  channel: "@#{get_slack_name(user_id)}"}
   response[:username] = ENV["BOT_USERNAME"] unless ENV["BOT_USERNAME"].nil?
   response[:icon_emoji] = ENV["BOT_ICON"] unless ENV["BOT_ICON"].nil?
   response.to_json
@@ -107,6 +131,35 @@ def respond_with_question(params)
   question
 end
 
+# Initiates a final round of jeopardy by getting a question
+# Checks that the gamd hasn't been shushed
+# Gets a question
+# shows the answer to the previous question
+# Prompts users to enter their bets
+# Shows the final jeopardy category
+# saves the final jeopardy question
+def respond_with_final(params)
+  question = ""
+  channel_id = params[:channel_id]
+  unless $redis.exists("shush:question:#{channel_id}")
+    response = get_question
+    key = "current_question:#{channel_id}"
+    previous_question = $redis.get(key)
+    if !previous_question.nil?
+      previous_question = JSON.parse(previous_question)["answer"]
+      question = "The answer is `#{previous_question}`.\n"
+    end
+    question += "The Final Jeopardy category is `#{response["category"]["title"]}`. Please place your bets."
+    puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
+    final_key = "final_question"
+    $redis.pipelined do
+      $redis.set(final_key, response.to_json)
+      $redis.setex("shush:question:#{channel_id}", 10, "true")
+    end
+  end
+  question
+end
+
 # Gets a random answer from the jService API, and does some cleanup on it:
 # If the question is not present, requests another one
 # If the question contains a blacklisted substring, request another one
@@ -128,6 +181,92 @@ def get_question
   response["expiration"] = params["timestamp"].to_f + ENV["SECONDS_TO_ANSWER"].to_f
   response
 end
+
+# checks that the user's bet is less than their overall score
+# Saves a user's bet for final jeopardy
+# Responds with a message saying whether the bet was accepted or not
+def place_bet(params)
+  key = "user_score:#{user_id}"
+  user_score = $redis.get(key)
+  bet_key = "user_bet:#{user_id}"
+  user_bet = params[:text].scan(/\d/).join('')
+  if user_bet <= user_score
+    $redis.set(bet_key, user_bet)
+    response = "#{get_slack_name(user_id)}, your bet was accepted."
+  else
+    response = "#{get_slack_name(user_id)}, you bet too much! Please place a bet that is less than or equal to your current score."
+  end
+  response
+end
+
+# checks whether channel was shushed
+# otherwise, displays the questions for final jeopardy
+def respond_with_final_question(params)
+  channel_id = params[:channel_id]
+  question = ""
+  unless $redis.exists("shush:question:#{channel_id}")
+    key = "final_question"
+    final_question = $redis.get(key)
+    question += "The category is `#{response["category"]["title"]}`: `#{response["question"]}`"
+    puts "[LOG] ID: #{response["id"]} | Category: #{response["category"]["title"]} | Question: #{response["question"]} | Answer: #{response["answer"]} | Value: #{response["value"]}"
+  end
+  question
+end
+
+# user sends a direct message to trebekbot with their answer
+# need to figure out direct messaging
+def process_final_answer(params)
+  user_id = params[:user_id]
+  key = "final_question"
+  current_question = $redis.get(key)
+  reply = ""
+  if current_question.nil?
+    reply = trebek_me
+  else
+    current_question = JSON.parse(current_question)
+    current_answer = current_question["answer"]
+    user_answer = params[:text].gsub(/^final answer/i, "")
+    answered_key = "user_answer:#{current_question["id"]}:#{user_id}"
+    key = "user_bet:#{user_id}"
+    user_bet = $redis.get(key)
+    if user_bet.nil?
+      user_bet = 0
+    if is_question_format?(user_answer) && is_correct_answer?(current_answer, user_answer)
+      score = update_score(user_id, user_bet)
+      reply = "That is correct, #{get_slack_name(user_id)}. Your total score is #{currency_format(score)}."
+    else
+      score = update_score(user_id, (user_bet * -1))
+      reply = "That is incorrect, #{get_slack_name(user_id)}. Your score is now #{currency_format(score)}."
+    end
+  end
+  reply
+end
+
+# ends the game of jeopardy
+def end_game(params)
+  key = "final_question"
+  previous_question = $redis.get(key)
+  previous_answer = JSON.parse(previous_question)["answer"]
+  leaders = []
+  get_score_leaders.each_with_index do |leader, i|
+    user_id = leader[:user_id]
+    name = get_slack_name(leader[:user_id], { :use_real_name => true })
+    score = currency_format(get_user_score(user_id))
+    leaders << "#{i + 1}. #{name}: #{score}"
+  end
+  if leaders.size > 0
+    response = "The answer is `#{previous_answer}`.\nHere's the final scores:\n\n#{leaders.join("\n")}"
+  else
+    response = "There are no scores!"
+  end
+  get_score_leaders.each_with_index do |leader, i|
+    user_id = leader[:user_id]
+    key = "user_score:#{user_id}"
+    $redis.set(key, 0)
+  end
+  response
+end  
+
 
 # Processes an answer submitted by a user in response to a Jeopardy round:
 # If there's no round, returns a funny SNL Trebek quote.
