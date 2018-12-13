@@ -8,7 +8,7 @@ require "text"
 require "sanitize"
 
 #
-def start_listener()
+def start_listener
   uri = URI.parse(ENV["REDISCLOUD_URL"])
   redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
   redis.config("SET", "notify-keyspace-events", "KEA")
@@ -53,7 +53,6 @@ configure do
     uri = URI.parse(ENV["REDISCLOUD_URL"])
   end
   $redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
-  $redis.config("SET", "notify-keyspace-events", "KEA")
   start_listener
 end
 
