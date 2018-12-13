@@ -23,7 +23,9 @@ def start_listener
           puts "got a message"
           puts channel
           puts message
-          round_over
+          # shush:question:C046TA10C
+          channel_id = message.split(":").last
+          round_over(channel_id)
           redis.unsubscribe if message == "exit"
         end
 
@@ -101,16 +103,19 @@ post "/" do
   body json_response_for_slack(response)
 end
 
-def round_over
-  puts "ending round"
-  channel_id = $redis.get("channel_id")
-  puts channel_id
+def round_over(channel_id)
+  #puts "ending round"
+  #channel = $redis.get("channel_id")
+  #puts channel
+  # C046TA10C
   key = "current_question:#{channel_id}"
   puts key
+  # current_question:C046TA10C
   current_question = $redis.get(key)
   puts current_question
-  mark_question_as_answered(channel_id)
+  # {"id":27147,"answer":"caisson","question":"This 2-wheeled, horse-drawn vehicle is used to carry coffins at military funerals","value":400,"airdate":"1997-09-23T12:00:00.000Z","created_at":"2014-02-11T23:02:01.868Z","updated_at":"2014-02-11T23:02:01.868Z","category_id":3008,"game_id":null,"invalid_count":null,"category":{"id":3008,"title":"\"son\"ny","created_at":"2014-02-11T23:02:01.419Z","updated_at":"2014-02-11T23:02:01.419Z","clues_count":5},"expiration":1544727966.0205}
   reponse = "The correct answer is `#{current_question["answer"]}`."
+  mark_question_as_answered(channel_id)
   status 200
   body json_response_for_slack(response)
 end
