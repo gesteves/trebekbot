@@ -116,8 +116,8 @@ def round_over(channel_id)
   puts answer
   puts "payload"
   puts payload
-  result = HTTParty.post(incoming_webhook, body: payload, :debug_output => $stdout)
-  puts result
+  HTTParty.post(incoming_webhook, body: payload, :debug_output => $stdout).request.last_response
+  puts HTTParty.post(incoming_webhook, body: payload, :debug_output => $stdout).request.last_response
 end
 
 # Puts together the json payload that needs to be sent back to Slack
