@@ -10,8 +10,7 @@ require "sanitize"
 #
 def start_listener
   uri = URI.parse(ENV["REDISCLOUD_URL"])
-  redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
-  redis.config("SET", "notify-keyspace-events", "KEA")
+  redis = $redis
   Thread.new do
     begin
       redis.subscribe("__keyevent@0__:expired") do |on|
@@ -24,8 +23,9 @@ def start_listener
           puts channel
           puts message
           # shush:question:C046TA10C
+          answer = message.split(":")[1] == "answer"
           channel_id = message.split(":").last
-          round_over(channel_id)
+          round_over(channel_id) unless answer
           redis.unsubscribe if message == "exit"
         end
 
@@ -57,6 +57,7 @@ configure do
     uri = URI.parse(ENV["REDISCLOUD_URL"])
   end
   $redis = Redis.new(host: uri.host, port: uri.port, password: uri.password)
+  $redis.config("SET", "notify-keyspace-events", "KEA")
   start_listener
 end
 
