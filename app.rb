@@ -115,6 +115,7 @@ def round_over(channel_id)
   puts current_question
   # {"id":27147,"answer":"caisson","question":"This 2-wheeled, horse-drawn vehicle is used to carry coffins at military funerals","value":400,"airdate":"1997-09-23T12:00:00.000Z","created_at":"2014-02-11T23:02:01.868Z","updated_at":"2014-02-11T23:02:01.868Z","category_id":3008,"game_id":null,"invalid_count":null,"category":{"id":3008,"title":"\"son\"ny","created_at":"2014-02-11T23:02:01.419Z","updated_at":"2014-02-11T23:02:01.419Z","clues_count":5},"expiration":1544727966.0205}
   reponse = "The correct answer is `#{current_question["answer"]}`."
+  puts response
   mark_question_as_answered(channel_id)
   status 200
   body json_response_for_slack(response)
