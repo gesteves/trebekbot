@@ -21,6 +21,8 @@ def start_listener
 
         on.message do |channel, message|
           puts "got a message"
+          puts channel
+          puts message
           round_over
           redis.unsubscribe if message == "exit"
         end
@@ -100,9 +102,13 @@ post "/" do
 end
 
 def round_over
+  puts "ending round"
   channel_id = $redis.get("channel_id")
+  puts channel_id
   key = "current_question:#{channel_id}"
+  puts key
   current_question = $redis.get(key)
+  puts current_question
   mark_question_as_answered(channel_id)
   reponse = "The correct answer is `#{current_question["answer"]}`."
   status 200
