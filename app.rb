@@ -70,6 +70,7 @@ end
 # trigger_word=trebekbot
 # 
 post "/" do
+  $redis.set("channel_id", params[:channel_id])
   begin
     puts "[LOG] #{params}"
     params[:text] = params[:text].sub(params[:trigger_word], "").strip 
@@ -99,8 +100,10 @@ post "/" do
 end
 
 def round_over
-  channel_id = params[:channel_id]
-  mark_question_as_answered(params[:channel_id])
+  channel_id = $redis.get("channel_id")
+  key = "current_question:#{channel_id}"
+  current_question = $redis.get(key)
+  mark_question_as_answered(channel_id)
   reponse = "The correct answer is `#{current_question["answer"]}`."
   status 200
   body json_response_for_slack(response)
