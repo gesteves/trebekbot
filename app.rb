@@ -112,14 +112,19 @@ def round_over(channel_id)
   puts key
   # current_question:C046TA10C
   current_question = $redis.get(key)
+  puts "current question"
   puts current_question
+  puts current_question.class
+  puts "answer"
+  puts current_question["answer"]
   # {"id":27147,"answer":"caisson","question":"This 2-wheeled, horse-drawn vehicle is used to carry coffins at military funerals","value":400,"airdate":"1997-09-23T12:00:00.000Z","created_at":"2014-02-11T23:02:01.868Z","updated_at":"2014-02-11T23:02:01.868Z","category_id":3008,"game_id":null,"invalid_count":null,"category":{"id":3008,"title":"\"son\"ny","created_at":"2014-02-11T23:02:01.419Z","updated_at":"2014-02-11T23:02:01.419Z","clues_count":5},"expiration":1544727966.0205}
   answer = "The correct answer is `#{current_question["answer"]}`."
-  puts answer
   mark_question_as_answered(channel_id)
   incoming_webhook = ENV["INCOMING_WEBHOOK"]
   payload = {channel: "#jeopardy", username: "tb", text: answer, icon_emoji: ":bubba:"}
-  result = HTTParty.post(incoming_webhook, query: payload)
+  puts "payload"
+  puts payload
+  result = HTTParty.post(incoming_webhook, body: payload, :debug_output => $stdout)
   puts result
   
   
