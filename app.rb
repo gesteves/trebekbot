@@ -37,29 +37,24 @@ end
 # trigger_word=trebekbot
 # 
 post "/" do
-  begin
-    puts "[LOG] #{params}"
-    params[:text] = params[:text].sub(params[:trigger_word], "").strip 
-    if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
-      response = "Invalid token"
-    elsif is_channel_blacklisted?(params[:channel_name])
-      response = "Sorry, can't play in this channel."
-    elsif params[:text].match(/^jeopardy me/i)
-      response = respond_with_question(params)
-    elsif params[:text].match(/my score$/i)
-      response = respond_with_user_score(params[:user_id])
-    elsif params[:text].match(/^help$/i)
-      response = respond_with_help
-    elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
-      response = respond_with_leaderboard
-    elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
-      response = respond_with_loserboard
-    else
-      response = process_answer(params)
-    end
-  rescue => e
-    puts "[ERROR] #{e}"
-    response = ""
+  puts "[LOG] #{params}"
+  params[:text] = params[:text].sub(params[:trigger_word], "").strip 
+  if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
+    response = "Invalid token"
+  elsif is_channel_blacklisted?(params[:channel_name])
+    response = "Sorry, can't play in this channel."
+  elsif params[:text].match(/^jeopardy me/i)
+    response = respond_with_question(params)
+  elsif params[:text].match(/my score$/i)
+    response = respond_with_user_score(params[:user_id])
+  elsif params[:text].match(/^help$/i)
+    response = respond_with_help
+  elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
+    response = respond_with_leaderboard
+  elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
+    response = respond_with_loserboard
+  else
+    response = process_answer(params)
   end
   status 200
   body json_response_for_slack(response)
