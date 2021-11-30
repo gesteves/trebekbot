@@ -37,25 +37,27 @@ end
 # trigger_word=trebekbot
 # 
 post "/" do
-  puts "[LOG] #{params}"
-  params[:text] = params[:text].sub(params[:trigger_word], "").strip 
-  if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
-    response = "Invalid token"
-  elsif is_channel_blacklisted?(params[:channel_name])
-    response = "Sorry, can't play in this channel."
-  elsif params[:text].match(/^jeopardy me/i)
-    response = respond_with_question(params)
-  elsif params[:text].match(/my score$/i)
-    response = respond_with_user_score(params[:user_id])
-  elsif params[:text].match(/^help$/i)
-    response = respond_with_help
-  elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
-    response = respond_with_leaderboard
-  elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
-    response = respond_with_loserboard
-  else
-    response = process_answer(params)
-  end
+
+    puts "[LOG] #{params}"
+    params[:text] = params[:text].sub(params[:trigger_word], "").strip 
+    if params[:token] != ENV["OUTGOING_WEBHOOK_TOKEN"]
+      response = "Invalid token"
+    elsif is_channel_blacklisted?(params[:channel_name])
+      response = "Sorry, can't play in this channel."
+    elsif params[:text].match(/^jeopardy me/i)
+      response = respond_with_question(params)
+    elsif params[:text].match(/my score$/i)
+      response = respond_with_user_score(params[:user_id])
+    elsif params[:text].match(/^help$/i)
+      response = respond_with_help
+    elsif params[:text].match(/^show (me\s+)?(the\s+)?leaderboard$/i)
+      response = respond_with_leaderboard
+    elsif params[:text].match(/^show (me\s+)?(the\s+)?loserboard$/i)
+      response = respond_with_loserboard
+    else
+      response = process_answer(params)
+    end
+
   status 200
   body json_response_for_slack(response)
 end
@@ -84,7 +86,7 @@ end
 def respond_with_question(params)
   channel_id = params[:channel_id]
   question = ""
-  unless $redis.exists("shush:question:#{channel_id}")
+  unless $redis.exists?("shush:question:#{channel_id}")
     response = get_question
     key = "current_question:#{channel_id}"
     previous_question = $redis.get(key)
@@ -115,7 +117,7 @@ def get_question
   puts "[LOG] #{request.body}"
   response = JSON.parse(request.body).first
   question = response["question"]
-  if question.nil? || question.strip == "" || ENV["QUESTION_SUBSTRING_BLACKLIST"].split(",").any? { |phrase| question.include?(phrase) }
+  if question.nil? || question.strip == "" || ENV["QUESTION_SUBSTRING_BLACKLIST"]&.split(",")&.any? { |phrase| question.include?(phrase) }
     response = get_question
   end
   response["value"] = 200 if response["value"].nil?
@@ -140,13 +142,13 @@ def process_answer(params)
   current_question = $redis.get(key)
   reply = ""
   if current_question.nil?
-    reply = trebek_me if !$redis.exists("shush:answer:#{channel_id}")
+    reply = trebek_me if !$redis.exists?("shush:answer:#{channel_id}")
   else
     current_question = JSON.parse(current_question)
     current_answer = current_question["answer"]
     user_answer = params[:text]
     answered_key = "user_answer:#{channel_id}:#{current_question["id"]}:#{user_id}"
-    if $redis.exists(answered_key)
+    if $redis.exists?(answered_key)
       reply = "You had your chance, #{get_slack_name(user_id)}. Let someone else answer."
     elsif params["timestamp"].to_f > current_question["expiration"]
       if is_correct_answer?(current_answer, user_answer)
