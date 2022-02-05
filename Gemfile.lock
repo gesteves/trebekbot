@@ -23,7 +23,7 @@ GEM
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
-    redis (4.5.1)
+    redis (4.6.0)
     ruby2_keywords (0.0.5)
     sanitize (6.0.0)
       crass (~> 1.0.2)
