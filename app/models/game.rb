@@ -47,7 +47,15 @@ class Game < ApplicationRecord
 			]
 		}
 
-    unless has_correct_answer?
+    if has_correct_answer?
+      blocks << {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "*#{question}*"
+        }
+      }
+    else
       blocks << {
         type: "input",
         dispatch_action: true,
