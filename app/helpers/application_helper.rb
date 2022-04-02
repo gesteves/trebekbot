@@ -4,6 +4,7 @@ module ApplicationHelper
     scopes = %w{
       users:read
       app_mentions:read
+      chat:write
     }
     params = {
       client_id: ENV['SLACK_CLIENT_ID'],
