@@ -48,7 +48,7 @@ class Game < ApplicationRecord
 			]
 		}
 
-    if has_correct_answer?
+    if has_correct_answer? || is_closed?
       blocks << {
         type: "section",
         text: {
