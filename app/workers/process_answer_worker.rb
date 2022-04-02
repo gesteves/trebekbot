@@ -16,7 +16,7 @@ class ProcessAnswerWorker < ApplicationWorker
     answer = Answer.new(game: game, user: user, answer: user_answer)
     answer.save!
 
-    logger.info "Answer “#{}” is #{answer.is_correct? ? 'correct' : 'incorrect'} for “#{game.question}”"
+    logger.info "Answer “#{user_answer}” is #{answer.is_correct? ? 'correct' : 'incorrect'} for “#{game.question}”"
     UpdateGameMessageWorker.perform_async(game.id, response_url)
   end
 end
