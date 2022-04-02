@@ -106,6 +106,18 @@ class Game < ApplicationRecord
         }
       end
     end
+    blocks << {
+      "type": "divider"
+    }
+    blocks << {
+			type: "context",
+			elements: [
+				{
+					type: "plain_text",
+					text: "Originally aired on #{air_date.strftime('%A, %B %-d, %Y')}"
+				}
+			]
+		}
     blocks
   end
 end
