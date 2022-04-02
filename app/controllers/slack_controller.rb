@@ -40,6 +40,10 @@ class SlackController < ApplicationController
     end
   end
 
+  def interactions
+    render plain: "OK", status: 200
+  end
+
   private
 
   def verify_url
