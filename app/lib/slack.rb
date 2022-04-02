@@ -102,7 +102,7 @@ class Slack
     blocks: nil,
     link_names: true,
     parse: 'none',
-    thread_ts: nil,
+    thread_ts: nil
   )
     return if attachments.blank? && blocks.blank? && text.blank?
     params = {
