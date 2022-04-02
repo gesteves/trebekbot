@@ -15,6 +15,12 @@ class ProcessAnswerWorker < ApplicationWorker
     answer.save!
 
     logger.info "Answer “#{user_answer}” is #{answer.is_correct? ? 'correct' : 'incorrect'} for “#{game.question}”"
+
+    if answer.is_correct?
+      user.add_score(game.value)
+    else
+      user.deduct_score(game.value)
+    end
     UpdateGameMessageWorker.perform_async(game.id, response_url)
   end
 end
