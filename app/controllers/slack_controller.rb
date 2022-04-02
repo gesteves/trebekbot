@@ -43,6 +43,15 @@ class SlackController < ApplicationController
   def interactions
     return render plain: "Unauthorized", status: 401 if params.dig(:payload, :token) != ENV['SLACK_VERIFICATION_TOKEN']
 
+    user = params.dig(:payload, :user, :id)
+    team = params.dig(:payload, :team, :id)
+    channel = params.dig(:payload, :channel, :id)
+    ts = params.dig(:payload, :message, :ts)
+    answer = params.dig(:payload, :actions)&.find { |a| a[:action_id] == "answer" }&.dig(:value)
+    response_url = params.dig(:payload, :response_url)
+
+    ProcessAnswerWorker.perform_async(team, channel, ts, user, answer, response_url)
+
     render plain: "OK", status: 200
   end
 

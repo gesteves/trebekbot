@@ -20,6 +20,15 @@ class Game < ApplicationRecord
     answers.any?(&:is_correct?)
   end
 
+  def replace_message(url)
+    params = {
+      replace_original: true,
+      text: "The category is #{category}, for $#{value}: “#{question}”",
+      blocks: to_blocks
+    }
+    HTTParty.post(url, body: params.to_json, headers: { 'Content-Type': 'application/json' })
+  end
+
   private
 
   def to_blocks
@@ -77,8 +86,8 @@ class Game < ApplicationRecord
             },
             {
               type: "image",
-              image_url: "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
-              alt_text: "cute cat"
+              image_url: a.user.avatar,
+              alt_text: a.user.name
             },
             {
               type: "plain_text",

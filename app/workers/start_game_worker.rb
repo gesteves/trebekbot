@@ -13,6 +13,6 @@ class StartGameWorker < ApplicationWorker
                     channel: channel_id,
                     team: team)
     game.save!
-    PostGameWorker.perform_async(game.id)
+    PostGameMessageWorker.perform_async(game.id)
   end
 end
