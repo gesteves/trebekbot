@@ -3,7 +3,7 @@ class ProcessAnswerWorker < ApplicationWorker
     return if team_id.blank? || channel_id.blank? || ts.blank? || user_id.blank? || answer.blank? || response_url.blank?
 
     team = Team.find_by(slack_id: team_id)
-    game = Team.games.find_by(channel: channel_id, ts: ts)
+    game = team.games.find_by(channel: channel_id, ts: ts)
     if game.has_correct_answer?
       game.send_ephemeral_message(text: "Sorry, someone already answered!", url: response_url)
       return
