@@ -53,9 +53,8 @@ class SlackController < ApplicationController
     channel = payload.dig(:channel, :id)
     ts = payload.dig(:message, :ts)
     answer = payload.dig(:actions)&.find { |a| a[:action_id] == "answer" }.dig(:value)
-    response_url = payload.dig(:response_url)
 
-    ProcessAnswerWorker.perform_async(team, channel, ts, user, answer, response_url)
+    ProcessAnswerWorker.perform_async(team, channel, ts, user, answer)
 
     render plain: "OK", status: 200
   end

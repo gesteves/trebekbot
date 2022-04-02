@@ -78,6 +78,46 @@ class Slack
     JSON.parse(response.body, symbolize_names: true)
   end
 
+  # Updates a message.
+  # @param access_token [String] Authentication token bearing required scopes.
+  # @param channel_id [String] Channel containing the message to be updated.
+  # @param ts [String] Timestamp of the message to be updated.
+  # @param attachments [Hash] The content of the message.
+  # @param blocks [Hash] The content of the message.
+  # @param text [String] The content of the message. If `attachments`` or `blocks`` are included, `text`` will be used as fallback text for notifications only.
+  # @param link_names [Boolean] Find and link channel names and usernames.
+  # @param parse [String] Change how messages are treated, can be `none` or `full`.
+  # @param reply_broadcast [Boolean] Used in conjunction with `thread_ts`` and indicates whether reply should be made visible to everyone in the channel or conversation.
+  # @see https://api.slack.com/methods/chat.postMessage
+  # @return [String] A JSON response.
+  def update_message(
+    access_token:,
+    channel_id:,
+    ts:,
+    attachments: nil,
+    blocks: nil,
+    text: nil,
+    link_names: true,
+    parse: 'none',
+    reply_broadcast: false
+  )
+    return if attachments.blank? && blocks.blank? && text.blank?
+    params = {
+      channel: channel_id,
+      ts: ts,
+      attachments: attachments,
+      blocks: blocks,
+      text: text,
+      link_names: link_names,
+      parse: parse,
+      reply_broadcast: false
+    }.compact
+    response = HTTParty.post("https://slack.com/api/chat.update",
+                            body: params.to_json,
+                            headers: { 'Authorization': "Bearer #{access_token}", 'Content-Type': 'application/json' })
+    JSON.parse(response.body, symbolize_names: true)
+  end
+
   # Sends an ephemeral message to a user in a channel.
   # @param access_token [String] Authentication token bearing required scopes.
   # @param channel_id [String] Channel, private group, or IM channel to send message to.

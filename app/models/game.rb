@@ -20,13 +20,14 @@ class Game < ApplicationRecord
     answers.any?(&:is_correct?)
   end
 
-  def replace_message(url)
-    params = {
-      replace_original: true,
-      text: "The category is #{category}, for $#{value}: “#{question}”",
-      blocks: to_blocks
-    }
-    HTTParty.post(url, body: params.to_json, headers: { 'Content-Type': 'application/json' })
+  def update_message
+    return if team.has_invalid_token?
+    blocks = to_blocks
+    text = "The category is #{category}, for $#{value}: “#{question}”"
+    slack = Slack.new
+    response = slack.update_message(access_token: team.access_token, ts: ts, channel_id: channel_id, text: text, blocks: blocks)
+    raise response[:error] unless response[:ok]
+    response
   end
 
   private

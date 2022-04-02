@@ -1,6 +1,6 @@
 class ProcessAnswerWorker < ApplicationWorker
-  def perform(team_id, channel_id, ts, user_id, user_answer, response_url)
-    return if team_id.blank? || channel_id.blank? || ts.blank? || user_id.blank? || user_answer.blank? || response_url.blank?
+  def perform(team_id, channel_id, ts, user_id, user_answer)
+    return if team_id.blank? || channel_id.blank? || ts.blank? || user_id.blank? || user_answer.blank?
 
     team = Team.find_by(slack_id: team_id)
     game = team.games.find_by(channel: channel_id, ts: ts)
@@ -26,6 +26,7 @@ class ProcessAnswerWorker < ApplicationWorker
     else
       user.deduct_score(game.value)
     end
-    UpdateGameMessageWorker.perform_async(game.id, response_url)
+
+    UpdateGameMessageWorker.perform_async(game.id)
   end
 end
