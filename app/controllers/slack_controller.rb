@@ -47,7 +47,7 @@ class SlackController < ApplicationController
     team = params.dig(:payload, :team, :id)
     channel = params.dig(:payload, :channel, :id)
     ts = params.dig(:payload, :message, :ts)
-    answer = params.dig(:payload, :actions)&.find { |a| a[:action_id] == "answer" }&.dig(:value)
+    answer = params.dig(:payload, :actions)&.find { |a| a[:action_id] == "answer" }[:value]
     response_url = params.dig(:payload, :response_url)
 
     ProcessAnswerWorker.perform_async(team, channel, ts, user, answer, response_url)
