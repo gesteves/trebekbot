@@ -10,6 +10,7 @@ class ProcessAnswerWorker < ApplicationWorker
     answer = Answer.new(game: game, user: user, answer: answer)
     answer.save!
 
+    logger.info "Received answer “#{answer}“ for game #{game.id} from user #{user.slack_id} in channel #{channel_id} in team #{team_id}"
     UpdateGameMessageWorker.perform_async(game.id, response_url)
   end
 end

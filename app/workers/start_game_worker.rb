@@ -13,6 +13,7 @@ class StartGameWorker < ApplicationWorker
                     channel: channel_id,
                     team: team)
     game.save!
+    logger.info "Starting new game in channel #{channel_id} in team #{team_id}: #{category} for $#{value} “#{question}” (#{answer})"
     PostGameMessageWorker.perform_async(game.id)
   end
 end
