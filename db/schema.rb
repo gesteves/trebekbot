@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_04_02_173136) do
+ActiveRecord::Schema[7.0].define(version: 2022_04_02_222348) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -36,6 +36,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_04_02_173136) do
     t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_closed", default: false
     t.index ["channel"], name: "index_games_on_channel"
     t.index ["team_id"], name: "index_games_on_team_id"
     t.index ["ts"], name: "index_games_on_ts"
