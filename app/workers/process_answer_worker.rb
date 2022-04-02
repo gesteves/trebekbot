@@ -1,6 +1,6 @@
 class ProcessAnswerWorker < ApplicationWorker
-  def perform(team_id, channel_id, ts, user_id, answer, response_url)
-    return if team_id.blank? || channel_id.blank? || ts.blank? || user_id.blank? || answer.blank? || response_url.blank?
+  def perform(team_id, channel_id, ts, user_id, user_answer, response_url)
+    return if team_id.blank? || channel_id.blank? || ts.blank? || user_id.blank? || user_answer.blank? || response_url.blank?
 
     team = Team.find_by(slack_id: team_id)
     game = team.games.find_by(channel: channel_id, ts: ts)
@@ -16,7 +16,7 @@ class ProcessAnswerWorker < ApplicationWorker
     if answer.present?
       game.send_ephemeral_message(text: "You’ve already submitted an answer!", url: response_url)
     else
-      answer = Answer.new(game: game, user: user, answer: answer)
+      answer = Answer.new(game: game, user: user, answer: user_answer)
       answer.save!
       UpdateGameMessageWorker.perform_async(game.id, response_url)
     end
