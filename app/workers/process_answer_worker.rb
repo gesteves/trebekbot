@@ -9,7 +9,7 @@ class ProcessAnswerWorker < ApplicationWorker
       return
     end
     user = User.find_or_create_by(team_id: team.id, slack_id: user_id)
-    logger.info "Received answer “#{answer}“ for game #{game.id} from user #{user.slack_id} in channel #{channel_id} in team #{team_id}"
+    logger.info "Received answer “#{user_answer}“ for game #{game.id} from user #{user.slack_id} in channel #{channel_id} in team #{team_id}"
 
     answer = Answer.find_by(game: game, user: user)
 
