@@ -25,7 +25,7 @@ class Game < ApplicationRecord
     blocks = to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
     slack = Slack.new
-    response = slack.update_message(access_token: team.access_token, ts: ts, channel_id: channel_id, text: text, blocks: blocks)
+    response = slack.update_message(access_token: team.access_token, ts: ts, channel_id: channel, text: text, blocks: blocks)
     raise response[:error] unless response[:ok]
     response
   end
