@@ -29,6 +29,14 @@ class Game < ApplicationRecord
     HTTParty.post(url, body: params.to_json, headers: { 'Content-Type': 'application/json' })
   end
 
+  def send_ephemeral_message(text:, url:)
+    params = {
+      response_type: "ephemeral",
+      text: text
+    }
+    HTTParty.post(url, body: params.to_json, headers: { 'Content-Type': 'application/json' })
+  end
+
   private
 
   def to_blocks

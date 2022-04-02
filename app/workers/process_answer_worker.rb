@@ -4,13 +4,21 @@ class ProcessAnswerWorker < ApplicationWorker
 
     team = Team.find_by(slack_id: team_id)
     game = Team.games.find_by(channel: channel_id, ts: ts)
-    return if game.has_correct_answer?
-
+    if game.has_correct_answer?
+      game.send_ephemeral_message(text: "Sorry, someone already answered!", url: response_url)
+      return
+    end
     user = User.find_or_create_by(team_id: team.id, slack_id: user_id)
-    answer = Answer.new(game: game, user: user, answer: answer)
-    answer.save!
-
     logger.info "Received answer “#{answer}“ for game #{game.id} from user #{user.slack_id} in channel #{channel_id} in team #{team_id}"
-    UpdateGameMessageWorker.perform_async(game.id, response_url)
+
+    answer = Answer.find_by(game: game, user: user)
+
+    if answer.present?
+      game.send_ephemeral_message(text: "You’ve already submitted an answer!", url: response_url)
+    else
+      answer = Answer.new(game: game, user: user, answer: answer)
+      answer.save!
+      UpdateGameMessageWorker.perform_async(game.id, response_url)
+    end
   end
 end
