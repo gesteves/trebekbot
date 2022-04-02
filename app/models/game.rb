@@ -55,6 +55,13 @@ class Game < ApplicationRecord
           text: "*#{question}*"
         }
       }
+      blocks << {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: answer
+        }
+      }
     else
       blocks << {
         type: "input",
