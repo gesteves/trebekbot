@@ -34,4 +34,8 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+# Ignore env config files
 .env
+
+# Fuck .DS_Store files
+.DS_Store
