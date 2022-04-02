@@ -10,8 +10,6 @@ class ProcessAnswerWorker < ApplicationWorker
     return if game.has_correct_answer?
 
     user = User.find_or_create_by(team_id: team.id, slack_id: user_id)
-    answer = Answer.find_by(game: game, user: user)
-    return if answer.present?
 
     answer = Answer.new(game: game, user: user, answer: user_answer)
     answer.save!
