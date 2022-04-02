@@ -9,7 +9,7 @@ class SlackController < ApplicationController
       if token[:ok]
         access_token = token[:access_token]
         team_id = token.dig(:team, :id)
-        team = Team.find_or_create_by(team_id: team_id)
+        team = Team.find_or_create_by(slack_id: team_id)
         team.access_token = access_token
         if team.save
           logger.info "Team #{team_id} authenticated with the following scopes: #{token[:scope]}"
