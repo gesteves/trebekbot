@@ -11,10 +11,15 @@ class ProcessAnswerWorker < ApplicationWorker
 
     user = User.find_or_create_by(team_id: team.id, slack_id: user_id)
 
+    answer = Answer.find_by(game: game, user: user)
+
+    if answer.present?
+      team.post_ephemeral_message(channel_id: channel_id, user_id: user_id, text: "You’ve had your chance, let somebody else answer.")
+      return
+    end
+
     answer = Answer.new(game: game, user: user, answer: user_answer)
     answer.save!
-
-    logger.info "Answer “#{user_answer}” is #{answer.is_correct? ? 'correct' : 'incorrect'} for “#{game.question}”"
 
     if answer.is_correct?
       user.add_score(game.value)

@@ -21,6 +21,15 @@ class Team < ApplicationRecord
     response
   end
 
+  def post_ephemeral_message(channel_id:, user_id:, text:)
+    return if has_invalid_token?
+    slack = Slack.new
+    response = slack.post_ephemeral_message(access_token: access_token, channel_id: channel_id, text: text, user_id: user_id)
+    raise response[:error] unless response[:ok]
+    logger.info "Ephemeral message sent to channel #{channel_id}"
+    response
+  end
+
   def has_invalid_token?
     slack = Slack.new
     response = slack.auth_test(access_token: access_token)
