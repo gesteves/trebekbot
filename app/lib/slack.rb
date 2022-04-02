@@ -81,16 +81,13 @@ class Slack
   # Sends an ephemeral message to a user in a channel.
   # @param access_token [String] Authentication token bearing required scopes.
   # @param channel_id [String] Channel, private group, or IM channel to send message to.
+  # @param user_id [String] id of the user who will receive the ephemeral message. The user should be in the channel specified by the channel argument.
   # @param attachments [Hash] The content of the message.
   # @param blocks [Hash] The content of the message.
   # @param text [String] The content of the message. If `attachments`` or `blocks`` are included, `text`` will be used as fallback text for notifications only.
   # @param link_names [Boolean] Find and link channel names and usernames.
-  # @param markdown [Boolean] Disable Slack markup parsing by setting to false.
   # @param parse [String] Change how messages are treated, can be `none` or `full`.
-  # @param reply_broadcast [Boolean] Used in conjunction with `thread_ts`` and indicates whether reply should be made visible to everyone in the channel or conversation.
   # @param thread_ts [String] Provide another message's ts value to make this message a reply.
-  # @param unfurl_links [Boolean] Pass true to enable unfurling of primarily text-based content
-  # @param unfurl_media [Boolean] Pass false to disable unfurling of media content.
   # @see https://api.slack.com/methods/chat.postMessage
   # @return [String] A JSON response.
   def post_ephemeral_message(
