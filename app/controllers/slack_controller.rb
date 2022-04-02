@@ -41,6 +41,8 @@ class SlackController < ApplicationController
   end
 
   def interactions
+    return render plain: "Unauthorized", status: 401 if params[:token] != ENV['SLACK_VERIFICATION_TOKEN']
+
     render plain: "OK", status: 200
   end
 
