@@ -57,6 +57,10 @@ gem "httparty"
 # Let's do some stuff in the background
 gem "sidekiq"
 
+# Used for the game
+gem "text"
+gem "sanitize"
+
 group :production do
   gem "lograge"
 end

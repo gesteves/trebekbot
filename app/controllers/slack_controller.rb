@@ -41,7 +41,7 @@ class SlackController < ApplicationController
   end
 
   def interactions
-    return render plain: "Unauthorized", status: 401 if params[:token] != ENV['SLACK_VERIFICATION_TOKEN']
+    return render plain: "Unauthorized", status: 401 if params.dig(:payload, :token) != ENV['SLACK_VERIFICATION_TOKEN']
 
     render plain: "OK", status: 200
   end
@@ -53,6 +53,14 @@ class SlackController < ApplicationController
   end
 
   def app_mention
+    text = params.dig(:event, :text)
+
+    if text =~ /(play|game)/i
+      team = params[:team_id]
+      channel = params.dig(:event, :channel)
+      StartGameWorker.perform_async(team, channel)
+    end
+
     render plain: "OK", status: 200
   end
 end

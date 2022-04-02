@@ -1,10 +1,94 @@
 class Game < ApplicationRecord
   belongs_to :team
-  has_many :answers, dependent: :destroy
+  has_many :answers, -> { order 'created_at DESC' }, dependent: :destroy
 
   validates :category, presence: true
   validates :question, presence: true
   validates :answer, presence: true
   validates :value, presence: true
   validates :air_date, presence: true
+
+  def post_to_slack
+    blocks = to_blocks
+    text = "The category is #{category}, for $#{value}: “#{question}”"
+    response = team.post_in_channel(channel_id: channel, text: text, blocks: blocks)
+    self.ts = response.dig(:message, :ts)
+    self.save!
+  end
+
+  def has_correct_answer?
+    answers.any?(&:is_correct?)
+  end
+
+  private
+
+  def to_blocks
+    blocks = []
+    blocks << {
+			type: "context",
+			elements: [
+				{
+					type: "plain_text",
+					text: "$#{value}"
+				},
+				{
+					"type": "plain_text",
+					"text": category.titleize
+				}
+			]
+		}
+
+    unless has_correct_answer?
+      blocks << {
+        type: "input",
+        dispatch_action: true,
+        element: {
+          type: "plain_text_input",
+          action_id: "answer",
+          placeholder: {
+            type: "plain_text",
+            text: "Your answer, in the form of a question"
+          },
+          dispatch_action_config: {
+            trigger_actions_on: [
+              "on_enter_pressed"
+            ]
+          }
+        },
+        label: {
+          type: "plain_text",
+          text: question
+        }
+      }
+    end
+
+    if answers.present?
+      blocks << {
+        "type": "divider"
+      }
+      answers.each do |a|
+        blocks << {
+          type: "context",
+          elements: [
+            {
+              type: "plain_text",
+              text: a.emoji,
+              emoji: true
+            },
+            {
+              type: "image",
+              image_url: "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
+              alt_text: "cute cat"
+            },
+            {
+              type: "plain_text",
+              text: a.answer,
+              emoji: true
+            }
+          ]
+        }
+      end
+    end
+    blocks
+  end
 end
