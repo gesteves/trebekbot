@@ -43,7 +43,7 @@ class Game < ApplicationRecord
 			elements: [
 				{
 					type: "mrkdwn",
-					text: "*#{category.titleize}* | $#{value}"
+					text: "*#{category.titleize}* | $#{value} | Aired on #{air_date.strftime('%A, %B %-d, %Y')}"
 				}
 			]
 		}
@@ -117,15 +117,6 @@ class Game < ApplicationRecord
     blocks << {
       type: "divider"
     }
-    blocks << {
-			type: "context",
-			elements: [
-				{
-					type: "plain_text",
-					text: "Originally aired on #{air_date.strftime('%A, %B %-d, %Y')}"
-				}
-			]
-		}
     blocks
   end
 end
