@@ -61,6 +61,9 @@ gem "sidekiq"
 gem "text"
 gem "sanitize"
 
+# Caching
+gem "dalli"
+
 group :production do
   gem "lograge"
 end
