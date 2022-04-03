@@ -8,4 +8,11 @@ namespace :games do
       UpdateGameMessageWorker.perform_async(game.id)
     end
   end
+
+  desc 'Updates all messages'
+  task :update => [:environment] do
+    Game.find_each do |game|
+      UpdateGameMessageWorker.perform_async(game.id)
+    end
+  end
 end
