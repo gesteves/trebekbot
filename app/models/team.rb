@@ -12,19 +12,19 @@ class Team < ApplicationRecord
     token_expired
   }
 
-  def post_message(channel_id:, text:, attachments: nil, blocks: nil)
+  def post_message(channel_id:, text:, attachments: nil, blocks: nil, thread_ts: nil)
     return if has_invalid_token?
     slack = Slack.new
-    response = slack.post_message(access_token: access_token, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)
+    response = slack.post_message(access_token: access_token, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks, thread_ts: thread_ts)
     raise response[:error] unless response[:ok]
     logger.info "Message sent to channel #{channel_id}"
     response
   end
 
-  def post_ephemeral_message(channel_id:, user_id:, text:)
+  def post_ephemeral_message(channel_id:, user_id:, text:, thread_ts: nil)
     return if has_invalid_token?
     slack = Slack.new
-    response = slack.post_ephemeral_message(access_token: access_token, channel_id: channel_id, text: text, user_id: user_id)
+    response = slack.post_ephemeral_message(access_token: access_token, channel_id: channel_id, text: text, user_id: user_id, thread_ts: thread_ts)
     raise response[:error] unless response[:ok]
     logger.info "Ephemeral message sent to channel #{channel_id}"
     response

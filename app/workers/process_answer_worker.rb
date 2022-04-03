@@ -23,13 +23,13 @@ class ProcessAnswerWorker < ApplicationWorker
 
     if answer.is_correct?
       user.add_score(game.value)
-      PostMessageWorker.perform_async("That is correct, @#{user.username}! Your score is now #{user.pretty_score}.", team.slack_id, channel_id)
+      PostMessageWorker.perform_async("That is correct, @#{user.username}! Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
     elsif answer.is_answer_correct? && !anwser.is_in_question_format?
       user.deduct_score(game.value)
-      PostMessageWorker.perform_async("That is correct, @#{user.username}, but responses must be in the form of a question. Your score is now #{user.pretty_score}.", team.slack_id, channel_id)
+      PostMessageWorker.perform_async("That is correct, @#{user.username}, but responses must be in the form of a question. Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
     else
       user.deduct_score(game.value)
-      PostMessageWorker.perform_async("That is incorrect, @#{user.username}. Your score is now #{user.pretty_score}.", team.slack_id, channel_id)
+      PostMessageWorker.perform_async("That is incorrect, @#{user.username}. Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
     end
 
     UpdateGameMessageWorker.perform_async(game.id)
