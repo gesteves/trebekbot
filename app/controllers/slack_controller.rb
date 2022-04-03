@@ -56,7 +56,9 @@ class SlackController < ApplicationController
     ts = payload.dig(:message, :ts)
     answer = payload.dig(:actions)&.find { |a| a[:action_id] == "answer" }.dig(:value)
 
-    ProcessAnswerWorker.perform_async(team, channel, ts, user, answer)
+    logger.info "[LOG] [Team #{team}] [Channel #{channel}] [User #{user}] [Message #{ts}] Message interaction received"
+
+    ProcessAnswerWorker.perform_async(team, channel, ts, user, answer) if answer.present?
 
     render plain: "OK", status: 200
   end
@@ -72,6 +74,8 @@ class SlackController < ApplicationController
     team = params[:team_id]
     channel = params.dig(:event, :channel)
     user = params.dig(:event, :user)
+
+    logger.info "[LOG] [Team #{team}] [Channel #{channel}] [User #{user}] App mention received"
 
     if text =~ /(play|game|go)/i
       StartGameWorker.perform_async(team, channel)
