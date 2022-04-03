@@ -74,15 +74,34 @@ class SlackController < ApplicationController
     if text =~ /(play|game|go)/i
       StartGameWorker.perform_async(team, channel)
     elsif text =~ /help/i
-      #show_help
+      show_help
     elsif text =~ /scores/i
       #show_scoreboard
     elsif text =~ /my score/i
-      #show_user_score
+      show_user_score
     else
       PostMessageWorker.perform_async(Trebek.sample, team, channel)
     end
 
     render plain: "OK", status: 200
+  end
+
+  def show_user_score
+    player = User.find_by(slack_id: user)
+    reply = if player.present?
+      "Your score is #{player.pretty_score}, #{player.mention}."
+    else
+      "You haven’t played yet, <@#{user}>, so your score is $0."
+    end
+    PostMessageWorker.perform_async(reply, team, channel)
+  end
+
+  def show_help
+    reply = <<~HELP
+      * Say `@trebekbot go` or `@trebekbot play` or `@trebekbot new game` to start a new round of Jeopardy!
+      * Say `@trebekbot my score` to see your current score
+      * Say `@trebekbot scores` to see the top 10 scores
+    HELP
+    PostMessageWorker.perform_async(reply, team, channel)
   end
 end
