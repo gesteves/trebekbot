@@ -34,6 +34,10 @@ class Game < ApplicationRecord
     UpdateGameMessageWorker.perform_async(id)
   end
 
+  def has_correct_answer?
+    answers.any?(&:is_correct?)
+  end
+
   private
 
   def to_blocks
