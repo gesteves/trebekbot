@@ -9,7 +9,7 @@ class Game < ApplicationRecord
   validates :air_date, presence: true
 
   def self.closeable
-    where(is_closed: false).where('created_at < ?', 1.hour.ago)
+    where(is_closed: false).where('created_at < ?', 1.day.ago)
   end
 
   def post_to_slack
