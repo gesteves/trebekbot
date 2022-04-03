@@ -28,7 +28,7 @@ class Game < ApplicationRecord
   end
 
   def close!
-    self.is_closed? = true
+    self.is_closed = true
     save!
     UpdateGameMessageWorker.perform_async(id)
   end
