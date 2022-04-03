@@ -46,4 +46,63 @@ class Team < ApplicationRecord
     logger.error "Team #{team_id} has an invalidated token" if invalid_token
     invalid_token
   end
+
+  def top_users(limit: 10)
+    users.order('score ASC').limit(limit)
+  end
+
+  def post_leaderboard_to_slack(channel_id:)
+    blocks = leaderboard_blocks(top_users)
+    text = "Top scores"
+    response = team.post_message(channel_id: channel, text: text, blocks: blocks)
+  end
+
+  private
+
+  def leaderboard_blocks(users)
+    blocks = []
+
+    blocks << {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "*Top scores*"
+      }
+    }
+
+    blocks << {
+      "type": "divider"
+    }
+
+    if users.present?
+      users.each do |user|
+        blocks << {
+          type: "context",
+          elements: [
+            {
+              type: "image",
+              image_url: user.avatar,
+              alt_text: user.name
+            },
+            {
+              type: "mrkdwn",
+              text: "#{user.name} | *#{user.pretty_score}*",
+              emoji: true
+            }
+          ]
+        }
+      end
+    else
+      blocks << {
+        type: "context",
+        elements: [
+          {
+            type: "plain_text",
+            text: "Nobody has played yet.",
+            emoji: true
+          }
+        ]
+      }
+    end
+  end
 end

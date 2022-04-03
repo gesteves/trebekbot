@@ -76,7 +76,7 @@ class SlackController < ApplicationController
     elsif text =~ /help/i
       show_help(team: team, channel: channel)
     elsif text =~ /scores/i
-      #show_scoreboard
+      PostLeaderboardWorker.perform_async(team, channel)
     elsif text =~ /my score/i
       show_user_score(team: team, channel: channel, user: user)
     else
