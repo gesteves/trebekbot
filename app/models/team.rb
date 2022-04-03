@@ -54,11 +54,7 @@ class Team < ApplicationRecord
   def post_leaderboard_to_slack(channel_id:)
     blocks = leaderboard_blocks(top_users)
     text = "Top scores"
-    slack = Slack.new
-    response = slack.post_message(channel_id: channel, text: text, blocks: blocks)
-    raise response[:error] unless response[:ok]
-    logger.info "Message sent to channel #{channel_id}"
-    response
+    response = post_message(channel_id: channel, text: text, blocks: blocks)
   end
 
   private
