@@ -21,6 +21,15 @@ class Team < ApplicationRecord
     response
   end
 
+  def update_message(ts:, channel_id:, text:, attachments: nil, blocks: nil)
+    return if has_invalid_token?
+    slack = Slack.new
+    response = slack.update_message(access_token: access_token, ts: ts, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)
+    raise response[:error] unless response[:ok]
+    logger.info "Updated message #{ts} in channel #{channel_id}"
+    response
+  end
+
   def post_ephemeral_message(channel_id:, user_id:, text:, thread_ts: nil)
     return if has_invalid_token?
     slack = Slack.new
