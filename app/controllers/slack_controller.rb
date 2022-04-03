@@ -12,18 +12,18 @@ class SlackController < ApplicationController
         team = Team.find_or_create_by(slack_id: team_id)
         team.access_token = access_token
         if team.save
-          logger.info "Team #{team_id} authenticated with the following scopes: #{token[:scope]}"
+          logger.info "[LOG] Team #{team_id} authenticated with the following scopes: #{token[:scope]}"
           notice = nil
           url = success_url
         else
           notice = 'Oh no, something went wrong. Please try again!'
         end
       else
-        logger.error "Authentication failed for the following reason: #{token[:error]}"
+        logger.error "[LOG] Authentication failed for the following reason: #{token[:error]}"
         notice = "Oh no, something went wrong. Please try again!"
       end
     elsif params[:error].present?
-      logger.error "Authentication failed for the following reason: #{params[:error]}"
+      logger.error "[LOG] Authentication failed for the following reason: #{params[:error]}"
       notice = "Trebekbot was not added to your Slack. Please try again!"
     end
     redirect_to url, notice: notice

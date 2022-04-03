@@ -5,7 +5,7 @@ class ProcessAnswerWorker < ApplicationWorker
     team = Team.find_by(slack_id: team_id)
     game = team.games.find_by(channel: channel_id, ts: ts)
 
-    logger.info "Received answer “#{user_answer}” for “#{game.question}” (game ID #{game.id}) from user #{user_id} in channel #{channel_id} in team #{team_id}"
+    logger.info "[LOG] Received answer “#{user_answer}” for “#{game.question}” (ID #{game.id}) from user #{user_id} in channel #{channel_id} in team #{team_id}"
 
     return if game.has_correct_answer?
 

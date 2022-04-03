@@ -17,7 +17,7 @@ class Team < ApplicationRecord
     slack = Slack.new
     response = slack.post_message(access_token: access_token, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks, thread_ts: thread_ts)
     raise response[:error] unless response[:ok]
-    logger.info "Message sent to channel #{channel_id}"
+    logger.info "[LOG] Message sent to channel #{channel_id} in team #{slack_id}"
     response
   end
 
@@ -26,7 +26,7 @@ class Team < ApplicationRecord
     slack = Slack.new
     response = slack.update_message(access_token: access_token, ts: ts, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)
     raise response[:error] unless response[:ok]
-    logger.info "Updated message #{ts} in channel #{channel_id}"
+    logger.info "[LOG] Updated message #{ts} in channel #{channel_id} in team #{slack_id}"
     response
   end
 
@@ -35,7 +35,7 @@ class Team < ApplicationRecord
     slack = Slack.new
     response = slack.post_ephemeral_message(access_token: access_token, channel_id: channel_id, text: text, user_id: user_id, thread_ts: thread_ts)
     raise response[:error] unless response[:ok]
-    logger.info "Ephemeral message sent to channel #{channel_id}"
+    logger.info "[LOG] Ephemeral message sent to channel #{channel_id} in team #{slack_id}"
     response
   end
 
@@ -43,7 +43,7 @@ class Team < ApplicationRecord
     slack = Slack.new
     response = slack.auth_test(access_token: access_token)
     invalid_token = !response[:ok] && INVALID_AUTH_ERRORS.include?(response[:error])
-    logger.error "Team #{team_id} has an invalidated token" if invalid_token
+    logger.error "[LOG] Team #{team_id} has an invalidated token" if invalid_token
     invalid_token
   end
 
