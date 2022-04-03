@@ -37,6 +37,8 @@ class SlackController < ApplicationController
       verify_url
     when 'app_mention'
       app_mention
+    when 'app_uninstalled'
+      app_uninstalled
     end
   end
 
@@ -103,5 +105,13 @@ class SlackController < ApplicationController
       • Say `@trebekbot scores` to see the top 10 scores
     HELP
     PostMessageWorker.perform_async(reply, team, channel)
+  end
+
+  def app_uninstalled
+    team = params[:team_id]
+    team = Team.find_by(slack_id: team)
+    team.destroy
+    logger.info "[LOG] [Team #{team}] App uninstalled event received; team destroyed"
+    render plain: "OK", status: 200
   end
 end
