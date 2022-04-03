@@ -82,7 +82,7 @@ class Game < ApplicationRecord
 
     if answers.present?
       blocks << {
-        "type": "divider"
+        type: "divider"
       }
       answers.each do |a|
         blocks << {
@@ -108,7 +108,7 @@ class Game < ApplicationRecord
       end
     end
     blocks << {
-      "type": "divider"
+      type: "divider"
     }
     blocks << {
 			type: "context",

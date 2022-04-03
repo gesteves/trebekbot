@@ -71,7 +71,7 @@ class Team < ApplicationRecord
     }
 
     blocks << {
-      "type": "divider"
+      type: "divider"
     }
 
     if users.present?
@@ -86,8 +86,7 @@ class Team < ApplicationRecord
             },
             {
               type: "mrkdwn",
-              text: "#{user.name} | *#{user.pretty_score}*",
-              emoji: true
+              text: "#{user.name} | *#{user.pretty_score}*"
             }
           ]
         }
