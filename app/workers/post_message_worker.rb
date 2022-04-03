@@ -7,6 +7,5 @@ class PostMessageWorker < ApplicationWorker
     else
       team.post_message(channel_id: channel_id, text: text, thread_ts: thread_ts)
     end
-    logger.info "Sent message to channel #{channel_id} in team #{team_id}"
   end
 end

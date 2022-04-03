@@ -27,6 +27,7 @@ class Game < ApplicationRecord
     slack = Slack.new
     response = slack.update_message(access_token: team.access_token, ts: ts, channel_id: channel, text: text, blocks: blocks)
     raise response[:error] unless response[:ok]
+    logger.info "Updated message #{ts} in channel #{channel_id}"
     response
   end
 
