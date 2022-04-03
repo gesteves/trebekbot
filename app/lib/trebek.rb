@@ -1,5 +1,5 @@
 module Trebek
-  def sample
+  def self.sample
     [ "Welcome back to Slack Jeopardy. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
       "Okay, Turd Ferguson.",
       "I hate my job.",
