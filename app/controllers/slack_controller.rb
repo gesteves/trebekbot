@@ -74,7 +74,7 @@ class SlackController < ApplicationController
     if text =~ /(play|game|go)/i
       StartGameWorker.perform_async(team, channel)
     elsif text =~ /help/i
-      show_help(team: tea, channel: channel)
+      show_help(team: team, channel: channel)
     elsif text =~ /scores/i
       #show_scoreboard
     elsif text =~ /my score/i
