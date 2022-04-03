@@ -30,6 +30,7 @@ class Game < ApplicationRecord
   def close!
     self.is_closed = true
     save!
+    logger.info "[LOG] [Game #{id}] Game closed"
     UpdateGameMessageWorker.perform_async(id)
   end
 
