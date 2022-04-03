@@ -68,7 +68,7 @@ class Slack
       mrkdwn: markdown,
       parse: parse,
       reply_broadcast: false,
-      thread_ts: nil,
+      thread_ts: thread_ts,
       unfurl_links: true,
       unfurl_media: true
     }.compact
@@ -150,7 +150,7 @@ class Slack
       user: user_id,
       link_names: link_names,
       parse: parse,
-      thread_ts: nil
+      thread_ts: thread_ts
     }.compact
     response = HTTParty.post("https://slack.com/api/chat.postEphemeral",
                             body: params.to_json,
