@@ -1,0 +1,28 @@
+.content {
+  align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  font-family: 'IBM Plex Mono', monospace;
+  height: 100vh;
+  height: 100dvh;
+  justify-content: center;
+  padding: 1.5rem;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  p + p {
+    margin-top: 0;
+  }
+}

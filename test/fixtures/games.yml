@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  category: MyString
+  question: MyString
+  answer: MyString
+  value: 1
+  air_date: 2022-04-02 17:30:28
+  ts: MyString
+  channel: MyString
+  team: one
+
+two:
+  category: MyString
+  question: MyString
+  answer: MyString
+  value: 1
+  air_date: 2022-04-02 17:30:28
+  ts: MyString
+  channel: MyString
+  team: two
