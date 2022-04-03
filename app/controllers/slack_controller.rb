@@ -112,10 +112,10 @@ class SlackController < ApplicationController
   end
 
   def app_uninstalled
-    team = params[:team_id]
-    team = Team.find_by(slack_id: team)
+    team_id = params[:team_id]
+    team = Team.find_by(slack_id: team_id)
     team.destroy
-    logger.info "[LOG] [Team #{team}] App uninstalled event received; team destroyed"
+    logger.info "[LOG] [Team #{team_id]}] App uninstalled event received; team destroyed"
     render plain: "OK", status: 200
   end
 end
