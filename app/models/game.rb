@@ -11,7 +11,7 @@ class Game < ApplicationRecord
   def post_to_slack
     blocks = to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
-    response = team.post_in_channel(channel_id: channel, text: text, blocks: blocks)
+    response = team.post_message(channel_id: channel, text: text, blocks: blocks)
     self.ts = response.dig(:message, :ts)
     self.save!
   end

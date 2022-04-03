@@ -12,9 +12,7 @@ class Answer < ApplicationRecord
     is_correct? ? ":white_check_mark:" : ":negative_squared_cross_mark:"
   end
 
-  private
-
-  def check_correctness
+  def is_answer_correct?
     correct_answer = game.answer.gsub(/^(the|a|an) /i, "")
                                 .strip
                                 .downcase
@@ -28,10 +26,16 @@ class Answer < ApplicationRecord
                       .downcase
     white = Text::WhiteSimilarity.new
     similarity = white.similarity(correct_answer, sanitized_answer)
-    self.is_correct = is_in_question_format? && (correct_answer == sanitized_answer || similarity >= 0.5)
+    correct_answer == sanitized_answer || similarity >= 0.5
   end
 
   def is_in_question_format?
     answer.strip.match? QUESTION_REGEX
+  end
+
+  private
+
+  def check_correctness
+    self.is_correct = is_in_question_format? && is_answer_correct?
   end
 end

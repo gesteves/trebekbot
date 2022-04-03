@@ -12,7 +12,7 @@ class Team < ApplicationRecord
     token_expired
   }
 
-  def post_in_channel(channel_id:, text:, attachments: nil, blocks: nil)
+  def post_message(channel_id:, text:, attachments: nil, blocks: nil)
     return if has_invalid_token?
     slack = Slack.new
     response = slack.post_message(access_token: access_token, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)

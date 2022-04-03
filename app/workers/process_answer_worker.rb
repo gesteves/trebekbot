@@ -14,7 +14,7 @@ class ProcessAnswerWorker < ApplicationWorker
     answer = Answer.find_by(game: game, user: user)
 
     if answer.present?
-      team.post_ephemeral_message(channel_id: channel_id, user_id: user_id, text: "You’ve had your chance, let somebody else answer.")
+      PostMessageWorker.perform_async("You’ve had your chance, let somebody else answer.", team.slack_id, channel_id, user_id)
       return
     end
 
@@ -23,8 +23,13 @@ class ProcessAnswerWorker < ApplicationWorker
 
     if answer.is_correct?
       user.add_score(game.value)
+      PostMessageWorker.perform_async("That is correct, @#{user.username}! Your score is now #{user.pretty_score}.", team.slack_id, channel_id)
+    elsif answer.is_answer_correct? && !anwser.is_in_question_format?
+      user.deduct_score(game.value)
+      PostMessageWorker.perform_async("That is correct, @#{user.username}, but responses must be in the form of a question. Your score is now #{user.pretty_score}.", team.slack_id, channel_id)
     else
       user.deduct_score(game.value)
+      PostMessageWorker.perform_async("That is incorrect, @#{user.username}. Your score is now #{user.pretty_score}.", team.slack_id, channel_id)
     end
 
     UpdateGameMessageWorker.perform_async(game.id)

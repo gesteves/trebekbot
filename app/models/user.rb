@@ -19,6 +19,13 @@ class User < ApplicationRecord
     response.dig(:user, :real_name).presence || response.dig(:user, :name).presence
   end
 
+  def username
+    slack = Slack.new
+    response = slack.user_info(access_token: team.access_token, user_id: slack_id)
+    raise response[:error] unless response[:ok]
+    response.dig(:user, :name).presence
+  end
+
   def add_score(amount)
     logger.info "Adding #{number_to_currency(amount, precision: 0)} to user #{slack_id}"
     self.score += amount
