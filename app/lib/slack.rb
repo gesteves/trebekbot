@@ -67,10 +67,10 @@ class Slack
       link_names: link_names,
       mrkdwn: markdown,
       parse: parse,
-      reply_broadcast: false,
+      reply_broadcast: reply_broadcast,
       thread_ts: thread_ts,
-      unfurl_links: true,
-      unfurl_media: true
+      unfurl_links: unfurl_links,
+      unfurl_media: unfurl_media
     }.compact
     response = HTTParty.post("https://slack.com/api/chat.postMessage",
                             body: params.to_json,
@@ -110,7 +110,7 @@ class Slack
       text: text,
       link_names: link_names,
       parse: parse,
-      reply_broadcast: false
+      reply_broadcast: reply_broadcast
     }.compact
     response = HTTParty.post("https://slack.com/api/chat.update",
                             body: params.to_json,
