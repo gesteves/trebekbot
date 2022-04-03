@@ -8,6 +8,10 @@ class Game < ApplicationRecord
   validates :value, presence: true
   validates :air_date, presence: true
 
+  def self.closeable
+    where(is_closed: false).where('created_at < ?', 1.day.ago)
+  end
+
   def post_to_slack
     blocks = to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
