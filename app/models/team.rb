@@ -66,7 +66,7 @@ class Team < ApplicationRecord
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "*Top scores*"
+        text: "*Let’s take a look at the scores:*"
       }
     }
 
