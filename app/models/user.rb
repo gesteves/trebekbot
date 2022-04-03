@@ -37,13 +37,13 @@ class User < ApplicationRecord
   end
 
   def add_score(amount)
-    logger.info "[LOG] Adding #{number_to_currency(amount, precision: 0)} to user #{slack_id}"
+    logger.info "[LOG] [User #{slack_id}] Adding #{number_to_currency(amount, precision: 0)}"
     self.score += amount
     save!
   end
 
   def deduct_score(amount)
-    logger.info "[LOG] Deducting #{number_to_currency(amount, precision: 0)} from user #{slack_id}"
+    logger.info "[LOG] [User #{slack_id}] Deducting #{number_to_currency(amount, precision: 0)}"
     self.score -= amount
     save!
   end

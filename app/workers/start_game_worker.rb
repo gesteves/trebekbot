@@ -13,7 +13,7 @@ class StartGameWorker < ApplicationWorker
                     channel: channel_id,
                     team: team)
     game.save!
-    logger.info "[LOG] New game in channel #{channel_id} in team #{team_id}: “#{question.dig(:category, :title)}” for $#{question[:value]}: “#{question[:question]}” (#{question[:answer]})"
+    logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: “#{question.dig(:category, :title)}” for $#{question[:value]}: “#{question[:question]}” (#{question[:answer]})"
     PostGameMessageWorker.perform_async(game.id)
   end
 end
