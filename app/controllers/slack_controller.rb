@@ -67,11 +67,20 @@ class SlackController < ApplicationController
 
   def app_mention
     text = params.dig(:event, :text)
+    team = params[:team_id]
+    channel = params.dig(:event, :channel)
+    user = params.dig(:event. :user)
 
-    if text =~ /(play|game)/i
-      team = params[:team_id]
-      channel = params.dig(:event, :channel)
+    if text =~ /(play|game|go)/i
       StartGameWorker.perform_async(team, channel)
+    elsif text =~ /help/i
+      #show_help
+    elsif text =~ /scores/i
+      #show_scoreboard
+    elsif text =~ /my score/i
+      #show_user_score
+    else
+      PostMessageWorker.perform_async(Trebek.sample, team, channel)
     end
 
     render plain: "OK", status: 200
