@@ -69,7 +69,7 @@ class SlackController < ApplicationController
     text = params.dig(:event, :text)
     team = params[:team_id]
     channel = params.dig(:event, :channel)
-    user = params.dig(:event. :user)
+    user = params.dig(:event, :user)
 
     if text =~ /(play|game|go)/i
       StartGameWorker.perform_async(team, channel)
