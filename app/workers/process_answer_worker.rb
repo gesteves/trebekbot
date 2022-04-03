@@ -14,7 +14,7 @@ class ProcessAnswerWorker < ApplicationWorker
     answer = Answer.find_by(game: game, user: user)
 
     if answer.present?
-      PostMessageWorker.perform_async("You’ve had your chance, #{user.mention}. Let somebody else answer.", team.slack_id, channel_id, game.ts)
+      PostMessageWorker.perform_async("You’ve had your chance, #{user.mention}. Let somebody else answer.", team.slack_id, channel_id, game.ts, user_id)
       return
     end
 
