@@ -101,7 +101,7 @@ class Slack
     parse: 'none',
     reply_broadcast: false
   )
-    return if attachments.blank? && blocks.blank? && text.blank?
+    return if (attachments.blank? && blocks.blank? && text.blank?) || ts.blank?
     params = {
       channel: channel_id,
       ts: ts,
