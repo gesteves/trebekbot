@@ -39,12 +39,8 @@ class Game < ApplicationRecord
 			type: "context",
 			elements: [
 				{
-					type: "plain_text",
-					text: "$#{value}"
-				},
-				{
-					"type": "plain_text",
-					"text": category.titleize
+					type: "mrkdwn",
+					text: "*#{category.titleize}* | $#{value}"
 				}
 			]
 		}
