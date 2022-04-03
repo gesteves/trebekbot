@@ -1,7 +1,7 @@
 namespace :games do
   desc 'Closes old games'
   task :close => [:environment] do
-    games.closeable.find_each do |game|
+    Game.closeable.find_each do |game|
       game.close!
     end
   end
