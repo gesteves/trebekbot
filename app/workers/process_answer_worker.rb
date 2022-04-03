@@ -7,7 +7,7 @@ class ProcessAnswerWorker < ApplicationWorker
 
     logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] [User #{user_id}] Received answer: #{user_answer}"
 
-    return if game.has_correct_answer?
+    return if game.is_closed?
 
     user = User.find_or_create_by(team_id: team.id, slack_id: user_id)
 
@@ -26,19 +26,21 @@ class ProcessAnswerWorker < ApplicationWorker
       logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] [User #{user_id}] User answered correctly"
       user.add_score(game.value)
       user.reload
+      game.close!
       PostMessageWorker.perform_async("That is correct, #{user.mention}! Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
     elsif answer.is_answer_correct? && !answer.is_in_question_format?
       logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] [User #{user_id}] User answered correctly, but not in the form of a question"
       user.deduct_score(game.value)
       user.reload
       PostMessageWorker.perform_async("That is correct, #{user.mention}, but responses must be in the form of a question. Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
+      UpdateGameMessageWorker.perform_async(game.id)
     else
       logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] [User #{user_id}] User answered incorrectly"
       user.deduct_score(game.value)
       user.reload
       PostMessageWorker.perform_async("That is incorrect, #{user.mention}. Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
+      UpdateGameMessageWorker.perform_async(game.id)
     end
 
-    UpdateGameMessageWorker.perform_async(game.id)
   end
 end

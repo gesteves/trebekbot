@@ -2,9 +2,7 @@ namespace :games do
   desc 'Closes old games'
   task :close => [:environment] do
     games.closeable.find_each do |game|
-      game.is_closed = true
-      game.save!
-      UpdateGameMessageWorker.perform_async(game.id)
+      game.close!
     end
   end
 

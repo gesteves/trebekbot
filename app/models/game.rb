@@ -20,15 +20,17 @@ class Game < ApplicationRecord
     self.save!
   end
 
-  def has_correct_answer?
-    answers.any?(&:is_correct?)
-  end
-
   def update_message
     return if team.has_invalid_token?
     blocks = to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
     response = team.update_message(ts: ts, channel_id: channel, text: text, blocks: blocks)
+  end
+
+  def close!
+    self.is_closed? = true
+    save!
+    UpdateGameMessageWorker.perform_async(id)
   end
 
   private
@@ -45,7 +47,7 @@ class Game < ApplicationRecord
 			]
 		}
 
-    if has_correct_answer? || is_closed?
+    if is_closed?
       blocks << {
         type: "section",
         text: {
