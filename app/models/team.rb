@@ -104,5 +104,7 @@ class Team < ApplicationRecord
         ]
       }
     end
+
+    blocks
   end
 end
