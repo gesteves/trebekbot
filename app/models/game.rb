@@ -60,7 +60,7 @@ class Game < ApplicationRecord
         type: "section",
         text: {
           type: "mrkdwn",
-          text: answer
+          text: "Answer: #{answer}"
         }
       }
     else
