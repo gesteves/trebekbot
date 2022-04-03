@@ -6,7 +6,7 @@ class Answer < ApplicationRecord
 
   before_save :check_correctness
 
-  QUESTION_REGEX = /^(what|whats|where|wheres|who|whos) /i
+  QUESTION_REGEX = /^(what|where|when|who)/i
 
   def emoji
     is_correct? ? ":white_check_mark:" : ":negative_squared_cross_mark:"
@@ -19,7 +19,7 @@ class Answer < ApplicationRecord
     sanitized_answer = answer
                       .gsub(/\s+(&nbsp;|&)\s+/i, " and ")
                       .gsub(QUESTION_REGEX, "")
-                      .gsub(/^(is|are|was|were) /, "")
+                      .gsub(/^(is|are|was|were|'s|’s|s) /, "")
                       .gsub(/^(the|a|an) /i, "")
                       .gsub(/\?+$/, "")
                       .strip

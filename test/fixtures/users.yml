@@ -1,11 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  slack_id: MyString
+  slack_id: U1234ACBD
   score: 1
   team: one
 
 two:
-  slack_id: MyString
+  slack_id: U5678DEFG
   score: 1
   team: two

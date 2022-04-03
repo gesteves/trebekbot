@@ -1,20 +1,20 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  category: MyString
-  question: MyString
-  answer: MyString
-  value: 1
+  category: "jack lemmon films"
+  question: "Lemmon made his directorial debut with 1971's \"Kotch\", starring this man, his \"Out To Sea\" co-star"
+  answer: "Walter Matthau"
+  value: 100
   air_date: 2022-04-02 17:30:28
   ts: MyString
   channel: MyString
   team: one
 
 two:
-  category: MyString
-  question: MyString
-  answer: MyString
-  value: 1
+  category: "photo ops"
+  question: "Ocean Spray's Cranberry World visitors' center is berry close to this site of the Pilgrims' landing"
+  answer: "Plymouth Rock"
+  value: 100
   air_date: 2022-04-02 17:30:28
   ts: MyString
   channel: MyString
