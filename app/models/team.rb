@@ -48,7 +48,7 @@ class Team < ApplicationRecord
   end
 
   def top_users(limit: 10)
-    users.order('score ASC').limit(limit)
+    users.order('score DESC').limit(limit)
   end
 
   def post_leaderboard_to_slack(channel_id:)
