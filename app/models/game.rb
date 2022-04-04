@@ -8,6 +8,8 @@ class Game < ApplicationRecord
   validates :value, presence: true
   validates :air_date, presence: true
 
+  after_commit :enqueue_message_update, if: :saved_change_to_is_closed?
+
   def self.closeable
     where(is_closed: false).where('created_at < ?', 1.day.ago)
   end
@@ -30,8 +32,6 @@ class Game < ApplicationRecord
   def close!
     self.is_closed = true
     save!
-    logger.info "[LOG] [Game #{id}] Game closed"
-    UpdateGameMessageWorker.perform_async(id)
   end
 
   def has_correct_answer?
@@ -39,6 +39,10 @@ class Game < ApplicationRecord
   end
 
   private
+
+  def enqueue_message_update
+    UpdateGameMessageWorker.perform_async(id)
+  end
 
   def to_blocks
     blocks = []
