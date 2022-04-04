@@ -41,6 +41,6 @@ class Answer < ApplicationRecord
   end
 
   def update_game_message
-    UpdateGameMessageWorker.perform_async(game.id)
+    UpdateGameMessageWorker.perform_async(game.id) unless Rails.env.test?
   end
 end
