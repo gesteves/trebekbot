@@ -64,7 +64,7 @@ class Game < ApplicationRecord
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "Answer: #{answer}"
+          text: "The answer is “#{answer}”"
         }
       }
     else
@@ -76,7 +76,7 @@ class Game < ApplicationRecord
           action_id: "answer",
           placeholder: {
             type: "plain_text",
-            text: "Your answer, in the form of a question"
+            text: "Your answer, in the form of a question…"
           },
           dispatch_action_config: {
             trigger_actions_on: [
