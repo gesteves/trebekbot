@@ -5,6 +5,7 @@ class Answer < ApplicationRecord
   validates :answer, presence: true
 
   before_save :check_correctness
+  after_commit :update_game_message
 
   QUESTION_REGEX = /^(what|where|when|who)/i
 
@@ -37,5 +38,9 @@ class Answer < ApplicationRecord
 
   def check_correctness
     self.is_correct = is_in_question_format? && is_answer_correct?
+  end
+
+  def update_game_message
+    UpdateGameMessageWorker.perform_async(game.id)
   end
 end

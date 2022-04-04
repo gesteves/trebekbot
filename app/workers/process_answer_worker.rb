@@ -33,13 +33,11 @@ class ProcessAnswerWorker < ApplicationWorker
       user.deduct_score(game.value)
       user.reload
       PostMessageWorker.perform_async("That is correct, #{user.mention}, but responses must be in the form of a question. Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
-      UpdateGameMessageWorker.perform_async(game.id)
     else
       logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] [User #{user_id}] User answered incorrectly"
       user.deduct_score(game.value)
       user.reload
       PostMessageWorker.perform_async("That is incorrect, #{user.mention}. Your score is now #{user.pretty_score}.", team.slack_id, channel_id, game.ts)
-      UpdateGameMessageWorker.perform_async(game.id)
     end
 
   end
