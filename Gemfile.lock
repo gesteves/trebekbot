@@ -128,6 +128,8 @@ GEM
     mime-types-data (3.2022.0105)
     mini_mime (1.1.2)
     minitest (5.15.0)
+    mock_redis (0.30.0)
+      ruby2_keywords
     msgpack (1.4.5)
     multi_xml (0.6.0)
     net-imap (0.2.3)
@@ -191,6 +193,7 @@ GEM
     request_store (1.5.1)
       rack (>= 1.4)
     rexml (3.2.5)
+    ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
     sanitize (6.0.0)
       crass (~> 1.0.2)
@@ -255,6 +258,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   lograge
+  mock_redis
   pg (~> 1.2)
   puma (~> 5.0)
   rails (~> 7.0.2, >= 7.0.2.3)
