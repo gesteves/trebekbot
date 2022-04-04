@@ -11,7 +11,7 @@ class Game < ApplicationRecord
   after_commit :enqueue_message_update, if: :saved_change_to_is_closed?
 
   def self.closeable
-    where(is_closed: false).where('created_at < ?', 1.day.ago)
+    where(is_closed: false).where('created_at < ?', 10.minutes.ago)
   end
 
   def post_to_slack
