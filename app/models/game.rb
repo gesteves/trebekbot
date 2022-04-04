@@ -38,6 +38,10 @@ class Game < ApplicationRecord
     answers.any?(&:is_correct?)
   end
 
+  def has_answer_by_user?(user)
+    answers.where(user: user).present?
+  end
+
   private
 
   def enqueue_message_update

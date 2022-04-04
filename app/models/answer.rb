@@ -5,7 +5,7 @@ class Answer < ApplicationRecord
   validates :answer, presence: true
 
   before_save :check_correctness
-  after_commit :update_game_message
+  after_commit :update_game
 
   QUESTION_REGEX = /^(what|where|when|who)/i
 
@@ -40,7 +40,22 @@ class Answer < ApplicationRecord
     self.is_correct = is_in_question_format? && is_answer_correct?
   end
 
-  def update_game_message
+  def update_game
+    if is_answer_correct? && is_in_question_format?
+      user.add_score(game.value)
+      user.reload
+      message = user.correct_answer_message
+      game.close!
+    elsif is_answer_correct? && !is_in_question_format?
+      user.deduct_score(game.value)
+      user.reload
+      message = user.not_a_question_message
+    else
+      user.deduct_score(game.value)
+      user.reload
+      message = user.incorrect_answer_message
+    end
     UpdateGameMessageWorker.perform_async(game.id) unless Rails.env.test?
+    PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts) unless Rails.env.test?
   end
 end

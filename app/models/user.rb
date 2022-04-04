@@ -40,18 +40,32 @@ class User < ApplicationRecord
   end
 
   def add_score(amount)
-    logger.info "[LOG] [User #{slack_id}] Adding #{number_to_currency(amount, precision: 0)}"
     self.score += amount
     save!
   end
 
   def deduct_score(amount)
-    logger.info "[LOG] [User #{slack_id}] Deducting #{number_to_currency(amount, precision: 0)}"
     self.score -= amount
     save!
   end
 
   def pretty_score
     number_to_currency(score, precision: 0)
+  end
+
+  def correct_answer_message
+    "That is correct, #{mention}! Your score is now #{pretty_score}."
+  end
+
+  def not_a_question_message
+    "That is correct, #{mention}, but responses must be in the form of a question. Your score is now #{pretty_score}."
+  end
+
+  def incorrect_answer_message
+    "That is incorrect, #{mention}. Your score is now #{pretty_score}."
+  end
+
+  def duplicate_answer_message
+    "You’ve had your chance, #{mention}. Let somebody else answer."
   end
 end
