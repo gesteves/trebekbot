@@ -55,7 +55,7 @@ class Answer < ApplicationRecord
       user.reload
       message = user.incorrect_answer_message
     end
-    UpdateGameMessageWorker.perform_async(game.id) unless Rails.env.test?
-    PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts) unless Rails.env.test?
+    UpdateGameMessageWorker.perform_async(game.id)
+    PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts)
   end
 end
