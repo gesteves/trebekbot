@@ -9,7 +9,7 @@ class Answer < ApplicationRecord
   QUESTION_REGEX = /^(what|where|when|who)/i
 
   def emoji
-    is_correct? ? ":white_check_mark:" : ":negative_squared_cross_mark:"
+    is_correct? ? ":white_check_mark:" : ":x:"
   end
 
   def is_answer_correct?
