@@ -15,22 +15,22 @@ class Answer < ApplicationRecord
 
   def is_answer_correct?
     # Remove cruft from the correct and user-entered answers
-    correct_answer = normalize_answer(game.answer)
     sanitized_answer = normalize_answer(answer)
+    correct_answer = normalize_answer(game.answer)
 
     # Consider text in parentheses as optional
-    without_parentheses = sanitized_answer.gsub(/\(.*\)/, "")
+    without_parentheses = correct_answer.gsub(/\(.*\)/, "")
 
     # Consider answers with "or" as separate options
-    or_answers = sanitized_answer.split(' or ')
+    or_answers = correct_answer.split(' or ')
 
-    # Build an array with all the potential answers submitted
-    all_answers = [sanitized_answer, without_parentheses, or_answers].flatten.uniq
+    # Build an array with all the potentially correct answers
+    possible_correct_answers = [correct_answer, without_parentheses, or_answers].flatten.uniq
 
     white = Text::WhiteSimilarity.new
 
-    # The answer is correct if any of them has a similarity score > 0.5
-    all_answers.any? { |a| white.similarity(correct_answer, a) > 0.5 }
+    # The answer is correct if it has a similarity score > 0.5 with any of the possible answers
+    possible_correct_answers.any? { |a| white.similarity(sanitized_answer, a) > 0.5 }
   end
 
   def is_in_question_format?
