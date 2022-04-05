@@ -4,16 +4,22 @@ class StartGameWorker < ApplicationWorker
     team = Team.find_by(slack_id: team_id)
     return if team.blank?
 
-    question = Jservice.get_question
-    game = Game.new(question: question[:question],
-                    answer: question[:answer],
-                    value: question[:value],
-                    category: question.dig(:category, :title),
-                    air_date: question[:airdate],
+    q = Jservice.get_question
+    question = q[:question].gsub(/\\/, "")
+    answer = q[:answer].gsub(/\\/, "")
+    value = q[:value]
+    category = q.dig(:category, :title).gsub(/\\/, "")
+    air_date = q[:airdate]
+
+    game = Game.new(question: question,
+                    answer: answer,
+                    value: value,
+                    category: category,
+                    air_date: air_date,
                     channel: channel_id,
                     team: team)
     game.save!
-    logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{question.dig(:category, :title)} | $#{question[:value]} | #{question[:question]} | #{question[:answer]}"
+    logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{category} | $#{value} | #{question} | #{answer}"
     PostGameMessageWorker.perform_async(game.id)
     EndGameWorker.perform_in(5.minutes, game.id)
   end
