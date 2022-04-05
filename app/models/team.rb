@@ -89,7 +89,7 @@ class Team < ApplicationRecord
             },
             {
               type: "mrkdwn",
-              text: "#{user.ream_name || user.username} | *#{user.pretty_score}*"
+              text: "#{user.real_name || user.username} | *#{user.pretty_score}*"
             }
           ]
         }
