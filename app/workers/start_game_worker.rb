@@ -21,6 +21,6 @@ class StartGameWorker < ApplicationWorker
     game.save!
     logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{question} | #{answer}"
     PostGameMessageWorker.perform_async(game.id)
-    EndGameWorker.perform_in(5.minutes, game.id)
+    EndGameWorker.perform_in(ENV['CONFIG_GAME_TIME_LIMIT'].to_i.seconds, game.id)
   end
 end
