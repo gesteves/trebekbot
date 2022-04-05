@@ -24,7 +24,7 @@ class Answer < ApplicationRecord
     # Consider answers with "or" as separate options
     or_answers = sanitized_answer.split(' or ')
 
-    # Build all array with all the potential answers submitted
+    # Build an array with all the potential answers submitted
     all_answers = [sanitized_answer, without_parentheses, or_answers].flatten.uniq
 
     white = Text::WhiteSimilarity.new
