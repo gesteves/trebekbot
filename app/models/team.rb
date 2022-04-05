@@ -18,7 +18,6 @@ class Team < ApplicationRecord
     response = slack.post_message(access_token: access_token, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks, thread_ts: thread_ts)
     return if response.blank?
     raise response[:error] unless response[:ok]
-    logger.info "[LOG] [Team #{slack_id}] [Channel #{channel_id}] Message sent to channel"
     response
   end
 
@@ -28,7 +27,6 @@ class Team < ApplicationRecord
     response = slack.update_message(access_token: access_token, ts: ts, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)
     return if response.blank?
     raise response[:error] unless response[:ok]
-    logger.info "[LOG] [Team #{slack_id}] [Channel #{channel_id}] [Message #{ts}] Message updated in channel"
     response
   end
 
@@ -38,7 +36,6 @@ class Team < ApplicationRecord
     response = slack.post_ephemeral_message(access_token: access_token, channel_id: channel_id, text: text, user_id: user_id, thread_ts: thread_ts)
     return if response.blank?
     raise response[:error] unless response[:ok]
-    logger.info "[LOG] [Team #{slack_id}] [Channel #{channel_id}] Ephemeral message sent to channel"
     response
   end
 
