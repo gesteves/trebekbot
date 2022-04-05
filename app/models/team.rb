@@ -85,7 +85,7 @@ class Team < ApplicationRecord
             {
               type: "image",
               image_url: user.avatar,
-              alt_text: user.name
+              alt_text: user.display_name
             },
             {
               type: "mrkdwn",
