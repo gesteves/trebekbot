@@ -15,13 +15,23 @@ class User < ApplicationRecord
     end
   end
 
-  def name
-    Rails.cache.fetch("slack/user/name/#{slack_id}", expires_in: 1.day) do
+  def real_name
+    Rails.cache.fetch("slack/user/real_name/#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
       return if response.blank?
       raise response[:error] unless response[:ok]
-      response.dig(:user, :real_name).presence || response.dig(:user, :name).presence
+      response.dig(:user, :real_name).presence
+    end
+  end
+
+  def first_name
+    Rails.cache.fetch("slack/user/first_name/#{slack_id}", expires_in: 1.day) do
+      slack = Slack.new
+      response = slack.user_info(access_token: team.access_token, user_id: slack_id)
+      return if response.blank?
+      raise response[:error] unless response[:ok]
+      response.dig(:user, :profile, :first_name).presence
     end
   end
 
@@ -33,6 +43,10 @@ class User < ApplicationRecord
       raise response[:error] unless response[:ok]
       response.dig(:user, :name).presence
     end
+  end
+
+  def display_name
+    first_name || real_name || username
   end
 
   def mention
@@ -54,18 +68,18 @@ class User < ApplicationRecord
   end
 
   def correct_answer_message
-    "That is correct, #{mention}! Your score is now #{pretty_score}."
+    "That is correct, #{display_name}! Your score is now #{pretty_score}."
   end
 
   def not_a_question_message
-    "That is correct, #{mention}, but responses must be in the form of a question. Your score is now #{pretty_score}."
+    "That is correct, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}."
   end
 
   def incorrect_answer_message
-    "That is incorrect, #{mention}. Your score is now #{pretty_score}."
+    "That is incorrect, #{display_name}. Your score is now #{pretty_score}."
   end
 
   def duplicate_answer_message
-    "You’ve had your chance, #{mention}. Let somebody else answer."
+    "You’ve had your chance, #{display_name}. Let somebody else answer."
   end
 end
