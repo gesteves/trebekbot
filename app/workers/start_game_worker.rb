@@ -19,7 +19,7 @@ class StartGameWorker < ApplicationWorker
                     channel: channel_id,
                     team: team)
     game.save!
-    logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{category} | $#{value} | #{question} | #{answer}"
+    logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{question} | #{answer}"
     PostGameMessageWorker.perform_async(game.id)
     EndGameWorker.perform_in(5.minutes, game.id)
   end
