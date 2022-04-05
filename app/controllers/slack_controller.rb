@@ -100,9 +100,9 @@ class SlackController < ApplicationController
 
   def show_help(team:, channel:)
     reply = <<~HELP
-      • Say `@trebekbot go` or `@trebekbot play` or `@trebekbot new game` to start a new round of Jeopardy!
+      • Say `@trebekbot go` or `@trebekbot play` or `@trebekbot game` to start a new round of Jeopardy!
       • Say `@trebekbot my score` to see your current score
-      • Say `@trebekbot scores` to see the top 10 scores
+      • Say `@trebekbot scores` or `@trebekbot leaderboard` to see the top scores
     HELP
     PostMessageWorker.perform_async(reply, team, channel)
   end
