@@ -54,6 +54,7 @@ class Answer < ApplicationRecord
       user.deduct_score(game.value)
       user.reload
       message = user.not_a_question_message
+      game.close!
     else
       user.deduct_score(game.value)
       user.reload
