@@ -115,7 +115,7 @@ class Game < ApplicationRecord
             {
               type: "image",
               image_url: a.user.avatar,
-              alt_text: a.user.name
+              alt_text: a.user.real_name || a.user.username
             },
             {
               type: "plain_text",
