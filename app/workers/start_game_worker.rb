@@ -5,10 +5,10 @@ class StartGameWorker < ApplicationWorker
     return if team.blank?
 
     q = Jservice.get_question
-    question = q[:question].gsub(/\\/, "")
-    answer = q[:answer].gsub(/\\/, "")
+    question = q[:question]
+    answer = q[:answer]
     value = q[:value]
-    category = q.dig(:category, :title).gsub(/\\/, "")
+    category = q.dig(:category, :title)
     air_date = q[:airdate]
 
     game = Game.new(question: question,
