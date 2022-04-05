@@ -14,20 +14,23 @@ class Answer < ApplicationRecord
   end
 
   def is_answer_correct?
-    correct_answer = game.answer.gsub(/^(the|a|an) /i, "")
-                                .strip
-                                .downcase
-    sanitized_answer = answer
-                      .gsub(/\s+(&nbsp;|&)\s+/i, " and ")
-                      .gsub(QUESTION_REGEX, "")
-                      .gsub(/^(is|are|was|were|'s|’s|s) /, "")
-                      .gsub(/^(the|a|an) /i, "")
-                      .gsub(/\?+$/, "")
-                      .strip
-                      .downcase
+    # Remove cruft from the correct and user-entered answers
+    correct_answer = normalize_answer(game.answer)
+    sanitized_answer = normalize_answer(answer)
+
+    # Consider text in parentheses as optional
+    without_parentheses = sanitized_answer.gsub(/\(.*\)/, "")
+
+    # Consider answers with "or" as separate options
+    or_answers = sanitized_answer.split(' or ')
+
+    # Build all array with all the potential answers submitted
+    all_answers = [sanitized_answer, without_parentheses, or_answers].flatten.uniq
+
     white = Text::WhiteSimilarity.new
-    similarity = white.similarity(correct_answer, sanitized_answer)
-    correct_answer == sanitized_answer || similarity >= 0.5
+
+    # The answer is correct if any of them has a similarity score > 0.5
+    all_answers.any? { |a| white.similarity(correct_answer, a) > 0.5 }
   end
 
   def is_in_question_format?
@@ -57,5 +60,16 @@ class Answer < ApplicationRecord
     end
     UpdateGameMessageWorker.perform_async(game.id)
     PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts)
+  end
+
+  def normalize_answer(text)
+    text.gsub(QUESTION_REGEX, "")
+        .gsub(/['"“”‘’]/, "")
+        .gsub(/^\s*+(is|are|was|were|s) /, "")
+        .gsub(/^\s*+(the|a|an) /i, "")
+        .gsub(/\s+(&amp;|&)\s+/i, " and ")
+        .gsub(/\?+$/, "")
+        .strip
+        .downcase
   end
 end

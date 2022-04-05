@@ -103,4 +103,38 @@ class AnswerTest < ActiveSupport::TestCase
     assert answer.is_in_question_format?
     assert answer.is_correct?
   end
+
+  test "considers text in parentheses as optional" do
+    game = games(:parentheses)
+    user = users(:one)
+    answer = Answer.new(answer: "What is #{game.answer}?", game: game, user: user)
+    answer.save!
+
+    assert answer.is_correct?
+
+    answer = Answer.new(answer: "What is why cant I?", game: game, user: user)
+    answer.save!
+
+    assert answer.is_correct?
+  end
+
+  test "considers either option correct in answers that contain 'or'" do
+    game = games(:or)
+    user = users(:one)
+    answer = Answer.new(answer: "Who are #{game.answer}?", game: game, user: user)
+    answer.save!
+
+    assert answer.is_correct?
+
+    answer.answer = "Who is Jerry Seinfeld?"
+    answer.save!
+
+    assert answer.is_correct?
+
+
+    answer.answer = "Who is Cosmo Kramer?"
+    answer.save!
+
+    assert answer.is_correct?
+  end
 end
