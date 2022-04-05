@@ -46,6 +46,7 @@ class User < ApplicationRecord
   end
 
   def display_name
+    return "test user" if Rails.env.test?
     first_name || real_name || username
   end
 
