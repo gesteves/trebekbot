@@ -1,8 +1,6 @@
 module Trebek
   def self.sample
     [ "Welcome back to Slack Jeopardy. Before we begin this Jeopardy round, I'd like to ask our contestants once again to please refrain from using ethnic slurs.",
-      "Okay, Turd Ferguson.",
-      "I hate my job.",
       "Let's just get this over with.",
       "Do you have an answer?",
       "I don't believe this. Where did you get that magic marker? We frisked you on the way in here.",
@@ -13,8 +11,6 @@ module Trebek
       "Beautiful. Just beautiful.",
       "Good for you. Well, as always, three perfectly good charities have been deprived of money, here on Slack Jeopardy. I'm Trebekbot, and all of you should be ashamed of yourselves! Good night!",
       "And welcome back to Slack Jeopardy. Because of what just happened before during the commercial, I'd like to apologize to all blind people and children.",
-      "Thank you, thank you. Moving on.",
-      "I really thought that was going to work.",
       "Wonderful. Let's take a look at the categories. They are: `Potent Potables`, `Point to your own head`, `Letters or Numbers`, `Will this hurt if you put it in your mouth`, `An album cover`, `Make any noise`, and finally, `Famous Muppet Frogs`. I should add that the answer to every question in that category is `Kermit`.",
       "For the last time, that is not a category.",
       "Unbelievable.",
