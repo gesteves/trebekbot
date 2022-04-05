@@ -65,7 +65,7 @@ class Answer < ApplicationRecord
 
   def normalize_answer(text)
     text.gsub(QUESTION_REGEX, "")
-        .gsub(/['"“”‘’]/, "")
+        .gsub(/['"“”‘’-_]/, "")
         .gsub(/^\s*+(is|are|was|were|s) /, "")
         .gsub(/^\s*+(the|a|an) /i, "")
         .gsub(/\s+(&amp;|&)\s+/i, " and ")
