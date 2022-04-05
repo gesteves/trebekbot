@@ -39,3 +39,13 @@ or:
   ts: MyString
   channel: MyString
   team: two
+
+four:
+  category: "time"
+  question: "Number of months with exactly 30 days"
+  answer: "4"
+  value: 100
+  air_date: 2022-04-02 17:30:28
+  ts: MyString
+  channel: MyString
+  team: two

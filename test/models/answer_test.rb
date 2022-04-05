@@ -137,4 +137,13 @@ class AnswerTest < ActiveSupport::TestCase
 
     assert answer.is_correct?
   end
+
+  test "accepts numeric answers" do
+    game = games(:four)
+    user = users(:one)
+    answer = Answer.new(answer: "What is 4?", game: game, user: user)
+    answer.save!
+
+    assert answer.is_correct?
+  end
 end
