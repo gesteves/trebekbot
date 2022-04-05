@@ -30,8 +30,8 @@ class Answer < ApplicationRecord
     white = Text::WhiteSimilarity.new
 
     # The answer is correct if it's exactly one of the possible answers,
-    # or it has a similarity score > 0.5 with any of the possible answers
-    possible_correct_answers.any? { |a| sanitized_answer == a || white.similarity(sanitized_answer, a) > 0.5 }
+    # or it has a similarity score > the threshold with any of the possible answers
+    possible_correct_answers.any? { |a| sanitized_answer == a || white.similarity(sanitized_answer, a) > ENV['CONFIG_ANSWER_SIMILARITY_THRESHOLD'].to_f }
   end
 
   def is_in_question_format?
