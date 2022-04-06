@@ -1,8 +1,16 @@
 namespace :games do
-  desc 'Closes old games'
-  task :close => [:environment] do
-    Game.closeable.find_each do |game|
-      game.close!
+  desc 'Prints stats'
+  task :stats => [:environment] do
+    puts "#{Team.all.count} teams"
+    puts "#{Game.all.count} games"
+    puts "#{User.all.count} users"
+    puts "#{Answer.all.count} answers"
+
+    Team.find_each do |team|
+      puts "Team #{team.slack_id}:"
+      puts "  #{team.games.count} games"
+      puts "  #{team.users.count} users"
+      puts "\n"
     end
   end
 
