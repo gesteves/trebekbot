@@ -2,3 +2,11 @@
 @import 'vendors/reset';
 @import 'content';
 @import 'footer';
+
+body {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+}

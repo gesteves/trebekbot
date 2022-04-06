@@ -3,9 +3,6 @@
   display: flex;
   flex-flow: column nowrap;
   font-family: 'IBM Plex Mono', monospace;
-  height: 100vh;
-  height: 100dvh;
-  justify-content: center;
   padding: 1.5rem;
 
   h1 {
@@ -24,5 +21,9 @@
 
   p + p {
     margin-top: 0;
+  }
+
+  img {
+    max-width: 50%;
   }
 }
