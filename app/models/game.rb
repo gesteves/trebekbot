@@ -10,10 +10,8 @@ class Game < ApplicationRecord
 
   after_commit :enqueue_message_update, if: :saved_change_to_is_closed?
 
-  def self.closeable
-    where(is_closed: false).where('created_at < ?', 5.minutes.ago)
-  end
-
+  # Posts the game to Slack, and stores the resulting message's timestamp (ts)
+  # so it can be looked up later.
   def post_to_slack
     blocks = to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
@@ -22,6 +20,7 @@ class Game < ApplicationRecord
     self.save!
   end
 
+  # Updates the message posted for a game, when an answer is submitted or the game is closed.
   def update_message
     return if team.has_invalid_token?
     blocks = to_blocks
@@ -29,25 +28,31 @@ class Game < ApplicationRecord
     response = team.update_message(ts: ts, channel_id: channel, text: text, blocks: blocks)
   end
 
+  # Closes the game, which shows the correct answer and prevents players from submitting more answers.
   def close!
     self.is_closed = true
     save!
   end
 
+  # Returns if any of the answers submitted for this game is correct.
   def has_correct_answer?
     answers.where(is_correct: true).present?
   end
 
+  # Returns if the given user has submitted an answer for this game.
   def has_answer_by_user?(user)
     answers.where(user: user).present?
   end
 
   private
 
+  # Enqueues a background job to update the game's message in Slack.
   def enqueue_message_update
     UpdateGameMessageWorker.perform_async(id)
   end
 
+  # A representation of the game as Slack "blocks",
+  # which are sent as part of the Slack message.
   def to_blocks
     blocks = []
     blocks << {
