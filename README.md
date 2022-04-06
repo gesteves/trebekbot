@@ -2,6 +2,8 @@
 
 A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. Sets up a perpetual game of Jeopardy! in your Slack channels.
 
+<img width="671" alt="Screen Shot 2022-04-06 at 11 00 17 AM" src="https://user-images.githubusercontent.com/6379/162028505-0811ac6e-2e15-494b-b8dc-33a168af8320.png">
+
 ## Installation
 
 Just click this button to add the bot to your Slack team:
