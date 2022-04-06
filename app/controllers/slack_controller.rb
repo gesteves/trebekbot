@@ -1,5 +1,8 @@
 class SlackController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_action :parse_event, only: :events
+  before_action :parse_interaction, only: :interactions
+  before_action :check_token, only: [:events, :interactions]
 
   def auth
     url = root_url
@@ -30,88 +33,105 @@ class SlackController < ApplicationController
   end
 
   def events
-    return render plain: "Unauthorized", status: 401 if params[:token] != ENV['SLACK_VERIFICATION_TOKEN']
-    event_type = params.dig(:event, :type) || params[:type]
-    case event_type
+    case @event_type
     when 'url_verification'
-      verify_url
+      url_verification
     when 'app_mention'
       app_mention
     when 'app_uninstalled'
       app_uninstalled
     end
+
+    render plain: @body, status: 200
   end
 
   def interactions
-    begin
-      payload = JSON.parse(params[:payload], symbolize_names: true)
-    rescue
-      return render plain: "Bad Request", status: 400
-    end
-    return render plain: "Unauthorized", status: 401 if payload[:token] != ENV['SLACK_VERIFICATION_TOKEN']
-
-    user = payload.dig(:user, :id)
-    team = payload.dig(:team, :id)
-    channel = payload.dig(:channel, :id)
-    ts = payload.dig(:message, :ts)
-    answer = payload.dig(:actions)&.find { |a| a[:action_id] == "answer" }.dig(:value)
-
-    ProcessAnswerWorker.perform_async(team, channel, ts, user, answer) if answer.present?
-
+    process_answer if @answer.present?
     render plain: "OK", status: 200
   end
 
   private
 
-  def verify_url
-    render plain: params[:challenge], status: 200
+  def check_token
+    render plain: "Unauthorized", status: 401 if @token != ENV['SLACK_VERIFICATION_TOKEN']
+  end
+
+  def parse_event
+    @token = params[:token]
+    @event_type = params.dig(:event, :type) || params[:type]
+    @text = params.dig(:event, :text)
+    @team = params[:team_id]
+    @channel = params.dig(:event, :channel)
+    @user = params.dig(:event, :user)
+    @body = "OK"
+  end
+
+  def parse_interaction
+    begin
+      payload = JSON.parse(params[:payload], symbolize_names: true)
+    rescue
+      return render plain: "Bad Request", status: 400
+    end
+
+    @token = payload[:token]
+    @user = payload.dig(:user, :id)
+    @team = payload.dig(:team, :id)
+    @channel = payload.dig(:channel, :id)
+    @ts = payload.dig(:message, :ts)
+    @answer = payload.dig(:actions)&.find { |a| a[:action_id] == "answer" }.dig(:value)
+  end
+
+  # EVENT HANDLERS
+
+  def url_verification
+    @body = params[:challenge]
   end
 
   def app_mention
-    text = params.dig(:event, :text)
-    team = params[:team_id]
-    channel = params.dig(:event, :channel)
-    user = params.dig(:event, :user)
-
-    if text =~ /(play|game|go)/i
-      StartGameWorker.perform_async(team, channel)
-    elsif text =~ /help/i
-      show_help(team: team, channel: channel)
-    elsif text =~ /(scores|leaderboard|scoreboard)/i
-      PostLeaderboardWorker.perform_async(team, channel)
-    elsif text =~ /my score/i
-      show_user_score(team: team, channel: channel, user: user)
+    if @text =~ /help/i
+      show_help
+    elsif @text =~ /(scores|leaderboard|scoreboard)/i
+      show_leaderboard
+    elsif @text =~ /my score/i
+      show_user_score
     else
-      PostMessageWorker.perform_async(Trebek.sample, team, channel)
+      start_game
     end
-
-    render plain: "OK", status: 200
   end
 
-  def show_user_score(team:, channel:, user:)
-    player = User.find_by(slack_id: user)
-    reply = if player.present?
-      "Your score is #{player.pretty_score}, #{player.mention}."
-    else
-      "You haven’t played yet, <@#{user}>, so your score is $0."
-    end
-    PostMessageWorker.perform_async(reply, team, channel)
+  def start_game
+    StartGameWorker.perform_async(@team, @channel)
   end
 
-  def show_help(team:, channel:)
+  def show_help
     reply = <<~HELP
-      • Say `@trebekbot go` or `@trebekbot play` or `@trebekbot game` to start a new round of Jeopardy!
+      • Mention `@trebekbot` to start a new round of Jeopardy!
       • Say `@trebekbot my score` to see your current score
       • Say `@trebekbot scores` or `@trebekbot leaderboard` to see the top scores
     HELP
-    PostMessageWorker.perform_async(reply, team, channel)
+    PostMessageWorker.perform_async(reply, @team, @channel)
+  end
+
+  def show_leaderboard
+    PostLeaderboardWorker.perform_async(@team, @channel)
+  end
+
+  def show_user_score
+    t = Team.find_by(slack_id: @team)
+    player = User.find_or_create_by(team_id: t.id, slack_id: @user)
+    reply = "Your score is #{player.pretty_score}, #{player.display_name}."
+    PostMessageWorker.perform_async(reply, @team, @channel)
   end
 
   def app_uninstalled
-    team_id = params[:team_id]
-    team = Team.find_by(slack_id: team_id)
+    team = Team.find_by(slack_id: @team)
     team.destroy
-    logger.info "[LOG] [Team #{team_id}] App uninstall event received; the team and all associated objects have been destroyed"
-    render plain: "OK", status: 200
+    logger.info "[LOG] [Team #{@team}] App uninstall event received; the team and all associated objects have been destroyed"
+  end
+
+  # INTERACTION HANDLERS
+
+  def process_answer
+    ProcessAnswerWorker.perform_async(@team, @channel, @ts, @user, @answer)
   end
 end

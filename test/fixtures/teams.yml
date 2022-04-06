@@ -1,8 +1,8 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  slack_id: MyString
-  access_token: MyString
+  slack_id: T061EG9R6
+  access_token: abc123
 
 two:
   slack_id: MyString
