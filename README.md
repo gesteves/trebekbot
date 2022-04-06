@@ -10,9 +10,9 @@ Just click this button to add the bot to your Slack team:
 
 ## Usage
 
-After installing the bot, invite it into one or more channels with `/invite @trebekbot`. Pro-tip: Create a new channel (like for example #jeopardy) just for this purpose, to avoid creating a huge distraction in other channels.
+After installing the bot, invite it into one or more channels with `/invite @trebekbot`. Pro-tip: Create a new channel (for example, #jeopardy) just for this purpose, to avoid creating a huge distraction in other channels.
 
-After that, simply mentioning "@trebekbot" will start a new game,
+After that, simply mentioning "@trebekbot" will start a new game in the current channel.
 
 You can also say:
 
