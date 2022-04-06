@@ -3,6 +3,7 @@ class SlackController < ApplicationController
   before_action :parse_event, only: :events
   before_action :parse_interaction, only: :interactions
   before_action :check_token, only: [:events, :interactions]
+  before_action :verify_url, only: :events
 
   def auth
     url = root_url
@@ -34,15 +35,13 @@ class SlackController < ApplicationController
 
   def events
     case @event_type
-    when 'url_verification'
-      url_verification
     when 'app_mention'
       app_mention
     when 'app_uninstalled'
       app_uninstalled
     end
 
-    render plain: @body, status: 200
+    render plain: "OK", status: 200
   end
 
   def interactions
@@ -63,7 +62,6 @@ class SlackController < ApplicationController
     @team = params[:team_id]
     @channel = params.dig(:event, :channel)
     @user = params.dig(:event, :user)
-    @body = "OK"
   end
 
   def parse_interaction
@@ -83,8 +81,8 @@ class SlackController < ApplicationController
 
   # EVENT HANDLERS
 
-  def url_verification
-    @body = params[:challenge]
+  def verify_url
+    render plain: params[:challenge], status: 200 if @event_type == 'url_verification'
   end
 
   def app_mention
