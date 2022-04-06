@@ -53,7 +53,7 @@ class Team < ApplicationRecord
 
   def post_leaderboard_to_slack(channel_id:)
     blocks = leaderboard_blocks(top_users)
-    text = "Top scores"
+    text = "Let’s take a look at the scores:"
     response = post_message(channel_id: channel_id, text: text, blocks: blocks)
   end
 
