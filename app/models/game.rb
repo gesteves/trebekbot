@@ -35,7 +35,7 @@ class Game < ApplicationRecord
   end
 
   def has_correct_answer?
-    answers.any?(&:is_correct?)
+    answers.where(is_correct: true).present?
   end
 
   def has_answer_by_user?(user)
