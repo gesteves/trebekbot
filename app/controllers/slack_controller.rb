@@ -98,6 +98,7 @@ class SlackController < ApplicationController
   end
 
   def start_game
+    $mixpanel.track(@user, "Game", { 'Team': @team, 'Channel': @channel })
     StartGameWorker.perform_async(@team, @channel)
   end
 

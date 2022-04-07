@@ -129,6 +129,7 @@ GEM
     mime-types-data (3.2022.0105)
     mini_mime (1.1.2)
     minitest (5.15.0)
+    mixpanel-ruby (2.2.2)
     mock_redis (0.30.0)
       ruby2_keywords
     msgpack (1.4.5)
@@ -260,6 +261,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   lograge
+  mixpanel-ruby
   mock_redis
   pg (~> 1.2)
   puma (~> 5.0)
