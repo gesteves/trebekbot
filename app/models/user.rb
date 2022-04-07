@@ -88,4 +88,17 @@ class User < ApplicationRecord
     # https://stackoverflow.com/a/29701996
     answers.order('created_at ASC').pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
   end
+
+  def correct_answers
+    answers.where(is_correct: true).count
+  end
+
+  def incorrect_answers
+    answers.where(is_correct: false).count
+  end
+
+  def correct_percentage
+    return 0.0 if answers.empty?
+    (correct_answers.to_f * 100)/answers.count.to_f
+  end
 end

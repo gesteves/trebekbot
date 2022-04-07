@@ -9,3 +9,8 @@ two:
   slack_id: U5678DEFG
   score: 0
   team: two
+
+three:
+  slack_id: U8742334
+  score: 0
+  team: two
