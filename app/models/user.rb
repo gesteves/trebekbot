@@ -89,6 +89,10 @@ class User < ApplicationRecord
     answers.order('created_at ASC').pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
   end
 
+  def total_answers
+    answers.count
+  end
+
   def correct_answers
     answers.where(is_correct: true).count
   end
