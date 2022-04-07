@@ -104,6 +104,7 @@ class SlackController < ApplicationController
   end
 
   def show_help
+    $mixpanel.track(@user, "Help", { 'Team': @team, 'Channel': @channel })
     reply = <<~HELP
       • Mention `@trebekbot` to start a new round of Jeopardy!
       • Say `@trebekbot my score` to see your current score
@@ -113,6 +114,7 @@ class SlackController < ApplicationController
   end
 
   def show_leaderboard
+    $mixpanel.track(@user, "Leaderboard", { 'Team': @team, 'Channel': @channel })
     PostLeaderboardWorker.perform_async(@team, @channel)
   end
 
