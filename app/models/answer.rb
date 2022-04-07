@@ -1,5 +1,5 @@
 class Answer < ApplicationRecord
-  include ActiveSupport::Inflector
+  include Normalizable
 
   belongs_to :game
   belongs_to :user
@@ -8,8 +8,6 @@ class Answer < ApplicationRecord
 
   before_save :check_correctness
   after_commit :update_game
-
-  QUESTION_REGEX = /^(what|where|when|who)/i
 
   # Returns an emoji representing if the answer is correct or not.
   def emoji
@@ -32,8 +30,8 @@ class Answer < ApplicationRecord
   # similarity score with any of them is higher than 0.5
   def is_answer_correct?
     # Remove cruft from the correct and user-entered answers
-    sanitized_answer = normalize_answer(answer)
-    correct_answer = normalize_answer(game.answer)
+    sanitized_answer = normalize(answer)
+    correct_answer = normalize(game.answer)
 
     # Consider text in parentheses as optional
     without_parentheses = correct_answer.gsub(/\(.*\)/, "")
@@ -55,7 +53,7 @@ class Answer < ApplicationRecord
   # TODO: Might want to use the same white similarity algorithm to account for typos
   # e.g. "wat is" instead of "what is"
   def is_in_question_format?
-    answer.strip.match? QUESTION_REGEX
+    is_question? answer
   end
 
   private
@@ -91,19 +89,5 @@ class Answer < ApplicationRecord
     end
     UpdateGameMessageWorker.perform_async(game.id)
     PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts)
-  end
-
-  # Normalizes text to make it easier to compare,
-  # by removing accents, punctuation, question words and marks, etc.
-  def normalize_answer(text)
-    transliterate(text)
-      .gsub(QUESTION_REGEX, "")
-      .gsub(/['"“”‘’_-]/, "")
-      .gsub(/^\s*(is|are|was|were|s)\s+/i, "")
-      .gsub(/^\s*(the|a|an)\s+/i, "")
-      .gsub(/\s+(&amp;|&|and)\s+/i, " ")
-      .gsub(/\?+$/, "")
-      .strip
-      .downcase
   end
 end
