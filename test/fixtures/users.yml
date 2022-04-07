@@ -2,10 +2,10 @@
 
 one:
   slack_id: U1234ACBD
-  score: 1
+  score: 0
   team: one
 
 two:
   slack_id: U5678DEFG
-  score: 1
+  score: 0
   team: two

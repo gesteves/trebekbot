@@ -83,4 +83,9 @@ class User < ApplicationRecord
   def duplicate_answer_message
     "You’ve had your chance, #{display_name}. Let somebody else answer."
   end
+
+  def longest_streak
+    # https://stackoverflow.com/a/29701996
+    answers.order('created_at ASC').pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
+  end
 end
