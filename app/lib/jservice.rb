@@ -15,9 +15,9 @@ module Jservice
     end
 
     response[:value] = 200 if response[:value].blank?
-    response[:question] = Sanitize.fragment(response[:question].gsub(/\\/, "").gsub(/\s+&amp;\s+/i, " & "))
-    response[:category][:title] = Sanitize.fragment(response[:category][:title].gsub(/\\/, "").gsub(/\s+&amp;\s+/i, " & "))
-    response[:answer] = Sanitize.fragment(response[:answer].gsub(/\\/, "").gsub(/\s+&amp;\s+/i, " & "))
+    response[:question] = Sanitize.fragment(response[:question].gsub(/\\/, ""))
+    response[:category][:title] = Sanitize.fragment(response[:category][:title].gsub(/\\/, ""))
+    response[:answer] = Sanitize.fragment(response[:answer].gsub(/\\/, ""))
     response
   end
 end
