@@ -94,13 +94,13 @@ class Answer < ApplicationRecord
   end
 
   # Normalizes text to make it easier to compare,
-  # by removing punctuation, question words and marks, etc.
+  # by removing accents, punctuation, question words and marks, etc.
   def normalize_answer(text)
     transliterate(text)
       .gsub(QUESTION_REGEX, "")
       .gsub(/['"“”‘’_-]/, "")
-      .gsub(/^\s*+(is|are|was|were|s) /, "")
-      .gsub(/^\s*+(the|a|an) /i, "")
+      .gsub(/^\s*(is|are|was|were|s)\s+/i, "")
+      .gsub(/^\s*(the|a|an)\s+/i, "")
       .gsub(/\s+(&amp;|&)\s+/i, " and ")
       .gsub(/\?+$/, "")
       .strip
