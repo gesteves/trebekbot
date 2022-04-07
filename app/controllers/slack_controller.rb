@@ -17,7 +17,7 @@ class SlackController < ApplicationController
         team.access_token = access_token
         if team.save
           logger.info "[LOG] [Team #{team_id}] Authenticated with the following scopes: #{token[:scope]}"
-          $mixpanel.track(token.dig(:authed_user, :id), "Install", { 'Team': team_id })
+          $mixpanel.track(token.dig(:authed_user, :id), "Install")
           notice = nil
           url = success_url
         else
@@ -99,12 +99,12 @@ class SlackController < ApplicationController
   end
 
   def start_game
-    $mixpanel.track(@user, "Game", { 'Team': @team, 'Channel': @channel })
+    $mixpanel.track(@user, "Game")
     StartGameWorker.perform_async(@team, @channel)
   end
 
   def show_help
-    $mixpanel.track(@user, "Help", { 'Team': @team, 'Channel': @channel })
+    $mixpanel.track(@user, "Help")
     reply = <<~HELP
       • Mention `@trebekbot` to start a new round of Jeopardy!
       • Say `@trebekbot my score` to see your current score
@@ -114,7 +114,7 @@ class SlackController < ApplicationController
   end
 
   def show_leaderboard
-    $mixpanel.track(@user, "Leaderboard", { 'Team': @team, 'Channel': @channel })
+    $mixpanel.track(@user, "Leaderboard")
     PostLeaderboardWorker.perform_async(@team, @channel)
   end
 
