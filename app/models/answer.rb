@@ -101,7 +101,7 @@ class Answer < ApplicationRecord
       .gsub(/['"“”‘’_-]/, "")
       .gsub(/^\s*(is|are|was|were|s)\s+/i, "")
       .gsub(/^\s*(the|a|an)\s+/i, "")
-      .gsub(/\s+(&amp;|&)\s+/i, " and ")
+      .gsub(/\s+(&amp;|&|and)\s+/i, " ")
       .gsub(/\?+$/, "")
       .strip
       .downcase
