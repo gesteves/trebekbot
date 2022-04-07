@@ -57,10 +57,10 @@ class SlackController < ApplicationController
   end
 
   def parse_event
+    logger.info params
     @token = params[:token]
     @event_type = params.dig(:event, :type) || params[:type]
     @text = params.dig(:event, :text)
-    logger.info @text
     @team = params[:team_id]
     @channel = params.dig(:event, :channel)
     @user = params.dig(:event, :user)
