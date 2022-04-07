@@ -87,7 +87,7 @@ class Team < ApplicationRecord
             },
             {
               type: "mrkdwn",
-              text: "#{user.real_name || user.username} | *#{user.pretty_score}* | Answers: #{user.total_answers} | Correct: #{number_to_percentage(user.correct_percentage, precision: 0)} | Longest streak: #{user.longest_streak}"
+              text: "#{user.real_name || user.username} | *#{user.pretty_score}* | Answers: #{user.total_answers} | Correct: *#{number_to_percentage(user.correct_percentage, precision: 0)}* | Longest streak: *#{user.longest_streak}*"
             }
           ]
         }
