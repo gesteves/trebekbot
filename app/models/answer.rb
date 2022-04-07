@@ -48,7 +48,7 @@ class Answer < ApplicationRecord
 
     # The answer is correct if it's exactly one of the possible answers,
     # or it has a similarity score > the threshold with any of the possible answers
-    possible_correct_answers.any? { |a| sanitized_answer == a || white.similarity(sanitized_answer, a) > ENV['CONFIG_ANSWER_SIMILARITY_THRESHOLD'].to_f }
+    possible_correct_answers.any? { |a| sanitized_answer == a || white.similarity(sanitized_answer, a) > 0.5 }
   end
 
   # Simply checks if the submitted answer was formatted in the form of a question.
