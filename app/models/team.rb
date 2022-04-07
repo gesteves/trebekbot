@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  include ActionView::Helpers::NumberHelper
+
   has_many :users, dependent: :destroy
   has_many :games, dependent: :destroy
 
@@ -52,14 +54,13 @@ class Team < ApplicationRecord
   end
 
   def post_leaderboard_to_slack(channel_id:)
-    blocks = leaderboard_blocks(top_users)
+    blocks = to_leaderboard_blocks
     text = "Let’s take a look at the scores:"
     response = post_message(channel_id: channel_id, text: text, blocks: blocks)
   end
 
-  private
-
-  def leaderboard_blocks(users)
+  def to_leaderboard_blocks(limit: 10)
+    users = top_users(limit: limit)
     blocks = []
 
     blocks << {
@@ -86,7 +87,7 @@ class Team < ApplicationRecord
             },
             {
               type: "mrkdwn",
-              text: "#{user.real_name || user.username} | *#{user.pretty_score}*"
+              text: "#{user.real_name || user.username} | *#{user.pretty_score}* | Correct answers: #{number_to_percentage(user.correct_percentage, precision: 2)} | Longest streak: #{user.longest_streak}"
             }
           ]
         }
