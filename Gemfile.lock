@@ -96,6 +96,7 @@ GEM
       thor (>= 0.14.0, < 2)
     globalid (1.0.0)
       activesupport (>= 5.0)
+    htmlentities (4.3.4)
     httparty (0.20.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
@@ -254,6 +255,7 @@ DEPENDENCIES
   dalli
   debug
   figaro
+  htmlentities
   httparty
   importmap-rails
   jbuilder

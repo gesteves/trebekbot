@@ -1,4 +1,6 @@
 class Game < ApplicationRecord
+  include Textable
+
   belongs_to :team
   has_many :answers, -> { order 'created_at DESC' }, dependent: :destroy
 
@@ -44,13 +46,6 @@ class Game < ApplicationRecord
     answers.where(user: user).present?
   end
 
-  private
-
-  # Enqueues a background job to update the game's message in Slack.
-  def enqueue_message_update
-    UpdateGameMessageWorker.perform_async(id)
-  end
-
   # A representation of the game as Slack "blocks",
   # which are sent as part of the Slack message.
   def to_blocks
@@ -60,7 +55,7 @@ class Game < ApplicationRecord
 			elements: [
 				{
 					type: "mrkdwn",
-					text: "*#{category.titleize}* | $#{value} | Aired #{air_date.strftime('%B %-d, %Y')}"
+					text: "*#{decode_html_entities(category.titleize)}* | $#{value} | Aired #{air_date.strftime('%B %-d, %Y')}"
 				}
 			]
 		}
@@ -70,14 +65,14 @@ class Game < ApplicationRecord
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "*#{question}*"
+          text: "*#{decode_html_entities(question)}*"
         }
       }
       blocks << {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "The answer is “#{answer}”"
+          text: "The answer is “#{decode_html_entities(answer)}”"
         }
       }
     else
@@ -135,5 +130,12 @@ class Game < ApplicationRecord
       type: "divider"
     }
     blocks
+  end
+
+  private
+
+  # Enqueues a background job to update the game's message in Slack.
+  def enqueue_message_update
+    UpdateGameMessageWorker.perform_async(id)
   end
 end

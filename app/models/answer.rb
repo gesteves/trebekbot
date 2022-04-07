@@ -1,5 +1,5 @@
 class Answer < ApplicationRecord
-  include Normalizable
+  include Textable
 
   belongs_to :game
   belongs_to :user

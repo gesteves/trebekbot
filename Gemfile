@@ -60,6 +60,7 @@ gem "sidekiq"
 # Used for the game
 gem "text"
 gem "sanitize"
+gem "htmlentities"
 
 # Caching
 gem "dalli"
