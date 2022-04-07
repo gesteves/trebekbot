@@ -55,7 +55,7 @@ class Game < ApplicationRecord
 			elements: [
 				{
 					type: "mrkdwn",
-					text: "*#{decode_html_entities(category.titleize)}* | $#{value} | Aired #{air_date.strftime('%B %-d, %Y')}"
+					text: "*#{decode_html_entities(category).titleize}* | $#{value} | Aired #{air_date.strftime('%B %-d, %Y')}"
 				}
 			]
 		}
