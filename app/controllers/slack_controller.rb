@@ -11,6 +11,7 @@ class SlackController < ApplicationController
       slack = Slack.new
       token = slack.get_access_token(code: params[:code], redirect_uri: auth_url)
       if token[:ok]
+        logger.info token
         access_token = token[:access_token]
         team_id = token.dig(:team, :id)
         team = Team.find_or_create_by(slack_id: team_id)
@@ -59,6 +60,7 @@ class SlackController < ApplicationController
     @token = params[:token]
     @event_type = params.dig(:event, :type) || params[:type]
     @text = params.dig(:event, :text)
+    logger.info @text
     @team = params[:team_id]
     @channel = params.dig(:event, :channel)
     @user = params.dig(:event, :user)
