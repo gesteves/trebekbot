@@ -1,4 +1,6 @@
 class Answer < ApplicationRecord
+  include ActiveSupport::Inflector
+
   belongs_to :game
   belongs_to :user
 
@@ -21,7 +23,7 @@ class Answer < ApplicationRecord
   # 2. Removes words in parentheses from the correct answer (so we consider them optional)
   # 3. Splits the correct answer if it contains "or" so we can compare the submitted answer
   # with both parts separately
-  # 4. Prepares an array with all these options (correct answer, correct answer without parentheticals, 
+  # 4. Prepares an array with all these options (correct answer, correct answer without parentheticals,
   # and the correct answer split by "or")
   # 5. Compares the submitted answer to each of the possible correct answers in the array using a
   # White similarity algorithm (http://www.catalysoft.com/articles/StrikeAMatch.html) to account for typos
@@ -94,13 +96,14 @@ class Answer < ApplicationRecord
   # Normalizes text to make it easier to compare,
   # by removing punctuation, question words and marks, etc.
   def normalize_answer(text)
-    text.gsub(QUESTION_REGEX, "")
-        .gsub(/['"“”‘’_-]/, "")
-        .gsub(/^\s*+(is|are|was|were|s) /, "")
-        .gsub(/^\s*+(the|a|an) /i, "")
-        .gsub(/\s+(&amp;|&)\s+/i, " and ")
-        .gsub(/\?+$/, "")
-        .strip
-        .downcase
+    transliterate(text)
+      .gsub(QUESTION_REGEX, "")
+      .gsub(/['"“”‘’_-]/, "")
+      .gsub(/^\s*+(is|are|was|were|s) /, "")
+      .gsub(/^\s*+(the|a|an) /i, "")
+      .gsub(/\s+(&amp;|&)\s+/i, " and ")
+      .gsub(/\?+$/, "")
+      .strip
+      .downcase
   end
 end

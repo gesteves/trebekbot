@@ -132,4 +132,13 @@ class AnswerTest < ActiveSupport::TestCase
     answer.save!
     assert answer.is_correct?
   end
+
+  test "accepts answers with accents" do
+    game = games(:cremebrulee)
+    user = users(:one)
+
+    answer = Answer.new(answer: "What is creme brulee", game: game, user: user)
+    answer.save!
+    assert answer.is_correct?
+  end
 end
