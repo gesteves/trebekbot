@@ -11,13 +11,13 @@ class SlackController < ApplicationController
       slack = Slack.new
       token = slack.get_access_token(code: params[:code], redirect_uri: auth_url)
       if token[:ok]
-        logger.info token
         access_token = token[:access_token]
         team_id = token.dig(:team, :id)
         team = Team.find_or_create_by(slack_id: team_id)
         team.access_token = access_token
         if team.save
           logger.info "[LOG] [Team #{team_id}] Authenticated with the following scopes: #{token[:scope]}"
+          $mixpanel.track(token.dig(:authed_user, :id), "Install", { 'Team': team_id })
           notice = nil
           url = success_url
         else
