@@ -10,7 +10,7 @@ module Textable
   def normalize(text)
     transliterate(text)
       .gsub(QUESTION_REGEX, "")
-      .gsub(/['"“”‘’_-]/, "")
+      .gsub(/[.'"“”‘’_-]/, "")
       .gsub(/^\s*+(is|are|was|were|s) /, "")
       .gsub(/^\s*+(the|a|an) /i, "")
       .gsub(/\s+(&amp;|&)\s+/i, " and ")
