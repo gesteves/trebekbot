@@ -16,44 +16,25 @@ class Answer < ApplicationRecord
     is_correct? ? ":white_check_mark:" : ":x:"
   end
 
-  # Determines if the text of answer is correct (setting aside if it was expressed as a question).
-  # This:
-  # 1. Normalizes the submitted answer and the correct answer to remove question words,
-  # punctuation, question marks, etc.
-  # 2. Removes words in parentheses from the correct answer (so we consider them optional)
-  # 3. Splits the correct answer if it contains "or" so we can compare the submitted answer
-  # with both parts separately
-  # 4. Prepares an array with all these options (correct answer, correct answer without parentheticals,
-  # and the correct answer split by "or")
-  # 5. Compares the submitted answer to each of the possible correct answers in the array using a
-  # White similarity algorithm (http://www.catalysoft.com/articles/StrikeAMatch.html) to account for typos
-  #
-  # The submitted answer is correct if it exactly matches any of the correct answers, or if the
+  def normalized_answer
+    normalize(answer)
+  end
+
+  # The submitted answer is correct if it exactly matches any of the game's accepted answers, or if the
   # similarity score with any of them is higher than 0.5
   def is_answer_correct?
-    # Remove cruft from the correct and user-entered answers
-    sanitized_answer = normalize(answer)
-    correct_answer = normalize(game.answer)
+    game.accepted_answers.include?(normalized_answer) || similarity_score > 0.5
+  end
 
-    # Consider text in parentheses as optional
-    without_parentheses = correct_answer.gsub(/\(.*\)/, "")
-
-    # Consider answers with "or" as separate options
-    or_answers = correct_answer.split(' or ')
-
-    # Build an array with all the potentially correct answers
-    possible_correct_answers = [correct_answer, without_parentheses, or_answers].flatten.uniq
-
+  # Returns the best similarity score between the normlized, user-submitted answer,
+  # and the answers accepted by the game
+  def similarity_score
     white = Text::WhiteSimilarity.new
-
-    # The answer is correct if it's exactly one of the possible answers,
-    # or it has a similarity score > the threshold with any of the possible answers
-    possible_correct_answers.any? { |a| sanitized_answer == a || white.similarity(sanitized_answer, a) > 0.5 }
+    normalized = normalized_answer
+    game.accepted_answers.map { |a| white.similarity(normalized, a) }.max
   end
 
   # Simply checks if the submitted answer was formatted in the form of a question.
-  # TODO: Might want to use the same white similarity algorithm to account for typos
-  # e.g. "wat is" instead of "what is"
   def is_in_question_format?
     is_question? answer
   end
@@ -91,6 +72,7 @@ class Answer < ApplicationRecord
     end
     UpdateGameMessageWorker.perform_async(game.id)
     PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts)
+    logger.info "[LOG] [Game #{game.team.slack_id}] [Channel #{game.channel}] [Game #{game.id}] User answer: #{answer} | Game answer: #{game.answer} | Score: #{similarity_score}"
   end
 
   def track_mixpanel

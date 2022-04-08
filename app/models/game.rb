@@ -46,6 +46,21 @@ class Game < ApplicationRecord
     answers.where(user: user).present?
   end
 
+  # Returns an array of possibly accepted answers.
+  def accepted_answers
+    # Remove cruft from the correct answer
+    normalized_answer = normalize(answer)
+
+    # Consider text in parentheses as optional
+    without_parentheses = normalized_answer.gsub(/\(.*\)/, "")
+
+    # Consider answers with "or" as separate options
+    or_answers = normalized_answer.split(' or ')
+
+    # Build an array with all the accepted answers
+    [normalized_answer, without_parentheses, or_answers].flatten.uniq
+  end
+
   # A representation of the game as Slack "blocks",
   # which are sent as part of the Slack message.
   def to_blocks
