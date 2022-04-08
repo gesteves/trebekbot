@@ -31,7 +31,7 @@ class SlackController < ApplicationController
       logger.error "[LOG] Authentication failed for the following reason: #{params[:error]}"
       notice = "Trebekbot was not added to your Slack. Please try again!"
     end
-    redirect_to url, notice: notice
+    redirect_to url, notice: notice, allow_other_host: true
   end
 
   def events
