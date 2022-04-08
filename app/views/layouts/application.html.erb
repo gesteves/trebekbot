@@ -7,9 +7,6 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application" %>
-    <% if ENV["HEROKU_APP_NAME"].present? %>
-      <script defer data-domain="<%= ENV["HEROKU_APP_NAME"] %>.herokuapp.com" src="https://plausible.io/js/plausible.js"></script>
-    <% end %>
   </head>
 
   <body>
