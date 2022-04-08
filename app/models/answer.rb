@@ -7,7 +7,9 @@ class Answer < ApplicationRecord
   validates :answer, presence: true
 
   before_save :check_correctness
-  after_commit :update_game, :track_mixpanel
+  after_commit :update_game, if: :saved_change_to_answer?
+  after_commit :track_mixpanel, if: :saved_change_to_answer?
+
 
   # Returns an emoji representing if the answer is correct or not.
   def emoji
