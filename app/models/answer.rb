@@ -92,6 +92,6 @@ class Answer < ApplicationRecord
   end
 
   def track_mixpanel
-    $mixpanel.track(user.slack_id, 'Answer', { 'Correct': is_correct? })
+    $mixpanel.track(user.slack_id, 'Answer', { 'Correct': is_correct? ? 'Correct' : 'Incorrect' })
   end
 end
