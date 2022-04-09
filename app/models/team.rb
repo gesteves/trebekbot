@@ -77,6 +77,8 @@ class Team < ApplicationRecord
 
     if users.present?
       users.each do |user|
+        text = "#{user.real_name || user.username} | *#{user.pretty_score}* | Answers: *#{user.total_answers}* | Correct: *#{number_to_percentage(user.correct_percentage, precision: 0)}* | Longest streak: *#{user.longest_streak}*"
+        text += " | Current streak: *#{user.current_streak}*" if user.current_streak > 1
         blocks << {
           type: "context",
           elements: [
@@ -87,7 +89,7 @@ class Team < ApplicationRecord
             },
             {
               type: "mrkdwn",
-              text: "#{user.real_name || user.username} | *#{user.pretty_score}* | Answers: *#{user.total_answers}* | Correct: *#{number_to_percentage(user.correct_percentage, precision: 0)}* | Current streak: *#{user.current_streak}* | Longest streak: *#{user.longest_streak}*"
+              text: text
             }
           ]
         }
