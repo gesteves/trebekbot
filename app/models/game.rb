@@ -37,13 +37,17 @@ class Game < ApplicationRecord
   end
 
   # Returns if any of the answers submitted for this game is correct.
-  def has_correct_answer?
-    answers.where(is_correct: true).present?
+  def is_answered?
+    answers.where(is_correct: true).count > 0
   end
 
   # Returns if the given user has submitted an answer for this game.
   def has_answer_by_user?(user)
     answers.where(user: user).present?
+  end
+
+  def is_stumper?
+    is_closed? && !answered?
   end
 
   # Returns an array of possibly accepted answers.
