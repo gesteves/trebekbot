@@ -1,5 +1,6 @@
 class SlackController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_action :no_cache
   before_action :parse_event, only: :events
   before_action :parse_interaction, only: :interactions
   before_action :check_token, only: [:events, :interactions]

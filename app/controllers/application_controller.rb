@@ -17,4 +17,14 @@ class ApplicationController < ActionController::Base
       redirect_to "#{protocol}://#{Rails.application.routes.default_url_options[:host]}#{request.fullpath}", status: 301
     end
   end
+
+  private
+
+  def no_cache
+    expires_now
+  end
+
+  def set_max_age(seconds: ENV['CONFIG_CACHE_TTL'])
+    response.headers['Cache-Control'] = "s-maxage=#{seconds}, max-age=0, public"
+  end
 end
