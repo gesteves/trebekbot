@@ -40,6 +40,16 @@ or:
   channel: MyString
   team: two
 
+slash:
+  category: "multiple option"
+  question: "A Proust character, or a ballet lake"
+  answer: "Swann/Swan"
+  value: 100
+  air_date: 2022-04-02 17:30:28
+  ts: MyString
+  channel: MyString
+  team: two
+
 four:
   category: "time"
   question: "Number of months with exactly 30 days"

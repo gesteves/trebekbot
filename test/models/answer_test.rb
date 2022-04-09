@@ -124,6 +124,24 @@ class AnswerTest < ActiveSupport::TestCase
     assert answer.is_correct?
   end
 
+  test "considers either option correct in answers that contain a slash" do
+    game = games(:slash)
+    user = users(:one)
+
+    answer = Answer.new(answer: "Who is #{game.answer}?", game: game, user: user)
+    answer.save!
+    assert answer.is_correct?
+
+    answer.answer = "Who is Swan?"
+    answer.save!
+    assert answer.is_correct?
+
+
+    answer.answer = "Who is Swann?"
+    answer.save!
+    assert answer.is_correct?
+  end
+
   test "accepts numeric answers" do
     game = games(:four)
     user = users(:one)

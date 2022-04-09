@@ -58,8 +58,8 @@ class Game < ApplicationRecord
     # Consider text in parentheses as optional
     without_parentheses = normalized_answer.gsub(/\(.*\)/, "")
 
-    # Consider answers with "or" as separate options
-    or_answers = normalized_answer.split(' or ')
+    # Consider answers with "or" or "/" as separate options
+    or_answers = normalized_answer.split(/( or |\/)/)
 
     # Build an array with all the accepted answers
     [normalized_answer, without_parentheses, or_answers].flatten.uniq
