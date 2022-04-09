@@ -1,5 +1,5 @@
 class StartGameWorker < ApplicationWorker
-  def perform(team_id, channel_id)
+  def perform(team_id, channel_id, user_id)
     return if team_id.blank? || channel_id.blank?
     team = Team.find_by(slack_id: team_id)
     return if team.blank?
@@ -22,5 +22,6 @@ class StartGameWorker < ApplicationWorker
     logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{question} | #{answer}"
     PostGameMessageWorker.perform_async(game.id)
     EndGameWorker.perform_in(ENV['CONFIG_GAME_TIME_LIMIT'].to_i.seconds, game.id)
+    $mixpanel.track(user_id, "Game", { 'Question': question, 'Answer': answer })
   end
 end

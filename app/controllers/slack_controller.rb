@@ -18,6 +18,7 @@ class SlackController < ApplicationController
         team.access_token = access_token
         if team.save
           logger.info "[LOG] [Team #{team_id}] Installed"
+          $mixpanel.track(token.dig(:authed_user, :id), "Install")
           notice = nil
           url = success_url
         else
@@ -99,7 +100,7 @@ class SlackController < ApplicationController
   end
 
   def start_game
-    StartGameWorker.perform_async(@team, @channel)
+    StartGameWorker.perform_async(@team, @channel, @user)
   end
 
   def show_help
