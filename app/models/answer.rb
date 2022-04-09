@@ -8,7 +8,6 @@ class Answer < ApplicationRecord
 
   before_save :check_correctness
   after_commit :update_game, if: :saved_change_to_answer?
-  after_commit :track_mixpanel, if: :saved_change_to_answer?
 
 
   # Returns an emoji representing if the answer is correct or not.
@@ -73,9 +72,5 @@ class Answer < ApplicationRecord
     UpdateGameMessageWorker.perform_async(game.id)
     PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts)
     logger.info "[LOG] [Team #{game.team.slack_id}] [Channel #{game.channel}] [Game #{game.id}] User answer: #{answer} | Game answer: #{game.answer} | Score: #{similarity_score}"
-  end
-
-  def track_mixpanel
-    $mixpanel.track(user.slack_id, 'Answer', { 'Correct': is_correct? ? 'Correct' : 'Incorrect' })
   end
 end
