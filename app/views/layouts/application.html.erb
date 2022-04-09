@@ -4,6 +4,9 @@
     <title>Trebekbot</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="slack-app-id" content="A039RFAS6Q5">
+    <% if @noindex %>
+      <meta name="robots" content="noindex">
+    <% end %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application" %>
