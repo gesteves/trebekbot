@@ -76,6 +76,7 @@ class Answer < ApplicationRecord
   end
 
   def track_mixpanel
-    $mixpanel.track(user.slack_id, 'Answer', { 'Correct': (is_correct? ? 'Correct' : 'Incorrect'), 'Game Answer': game.answer, 'User Answer': answer, 'Score': similarity_score })
+    correct = is_correct? ? 'Correct' : 'Incorrect'
+    $mixpanel.track(user.slack_id, 'Answer', { 'Correct': correct, 'Game Answer': game.answer, 'User Answer': answer, 'Score': similarity_score })
   end
 end
