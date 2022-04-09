@@ -8,7 +8,7 @@ A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. S
 
 Just click this button to add the bot to your Slack team:
 
-<a href="https://slack.com/oauth/v2/authorize?client_id=20888890816.3331520890821&scope=app_mentions:read,users:read,chat:write&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+<a href="https://slack.com/oauth/v2/authorize?client_id=20888890816.3331520890821&redirect_uri=https%3A%2F%2Fwww.trebekbot.com%2Fslack%2Fauth&scope=users%3Aread%2Capp_mentions%3Aread%2Cchat%3Awrite"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
 ## Usage
 
