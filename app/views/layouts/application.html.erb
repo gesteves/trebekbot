@@ -7,6 +7,9 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application" %>
+    <% if ENV['DOMAIN'].present? %>
+      <script defer data-domain="<%= ENV['DOMAIN'].gsub('www.', '') %>" src="https://plausible.io/js/plausible.js"></script>
+    <% end %>
   </head>
 
   <body>
