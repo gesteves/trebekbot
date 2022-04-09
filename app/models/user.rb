@@ -89,6 +89,12 @@ class User < ApplicationRecord
     answers.order('created_at ASC').pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
   end
 
+  def current_streak
+    streak = answers.order('created_at DESC').pluck(:is_correct).chunk { |a| a }.first
+    return 0 unless streak&.first
+    streak.last.size
+  end
+
   def total_answers
     answers.count
   end
