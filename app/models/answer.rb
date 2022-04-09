@@ -72,11 +72,11 @@ class Answer < ApplicationRecord
     end
     UpdateGameMessageWorker.perform_async(game.id)
     PostMessageWorker.perform_async(message, game.team.slack_id, game.channel, game.ts)
-    logger.info "[LOG] [Team #{game.team.slack_id}] [Channel #{game.channel}] [Game #{game.id}] User answer: #{answer} | Game answer: #{game.answer} | Score: #{similarity_score}"
+    logger.info "[LOG] [Team #{game.team.slack_id}] [Channel #{game.channel}] [Game #{game.id}] User answer: #{answer} | Game answer: #{game.answer} | Score: #{similarity_score.round(3)}"
   end
 
   def track_mixpanel
     correct = is_correct? ? 'Correct' : 'Incorrect'
-    $mixpanel.track(user.slack_id, 'Answer', { time: created_at.strftime('%s%3N'), 'Correct': correct, 'Game Answer': game.answer, 'User Answer': answer, 'Score': similarity_score })
+    $mixpanel.track(user.slack_id, 'Answer', { time: created_at.strftime('%s%3N'), 'Correct': correct, 'Game Answer': game.answer, 'User Answer': answer, 'Score': similarity_score.round(3) })
   end
 end
