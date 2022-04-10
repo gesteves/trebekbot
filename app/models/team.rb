@@ -28,7 +28,6 @@ class Team < ApplicationRecord
     slack = Slack.new
     response = slack.update_message(access_token: access_token, ts: ts, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)
     return if response.blank?
-    logger.info "Retry after: #{response.headers['Retry-After']}"
     raise response[:error] unless response[:ok]
     response
   end
