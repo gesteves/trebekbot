@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   include ActionView::Helpers::NumberHelper
   belongs_to :team
-  has_many :answers, dependent: :destroy
+  has_many :answers, -> { order 'created_at DESC' }, dependent: :destroy
 
   validates :slack_id, presence: true
 
@@ -94,11 +94,11 @@ class User < ApplicationRecord
 
   def longest_streak
     # https://stackoverflow.com/a/29701996
-    answers.order('created_at ASC').pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
+    answers.pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
   end
 
   def current_streak
-    streak = answers.order('created_at DESC').pluck(:is_correct).chunk { |a| a }.first
+    streak = answers.pluck(:is_correct).chunk { |a| a }.first
     return 0 unless streak&.first
     streak.last.size
   end
