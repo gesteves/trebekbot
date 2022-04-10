@@ -64,6 +64,7 @@ class SlackController < ApplicationController
     @team = params[:team_id]
     @channel = params.dig(:event, :channel)
     @user = params.dig(:event, :user)
+    logger.info @params
   end
 
   def parse_interaction
