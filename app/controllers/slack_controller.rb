@@ -134,7 +134,7 @@ class SlackController < ApplicationController
       PostDebugWorker.perform_async(@team, @channel, @thread_ts)
       $mixpanel.track(@user, "Debug")
     else
-      PostMessageWorker.perform_async("I can only show debug information in a thread for a game message.", @team, @channel, nil, @user)
+      PostMessageWorker.perform_async("I can only show debug information in a thread for a game message.", @team, @channel)
     end
   end
 
