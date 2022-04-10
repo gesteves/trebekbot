@@ -32,7 +32,6 @@ class Game < ApplicationRecord
 
   # Posts debug information about the game to Slack.
   def post_debug_to_slack
-    
     text = if answers.present?
       "Nothing to debug."
     else

@@ -1,4 +1,4 @@
-class PostLeaderboardWorker < ApplicationWorker
+class PostDebugWorker < ApplicationWorker
   def perform(team_id, channel_id, ts)
     return if team_id.blank? || channel_id.blank? || ts.blank?
     team = Team.find_by(slack_id: team_id)
