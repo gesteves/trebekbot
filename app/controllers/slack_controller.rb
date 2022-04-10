@@ -16,6 +16,7 @@ class SlackController < ApplicationController
         team_id = token.dig(:team, :id)
         team = Team.find_or_create_by(slack_id: team_id)
         team.access_token = access_token
+        team.bot_id = token.dig(:bot_user_id)
         if team.save
           logger.info "[LOG] [Team #{team_id}] Installed"
           $mixpanel.track(token.dig(:authed_user, :id), "Install")

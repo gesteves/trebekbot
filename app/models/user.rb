@@ -167,7 +167,7 @@ class User < ApplicationRecord
         type: "section",
         text: {
           type: "mrkdwn",
-          text: ":one: Invite me into a channel by typing `/invite @trebekbot`, or join one in which I’m already invited \n\n :two: Mention me, typing `@trebekbot`, to start a new game \n\n :three: Submit your answer (in the form of a question) in the text input within the game message \n\n :four: View all available commands by typing `@trebekbot help`"
+          text: ":one: Invite me into a channel by typing `/invite #{team.bot_mention}`, or join one in which I’m already invited \n\n :two: Mention me, typing `#{team.bot_mention}`, to start a new game \n\n :three: Submit your answer (in the form of a question) in the text input within the game message \n\n :four: View all available commands by typing `#{team.bot_mention} help`"
         }
       }
       blocks << {
@@ -188,7 +188,7 @@ class User < ApplicationRecord
       elements: [
         {
           type: "mrkdwn",
-          text: ":eyes: View all commands by typing `@trebekbot help`"
+          text: ":eyes: View all commands by typing `#{team.bot_mention} help`"
         }
       ]
     }

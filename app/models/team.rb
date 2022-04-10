@@ -62,6 +62,10 @@ class Team < ApplicationRecord
     users.order('score DESC').limit(limit)
   end
 
+  def bot_mention
+    "<@#{bot_id}>"
+  end
+
   def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
     text = "Let’s take a look at the top scores:"
     blocks = to_leaderboard_blocks(title: text, limit: 10)
