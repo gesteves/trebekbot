@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   include ActionView::Helpers::NumberHelper
+  include ActionView::Helpers::TextHelper
   belongs_to :team
   has_many :answers, -> { order 'created_at DESC' }, dependent: :destroy
 
@@ -92,6 +93,12 @@ class User < ApplicationRecord
     "You had a shot already, #{display_name}. Let someone else try."].sample
   end
 
+  def current_score_message
+    reply = "Your score is #{pretty_score}, #{display_name}"
+    reply += ", your current streak is #{current_streak} correct answers" if current_streak > 1
+    reply += ", and your longest streak so far is #{longest_streak} correct answers." if longest_streak > 1
+  end
+
   def longest_streak
     # https://stackoverflow.com/a/29701996
     answers.pluck(:is_correct).chunk { |a| a }.reject { |a| !a.first }.map { |_, x| x.size }.max.to_i
@@ -134,27 +141,43 @@ class User < ApplicationRecord
         text: "Hi #{display_name} :wave:"
       }
     }
-    blocks << {
-      type: "section",
-      text: {
-        "type": "mrkdwn",
-        "text": "Welcome to Trebekbot! You haven’t played yet, but getting started is very easy:"
+
+    if answers.present?
+      blocks << {
+        type: "section",
+        text: {
+          "type": "mrkdwn",
+          "text": current_score_message
+        }
       }
-    }
-    blocks << {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: ":one: Invite me into a channel, or join one in which I’m already invited \n :two: Mention me to start a new game \n :three: Submit your answer (in the form of a question) in the text input within the game message"
+      blocks << {
+        type: "divider"
       }
-    }
-    blocks << {
-      type: "section",
-      text: {
-        "type": "mrkdwn",
-        "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score."
+      blocks += team.to_leaderboard_blocks
+    else
+
+      blocks << {
+        type: "section",
+        text: {
+          "type": "mrkdwn",
+          "text": "Welcome to Trebekbot! You haven’t played yet, but getting started is very easy:"
+        }
       }
-    }
+      blocks << {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: ":one: Invite me into a channel, or join one in which I’m already invited \n :two: Mention me to start a new game \n :three: Submit your answer (in the form of a question) in the text input within the game message"
+        }
+      }
+      blocks << {
+        type: "section",
+        text: {
+          "type": "mrkdwn",
+          "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score."
+        }
+      }
+    end
 
     {
       type: "home",

@@ -64,7 +64,7 @@ class Team < ApplicationRecord
 
   def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
     blocks = to_leaderboard_blocks
-    text = "Let’s take a look at the scores:"
+    text = "Let’s take a look at the scoreboard:"
     response = post_message(channel_id: channel_id, text: text, blocks: blocks, thread_ts: thread_ts)
   end
 
@@ -86,7 +86,8 @@ class Team < ApplicationRecord
 
     if users.present?
       users.each do |user|
-        text = "#{user.real_name || user.username} | *#{user.pretty_score}* | Answers: *#{user.total_answers}* | Correct: *#{number_to_percentage(user.correct_percentage, precision: 0)}* | Longest streak: *#{user.longest_streak}*"
+        text = "#{user.real_name || user.username} | *#{user.pretty_score}* | Answers: *#{user.total_answers}* | Correct: *#{number_to_percentage(user.correct_percentage, precision: 0)}*"
+        text += " | Longest streak: *#{user.longest_streak}*" if user.longest_streak > 1
         text += " | Current streak: *#{user.current_streak}*" if user.current_streak > 1
         blocks << {
           type: "context",

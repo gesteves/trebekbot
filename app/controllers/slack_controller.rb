@@ -131,8 +131,7 @@ class SlackController < ApplicationController
   def show_user_score
     t = Team.find_by(slack_id: @team)
     player = User.find_or_create_by(team_id: t.id, slack_id: @user)
-    reply = "Your score is #{player.pretty_score}, #{player.display_name}."
-    PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
+    PostMessageWorker.perform_async(player.current_score_message, @team, @channel, @thread_ts)
     $mixpanel.track(@user, "User Score")
   end
 
