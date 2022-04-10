@@ -142,7 +142,7 @@ class Game < ApplicationRecord
           elements: [
             {
               type: "plain_text",
-              text: a.emoji,
+              text: a.to_emoji,
               emoji: true
             },
             {

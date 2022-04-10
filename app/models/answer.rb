@@ -12,8 +12,12 @@ class Answer < ApplicationRecord
 
 
   # Returns an emoji representing if the answer is correct or not.
-  def emoji
+  def to_emoji
     is_correct? ? ":white_check_mark:" : ":x:"
+  end
+
+  def to_unicode
+    is_correct? ? '✔︎' : '✗'
   end
 
   def normalized_answer
@@ -40,7 +44,7 @@ class Answer < ApplicationRecord
   end
 
   def debug
-    "#{is_correct? ? '✔︎' : '✗'} #{user.username} | #{normalized_answer} | #{similarity_score.round(3)}"
+    "#{to_unicode} #{user.username} | #{normalized_answer} | #{similarity_score.round(3)}"
   end
 
   private
