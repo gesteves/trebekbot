@@ -166,16 +166,6 @@ class Game < ApplicationRecord
     blocks << {
       type: "divider"
     }
-
-    blocks << {
-      type: "context",
-      elements: [
-        {
-          type: "mrkdwn",
-          text: ":question: For a full list of commands, type `#{team.bot_mention} help`"
-        }
-      ]
-    }
     blocks
   end
 
