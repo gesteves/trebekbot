@@ -40,7 +40,7 @@ class Answer < ApplicationRecord
   end
 
   def debug
-    "* #{user.username} | #{normalized_answer} | #{similarity_score.round(3)}"
+    "* #{is_correct? ? '✔︎' : '✗' } #{user.username} | #{normalized_answer} | #{similarity_score.round(3)}"
   end
 
   private
