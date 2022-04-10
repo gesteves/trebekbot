@@ -177,7 +177,7 @@ class User < ApplicationRecord
       }
     end
 
-    blocks << blocks << {
+    blocks << {
       type: "divider"
     }
 
