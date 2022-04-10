@@ -70,21 +70,21 @@ class User < ApplicationRecord
   end
 
   def correct_answer_message
-    ["That is correct, #{display_name}! Your score is now #{pretty_score}.",
-     "That’s right, #{display_name}! Your score is now #{pretty_score}.",
-     "You got it, #{display_name}! You now have a score of #{pretty_score}."].sample
+    ["That is correct, #{display_name}! Your score is now *#{pretty_score}*.",
+     "That’s right, #{display_name}! Your score is now *#{pretty_score}*.",
+     "You got it, #{display_name}! You now have a score of *#{pretty_score}*."].sample
   end
 
   def not_a_question_message
-    ["That is correct, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}.",
-     "That’s right, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}.",
-     "You got it, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}."].sample
+    ["That is correct, #{display_name}, but responses must be in the form of a question. Your score is now *#{pretty_score}*.",
+     "That’s right, #{display_name}, but responses must be in the form of a question. Your score is now *#{pretty_score}*.",
+     "You got it, #{display_name}, but responses must be in the form of a question. Your score is now *#{pretty_score}*."].sample
   end
 
   def incorrect_answer_message
-    ["That is incorrect, #{display_name}. Your score is now #{pretty_score}.",
-     "That isn’t quite right, #{display_name}. Your score is now #{pretty_score}.",
-     "Wrong, #{display_name}. Your score is now #{pretty_score}."].sample
+    ["That is incorrect, #{display_name}. Your score is now *#{pretty_score}*.",
+     "That isn’t quite right, #{display_name}. Your score is now *#{pretty_score}*.",
+     "Wrong, #{display_name}. Your score is now *#{pretty_score}*."].sample
   end
 
   def duplicate_answer_message
@@ -94,9 +94,9 @@ class User < ApplicationRecord
   end
 
   def current_score_message
-    reply = "Your score is #{pretty_score}, #{display_name}"
-    reply += ", your current streak is #{current_streak} correct answers" if current_streak > 1
-    reply += ", and your longest streak so far is #{longest_streak} correct answers." if longest_streak > 1
+    reply = "Your score is *#{pretty_score}*, #{display_name}"
+    reply += ", your current streak is *#{current_streak}* correct answers" if current_streak > 1
+    reply += ", and your longest streak so far is *#{longest_streak}* correct answers." if longest_streak > 1
   end
 
   def longest_streak
