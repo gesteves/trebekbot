@@ -111,10 +111,12 @@ class SlackController < ApplicationController
       • Say `@trebekbot scores` or `@trebekbot leaderboard` to see the top scores
     HELP
     PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
+    $mixpanel.track(@user, "Help")
   end
 
   def show_leaderboard
     PostLeaderboardWorker.perform_async(@team, @channel, @thread_ts)
+    $mixpanel.track(@user, "Leaderboard")
   end
 
   def show_user_score
@@ -122,6 +124,7 @@ class SlackController < ApplicationController
     player = User.find_or_create_by(team_id: t.id, slack_id: @user)
     reply = "Your score is #{player.pretty_score}, #{player.display_name}."
     PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
+    $mixpanel.track(@user, "User Score")
   end
 
   def app_uninstalled
