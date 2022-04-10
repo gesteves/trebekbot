@@ -53,10 +53,10 @@ class Team < ApplicationRecord
     users.order('score DESC').limit(limit)
   end
 
-  def post_leaderboard_to_slack(channel_id:)
+  def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
     blocks = to_leaderboard_blocks
     text = "Let’s take a look at the scores:"
-    response = post_message(channel_id: channel_id, text: text, blocks: blocks)
+    response = post_message(channel_id: channel_id, text: text, blocks: blocks, thread_ts: thread_ts)
   end
 
   def to_leaderboard_blocks(limit: 10)

@@ -65,7 +65,6 @@ class SlackController < ApplicationController
     @channel = params.dig(:event, :channel)
     @user = params.dig(:event, :user)
     @thread_ts = params.dig(:event, :thread_ts)
-    logger.info "Thread: #{@thread_ts}"
   end
 
   def parse_interaction
@@ -111,18 +110,18 @@ class SlackController < ApplicationController
       • Say `@trebekbot my score` to see your current score
       • Say `@trebekbot scores` or `@trebekbot leaderboard` to see the top scores
     HELP
-    PostMessageWorker.perform_async(reply, @team, @channel)
+    PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
   end
 
   def show_leaderboard
-    PostLeaderboardWorker.perform_async(@team, @channel)
+    PostLeaderboardWorker.perform_async(@team, @channel, @thread_ts)
   end
 
   def show_user_score
     t = Team.find_by(slack_id: @team)
     player = User.find_or_create_by(team_id: t.id, slack_id: @user)
     reply = "Your score is #{player.pretty_score}, #{player.display_name}."
-    PostMessageWorker.perform_async(reply, @team, @channel)
+    PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
   end
 
   def app_uninstalled
