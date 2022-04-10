@@ -103,7 +103,7 @@ class SlackController < ApplicationController
   end
 
   def start_game
-    StartGameWorker.perform_async(@team, @channel, @user)
+    StartGameWorker.perform_async(@team, @channel, @user) unless @thread_ts.present?
   end
 
   def show_help
