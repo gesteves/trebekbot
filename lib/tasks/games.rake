@@ -17,13 +17,7 @@ namespace :games do
   desc 'Updates all messages'
   task :update => [:environment] do
     Game.find_each do |game|
-      p "Updating game #{game.id}"
-      begin
-        game.update_message
-        sleep 2
-      rescue e
-        p "#{e}, skipping"
-      end
+      game.enqueue_message_update
     end
   end
 end
