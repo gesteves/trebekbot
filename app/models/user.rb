@@ -141,7 +141,7 @@ class User < ApplicationRecord
     }
 
     if answers.present?
-      score = "Your score is *#{pretty_score}*}"
+      score = "Your score is *#{pretty_score}*"
       score += ", your current streak is *#{current_streak}* correct answers" if current_streak > 1
       score += ", and your longest streak so far is *#{longest_streak}* correct answers" if longest_streak > 1
       score += "."
