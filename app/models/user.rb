@@ -7,7 +7,7 @@ class User < ApplicationRecord
   validates :slack_id, presence: true
 
   def avatar
-    Rails.cache.fetch("slack/user/avatar/#{slack_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/user/avatar/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
       return if response.blank?
@@ -17,7 +17,7 @@ class User < ApplicationRecord
   end
 
   def real_name
-    Rails.cache.fetch("slack/user/real_name/#{slack_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/user/real_name/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
       return if response.blank?
@@ -27,7 +27,7 @@ class User < ApplicationRecord
   end
 
   def first_name
-    Rails.cache.fetch("slack/user/first_name/#{slack_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/user/first_name/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
       return if response.blank?
@@ -37,7 +37,7 @@ class User < ApplicationRecord
   end
 
   def username
-    Rails.cache.fetch("slack/user/username/#{slack_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/user/username/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
       return if response.blank?
