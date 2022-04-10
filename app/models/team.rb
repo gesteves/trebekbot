@@ -63,12 +63,12 @@ class Team < ApplicationRecord
   end
 
   def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
-    blocks = to_leaderboard_blocks
-    text = "Let’s take a look at the scoreboard:"
+    text = "Let’s take a look at the top 10 scores:"
+    blocks = to_leaderboard_blocks(title: text)
     response = post_message(channel_id: channel_id, text: text, blocks: blocks, thread_ts: thread_ts)
   end
 
-  def to_leaderboard_blocks(limit: 10)
+  def to_leaderboard_blocks(title:, limit: 10)
     users = top_users(limit: limit)
     blocks = []
 
@@ -76,12 +76,8 @@ class Team < ApplicationRecord
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "*Let’s take a look at the scores:*"
+        text: "*#{title}*"
       }
-    }
-
-    blocks << {
-      type: "divider"
     }
 
     if users.present?

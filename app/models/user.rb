@@ -138,7 +138,7 @@ class User < ApplicationRecord
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "Hi #{display_name} :wave:"
+        text: "Hi #{display_name},"
       }
     }
 
@@ -150,10 +150,8 @@ class User < ApplicationRecord
           "text": current_score_message
         }
       }
-      blocks << {
-        type: "divider"
-      }
-      blocks += team.to_leaderboard_blocks
+
+      blocks += team.to_leaderboard_blocks(title: "Let’s take a look at the top 10 scores for the rest of the team:")
     else
 
       blocks << {
