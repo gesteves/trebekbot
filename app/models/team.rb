@@ -63,6 +63,7 @@ class Team < ApplicationRecord
   end
 
   def bot_user_id
+    return "U1233456" if Rails.env.test?
     Rails.cache.fetch("slack/bot/user_id/#{bot_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
@@ -73,6 +74,7 @@ class Team < ApplicationRecord
   end
 
   def bot_name
+    return "trebekbot" if Rails.env.test?
     Rails.cache.fetch("slack/bot/real_name/#{bot_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
