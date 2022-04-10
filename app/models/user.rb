@@ -75,7 +75,9 @@ class User < ApplicationRecord
   end
 
   def not_a_question_message
-    ["That is correct, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}."].sample
+    ["That is correct, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}.",
+     "That’s right, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}.",
+     "You got it, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}."].sample
   end
 
   def incorrect_answer_message
