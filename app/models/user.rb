@@ -119,4 +119,47 @@ class User < ApplicationRecord
     return 0.0 if answers.empty?
     (correct_answers.to_f * 100)/answers.count.to_f
   end
+
+  def update_app_home
+    blocks = app_home_blocks
+    response = team.update_app_home(user_id: slack_id, view: view)
+  end
+
+  def app_home_blocks
+    blocks = []
+
+    blocks << {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "Hi #{display_name} :wave:"
+      }
+    }
+    blocks << {
+      type: "section",
+      text: {
+        "type": "mrkdwn",
+        "text": "Welcome to Trebekbot! You haven’t played yet, but getting started is very easy:"
+      }
+    }
+    blocks << {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: ":one: Invite me into a channel, or join one in which I’m already invited \n :two: Mention me to start a new game \n :three: Submit your answer (in the form of a question) in the text input within the game message"
+      }
+    }
+    blocks << {
+      type: "section",
+      text: {
+        "type": "mrkdwn",
+        "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score."
+      }
+    }
+
+    {
+      type: "home",
+      blocks: blocks
+    }
+  end
 end

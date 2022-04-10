@@ -39,6 +39,8 @@ class SlackController < ApplicationController
     case @event_type
     when 'app_mention'
       app_mention
+    when 'app_home_opened'
+      app_home_opened
     when 'app_uninstalled'
       app_uninstalled
     end
@@ -100,6 +102,11 @@ class SlackController < ApplicationController
     else
       start_game
     end
+  end
+
+  def app_home_opened
+    UpdateAppHomeWorker.perform_async(@team, @user)
+    $mixpanel.track(@user, "App Home Opened")
   end
 
   def start_game
