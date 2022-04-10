@@ -16,7 +16,7 @@ namespace :games do
 
   desc 'Updates all messages'
   task :update => [:environment] do
-    Game.each_with_index do |game, index|
+    Game.all.each_with_index do |game, index|
       seconds = index + 1
       UpdateGameMessageWorker.perform_in(seconds.seconds, game.id)
     end
