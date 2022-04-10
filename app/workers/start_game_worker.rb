@@ -22,6 +22,5 @@ class StartGameWorker < ApplicationWorker
     logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] New game: #{question} | #{answer}"
     PostGameMessageWorker.perform_async(game.id)
     EndGameWorker.perform_in(ENV['CONFIG_GAME_TIME_LIMIT'].to_i.seconds, game.id)
-    $mixpanel.track(user_id, "Game", { time: game.created_at.strftime('%s%3N'), 'Question': question, 'Answer': answer })
   end
 end

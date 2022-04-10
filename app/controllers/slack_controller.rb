@@ -19,7 +19,6 @@ class SlackController < ApplicationController
         team.bot_id = token.dig(:bot_user_id)
         if team.save
           logger.info "[LOG] [Team #{team_id}] Installed"
-          $mixpanel.track(token.dig(:authed_user, :id), "Install")
           notice = nil
           url = success_url
         else
@@ -107,7 +106,6 @@ class SlackController < ApplicationController
 
   def app_home_opened
     UpdateAppHomeWorker.perform_async(@team, @user)
-    $mixpanel.track(@user, "App Home Opened")
   end
 
   def start_game
@@ -122,25 +120,21 @@ class SlackController < ApplicationController
       • Say `#{team.bot_mention} scores`, `#{team.bot_mention} scoreboard`, or `#{team.bot_mention} leaderboard` to see the top scores
     HELP
     PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
-    $mixpanel.track(@user, "Help")
   end
 
   def show_leaderboard
     PostLeaderboardWorker.perform_async(@team, @channel, @thread_ts)
-    $mixpanel.track(@user, "Leaderboard")
   end
 
   def show_user_score
     t = Team.find_by(slack_id: @team)
     player = User.find_or_create_by(team_id: t.id, slack_id: @user)
     PostMessageWorker.perform_async(player.current_score_message, @team, @channel, @thread_ts)
-    $mixpanel.track(@user, "User Score")
   end
 
   def show_debug_info
     if @thread_ts.present?
       PostDebugWorker.perform_async(@team, @channel, @thread_ts)
-      $mixpanel.track(@user, "Debug")
     else
       PostMessageWorker.perform_async("I can only show debug information in a thread for a game message.", @team, @channel)
     end

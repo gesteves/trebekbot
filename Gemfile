@@ -65,8 +65,6 @@ gem "htmlentities"
 # Caching
 gem "dalli"
 
-gem "mixpanel-ruby"
-
 group :production do
   gem "lograge"
 end
