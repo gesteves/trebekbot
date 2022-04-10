@@ -58,13 +58,13 @@ class Team < ApplicationRecord
     invalid_token
   end
 
-  def top_users(limit: 10)
+  def top_users(limit: 100)
     users.order('score DESC').limit(limit)
   end
 
   def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
-    text = "Let’s take a look at the top 10 scores:"
-    blocks = to_leaderboard_blocks(title: text)
+    text = "Let’s take a look at the top scores:"
+    blocks = to_leaderboard_blocks(title: text, limit: 10)
     response = post_message(channel_id: channel_id, text: text, blocks: blocks, thread_ts: thread_ts)
   end
 
