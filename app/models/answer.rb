@@ -43,7 +43,7 @@ class Answer < ApplicationRecord
   end
 
   def debug
-    "#{to_unicode} #{user.username} | #{normalized_answer} | #{similarity_score.round(3)}"
+    "#{to_unicode} #{user.username} | #{answer} | #{similarity_score.round(3)}"
   end
 
   private
