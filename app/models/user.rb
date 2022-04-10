@@ -69,19 +69,25 @@ class User < ApplicationRecord
   end
 
   def correct_answer_message
-    "That is correct, #{display_name}! Your score is now #{pretty_score}."
+    ["That is correct, #{display_name}! Your score is now #{pretty_score}.",
+     "That’s right, #{display_name}! Your score is now #{pretty_score}.",
+     "You got it, #{display_name}! You now have a score of #{pretty_score}."].sample
   end
 
   def not_a_question_message
-    "That is correct, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}."
+    ["That is correct, #{display_name}, but responses must be in the form of a question. Your score is now #{pretty_score}."].sample
   end
 
   def incorrect_answer_message
-    "That is incorrect, #{display_name}. Your score is now #{pretty_score}."
+    ["That is incorrect, #{display_name}. Your score is now #{pretty_score}.",
+     "That isn’t quite right, #{display_name}. Your score is now #{pretty_score}.",
+     "Wrong, #{display_name}. Your score is now #{pretty_score}."].sample
   end
 
   def duplicate_answer_message
-    "You’ve had your chance, #{display_name}. Let somebody else answer."
+   ["You’ve had your chance, #{display_name}. Let somebody else answer.",
+    "You already answered this, #{display_name}. Give someone else a chance.",
+    "You had a shot already, #{display_name}. Let someone else try."].sample
   end
 
   def longest_streak
