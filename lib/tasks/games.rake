@@ -19,7 +19,7 @@ namespace :games do
     Game.find_each do |game|
       p "Updating game #{game.id}"
       game.update_message
-      sleep 1.2
+      sleep 2
     end
   end
 end
