@@ -39,6 +39,10 @@ class Answer < ApplicationRecord
     is_question? answer
   end
 
+  def debug
+    "#{user.display_name}: #{normalized_answer} (#{similarity_score.round(3)})"
+  end
+
   private
 
   # Check if the submitted answer is correct and was formatted as a question.

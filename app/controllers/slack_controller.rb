@@ -95,6 +95,8 @@ class SlackController < ApplicationController
       show_leaderboard
     elsif @text =~ /my score/i
       show_user_score
+    elsif @text =~ /debug/i
+      show_debug_info
     else
       start_game
     end
@@ -125,6 +127,15 @@ class SlackController < ApplicationController
     reply = "Your score is #{player.pretty_score}, #{player.display_name}."
     PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
     $mixpanel.track(@user, "User Score")
+  end
+
+  def show_debug_info
+    if @thread_ts.present?
+      PostDebugWorker.perform_async(@team, @channel, @thread_ts)
+      $mixpanel.track(@user, "Debug")
+    else
+      PostMessageWorker.perform_async("I can only show debug information in a thread for a game message.", @team, @channel, nil, @user)
+    end
   end
 
   def app_uninstalled
