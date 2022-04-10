@@ -121,11 +121,10 @@ class User < ApplicationRecord
   end
 
   def update_app_home
-    blocks = app_home_blocks
-    response = team.update_app_home(user_id: slack_id, view: view)
+    response = team.update_app_home(user_id: slack_id, view: app_home_view)
   end
 
-  def app_home_blocks
+  def app_home_view
     blocks = []
 
     blocks << {
