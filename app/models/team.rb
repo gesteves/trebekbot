@@ -64,7 +64,7 @@ class Team < ApplicationRecord
 
   def bot_user_id
     return "U1233456" if Rails.env.test?
-    Rails.cache.fetch("slack/bot/user_id/#{bot_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/#{slack_id}/bot/user_id/#{bot_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
       return if response.blank?
@@ -75,7 +75,7 @@ class Team < ApplicationRecord
 
   def bot_name
     return "trebekbot" if Rails.env.test?
-    Rails.cache.fetch("slack/bot/real_name/#{bot_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/#{slack_id}/bot/real_name/#{bot_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
       return if response.blank?
@@ -84,17 +84,28 @@ class Team < ApplicationRecord
     end
   end
 
+  def name
+    return if Rails.env.test?
+    Rails.cache.fetch("slack/team/name/#{slack_id}", expires_in: 1.day) do
+      slack = Slack.new
+      response = slack.auth_test(access_token: access_token)
+      return if response.blank?
+      raise response[:error] unless response[:ok]
+      response.dig(:team).presence
+    end
+  end
+
   def bot_mention
     "<@#{bot_user_id}>"
   end
 
   def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
-    text = "Let’s take a look at the top scores:"
-    blocks = to_leaderboard_blocks(title: text, limit: 10)
+    text = "Top scores for #{name}:"
+    blocks = to_leaderboard_blocks(limit: 10)
     response = post_message(channel_id: channel_id, text: text, blocks: blocks, thread_ts: thread_ts)
   end
 
-  def to_leaderboard_blocks(title:, limit: 10)
+  def to_leaderboard_blocks(limit: 10)
     users = top_users(limit: limit)
     blocks = []
 
@@ -102,7 +113,7 @@ class Team < ApplicationRecord
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "*#{title}*"
+        text: "*Top scores for #{name}*"
       }
     }
 
