@@ -68,7 +68,7 @@ class Team < ApplicationRecord
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
       return if response.blank?
       raise response[:error] unless response[:ok]
-      response.dig(:user, :id).presence
+      response.dig(:bot, :user_id).presence
     end
   end
 
@@ -78,7 +78,7 @@ class Team < ApplicationRecord
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
       return if response.blank?
       raise response[:error] unless response[:ok]
-      response.dig(:user, :real_name).presence
+      response.dig(:bot, :name).presence
     end
   end
 
