@@ -151,7 +151,7 @@ class User < ApplicationRecord
         }
       }
 
-      blocks += team.to_leaderboard_blocks(title: "Let’s take a look at the top scores for the rest of the team:", limit: 1000)
+      blocks += team.to_leaderboard_blocks(title: "Let’s take a look at the scores for the rest of the team:", limit: 1000)
     else
 
       blocks << {
