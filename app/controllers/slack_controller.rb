@@ -115,10 +115,11 @@ class SlackController < ApplicationController
   end
 
   def show_help
+    team = Team.find_by(slack_id: @team)
     reply = <<~HELP
-      • Mention `@trebekbot` to start a new round of Jeopardy!
-      • Say `@trebekbot my score` to see your current score
-      • Say `@trebekbot scores` or `@trebekbot leaderboard` to see the top scores
+      • Say `#{team.bot_mention}` to start a new game
+      • Say `#{team.bot_mention} my score` to see your current score
+      • Say `#{team.bot_mention} scores`, `#{team.bot_mention} scoreboard`, or `#{team.bot_mention} leaderboard` to see the top scores
     HELP
     PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
     $mixpanel.track(@user, "Help")
