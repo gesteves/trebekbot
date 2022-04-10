@@ -18,8 +18,12 @@ namespace :games do
   task :update => [:environment] do
     Game.find_each do |game|
       p "Updating game #{game.id}"
-      game.update_message
-      sleep 2
+      begin
+        game.update_message
+        sleep 2
+      rescue e
+        p "#{e}, skipping"
+      end
     end
   end
 end
