@@ -179,20 +179,6 @@ class User < ApplicationRecord
       }
     end
 
-    blocks << {
-      type: "divider"
-    }
-
-    blocks << {
-      type: "context",
-      elements: [
-        {
-          type: "mrkdwn",
-          text: ":eyes: View all commands by typing `#{team.bot_mention} help`"
-        }
-      ]
-    }
-
     {
       type: "home",
       blocks: blocks
