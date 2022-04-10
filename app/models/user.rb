@@ -152,8 +152,6 @@ class User < ApplicationRecord
           "text": "#{score}\n\n"
         }
       }
-
-      blocks += team.to_leaderboard_blocks(limit: 1000)
     else
 
       blocks << {
@@ -177,6 +175,14 @@ class User < ApplicationRecord
           "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score."
         }
       }
+    end
+
+    if team.games.present?
+      blocks << {
+        type: "divider"
+      }
+
+      blocks += team.to_leaderboard_blocks(limit: 100)
     end
 
     {

@@ -1,8 +1,8 @@
 class Team < ApplicationRecord
   include ActionView::Helpers::NumberHelper
 
-  has_many :users, dependent: :destroy
-  has_many :games, dependent: :destroy
+  has_many :users, -> { order 'score DESC' }, dependent: :destroy
+  has_many :games, -> { order 'created_at DESC' }, dependent: :destroy
 
   validates :slack_id, presence: true, uniqueness: true
   validates :access_token, presence: true
