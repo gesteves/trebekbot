@@ -138,7 +138,7 @@ class User < ApplicationRecord
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "Hi #{display_name},"
+        text: ":wave: Hi #{display_name},"
       }
     }
 
@@ -147,7 +147,7 @@ class User < ApplicationRecord
         type: "section",
         text: {
           "type": "mrkdwn",
-          "text": current_score_message
+          "text": "#{current_score_message}\n\n"
         }
       }
 
@@ -165,7 +165,7 @@ class User < ApplicationRecord
         type: "section",
         text: {
           type: "mrkdwn",
-          text: ":one: Invite me into a channel, or join one in which I’m already invited \n :two: Mention me to start a new game \n :three: Submit your answer (in the form of a question) in the text input within the game message"
+          text: ":one: Invite me into a channel by typing `/invite @trebekbot`, or join one in which I’m already invited \n\n :two: Mention me, typing `@trebekbot`, to start a new game \n\n :three: Submit your answer (in the form of a question) in the text input within the game message \n\n :four: View all available commands by typing `@trebekbot help`"
         }
       }
       blocks << {
@@ -176,6 +176,20 @@ class User < ApplicationRecord
         }
       }
     end
+
+    blocks << blocks << {
+      type: "divider"
+    }
+
+    blocks << {
+      type: "context",
+      elements: [
+        {
+          type: "mrkdwn",
+          text: ":eyes: View all commands by typing `@trebekbot help`"
+        }
+      ]
+    }
 
     {
       type: "home",
