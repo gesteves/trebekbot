@@ -40,7 +40,7 @@ class Answer < ApplicationRecord
   end
 
   def debug
-    "#{user.display_name}: #{normalized_answer} (#{similarity_score.round(3)})"
+    "* #{user.username} | #{normalized_answer} | #{similarity_score.round(3)}"
   end
 
   private
