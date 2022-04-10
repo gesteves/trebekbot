@@ -94,9 +94,7 @@ class User < ApplicationRecord
   end
 
   def current_score_message
-    reply = "Your score is *#{pretty_score}*, #{display_name}"
-    reply += ", your current streak is *#{current_streak}* correct answers" if current_streak > 1
-    reply += ", and your longest streak so far is *#{longest_streak}* correct answers." if longest_streak > 1
+    "Your score is *#{pretty_score}*, #{display_name}."
   end
 
   def longest_streak
@@ -143,11 +141,15 @@ class User < ApplicationRecord
     }
 
     if answers.present?
+      score = "Your score is *#{pretty_score}*}"
+      score += ", your current streak is *#{current_streak}* correct answers" if current_streak > 1
+      score += ", and your longest streak so far is *#{longest_streak}* correct answers" if longest_streak > 1
+      score += "."
       blocks << {
         type: "section",
         text: {
           "type": "mrkdwn",
-          "text": "#{current_score_message}\n\n"
+          "text": "#{score}\n\n"
         }
       }
 
