@@ -62,8 +62,28 @@ class Team < ApplicationRecord
     users.order('score DESC').limit(limit)
   end
 
+  def bot_user_id
+    Rails.cache.fetch("slack/bot/user_id/#{bot_id}", expires_in: 1.day) do
+      slack = Slack.new
+      response = slack.bot_info(access_token: team.access_token, bot_id: bot_id)
+      return if response.blank?
+      raise response[:error] unless response[:ok]
+      response.dig(:user, :id).presence
+    end
+  end
+
+  def bot_name
+    Rails.cache.fetch("slack/bot/real_name/#{bot_id}", expires_in: 1.day) do
+      slack = Slack.new
+      response = slack.bot_info(access_token: team.access_token, bot_id: bot_id)
+      return if response.blank?
+      raise response[:error] unless response[:ok]
+      response.dig(:user, :real_name).presence
+    end
+  end
+
   def bot_mention
-    "<@#{bot_id}>"
+    "<@#{bot_user_id}>"
   end
 
   def post_leaderboard_to_slack(channel_id:, thread_ts: nil)

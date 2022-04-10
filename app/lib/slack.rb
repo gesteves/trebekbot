@@ -173,11 +173,26 @@ class Slack
     JSON.parse(response.body, symbolize_names: true)
   end
 
+  # Gets information about a bot user.
+  # @param access_token [String] Authentication token bearing required scopes.
+  # @param bot_id [String] Bot to get info on
+  # @see https://api.slack.com/methods/bots.info
+  # @return [String] A JSON response.
+  def bot_info(access_token:, bot_id:)
+    query = {
+      bot: bot_id
+    }.compact
+    response = HTTParty.get("https://slack.com/api/bots.info",
+                            query: query,
+                            headers: { 'Authorization': "Bearer #{access_token}" })
+    JSON.parse(response.body, symbolize_names: true)
+  end
+
   # Publish a static view for a user.
   # @param access_token [String] Authentication token bearing required scopes.
   # @param user_id [String] id of the user you want publish a view to.
   # @param view [Hash] A view payload.
-  # @see https://api.slack.com/methods/users.info
+  # @see https://api.slack.com/methods/views.publish
   # @return [String] A JSON response.
   def views_publish(access_token:, user_id:, view:)
     params = {

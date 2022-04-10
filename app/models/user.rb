@@ -160,7 +160,7 @@ class User < ApplicationRecord
         type: "section",
         text: {
           "type": "mrkdwn",
-          "text": "Welcome to Trebekbot! You haven’t played yet, but getting started is very easy:"
+          "text": "Welcome to #{team.bot_name}! You haven’t played yet, but getting started is very easy:"
         }
       }
       blocks << {
