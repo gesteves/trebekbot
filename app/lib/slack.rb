@@ -181,7 +181,7 @@ class Slack
   # @return [String] A JSON response.
   def views_publish(access_token:, user_id:, view:)
     params = {
-      user: user_id,
+      user_id: user_id,
       view: view
     }.compact
     response = HTTParty.post("https://slack.com/api/views.publish",
