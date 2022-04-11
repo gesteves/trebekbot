@@ -33,21 +33,21 @@ class SlackControllerTest < ActionDispatch::IntegrationTest
     assert_equal "OK", response.body
   end
 
-  test "app_mention event should send leaderboard" do
+  test "app_mention event should send scoreboard" do
     params = {
       token: ENV["SLACK_VERIFICATION_TOKEN"],
       team_id: "T061EG9R6",
       event: {
         type: 'app_mention',
         user: "U061F7AUR",
-        text: "<@U0LAN0Z89> leaderboard",
+        text: "<@U0LAN0Z89> scoreboard",
         ts: "1515449522.000016",
         channel: "C0LAN2Q65",
         event_ts: "1515449522000016"
       }
     }
     post events_url, params: params
-    assert_equal 1, PostLeaderboardWorker.jobs.size
+    assert_equal 1, PostScoreboardWorker.jobs.size
     assert_response :success
     assert_equal "OK", response.body
   end

@@ -93,7 +93,7 @@ class SlackController < ApplicationController
     if @text =~ /help/i
       show_help
     elsif @text =~ /(scores|leaderboard|scoreboard)/i
-      show_leaderboard
+      show_scoreboard
     elsif @text =~ /my score/i
       show_user_score
     elsif @text =~ /debug/i
@@ -121,8 +121,8 @@ class SlackController < ApplicationController
     PostMessageWorker.perform_async(reply, @team, @channel, @thread_ts)
   end
 
-  def show_leaderboard
-    PostLeaderboardWorker.perform_async(@team, @channel, @thread_ts)
+  def show_scoreboard
+    PostScoreboardWorker.perform_async(@team, @channel, @thread_ts)
   end
 
   def show_user_score

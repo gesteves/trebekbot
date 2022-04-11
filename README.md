@@ -19,5 +19,5 @@ After that, simply mentioning "@trebekbot" will start a new game in the current 
 You can also say:
 
 * "@trebekbot my score" to see your current score
-* "@trebekbot leaderboard" to see the top scores
+* "@trebekbot leaderboard" or "@trebekbot scoreboard" to see the top scores
 * "@trebekbot help" to see a list of commands

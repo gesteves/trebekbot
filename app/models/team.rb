@@ -110,8 +110,8 @@ class Team < ApplicationRecord
     "<@#{bot_user_id}>"
   end
 
-  def post_leaderboard_to_slack(channel_id:, thread_ts: nil)
-    text = "Top scores for #{name}:"
+  def post_scoreboard_to_slack(channel_id:, thread_ts: nil)
+    text = "Here are the top scores for #{name}:"
     blocks = ScoreboardPresenter.new(self).to_blocks(limit: 10)
     response = post_message(channel_id: channel_id, text: text, blocks: blocks, thread_ts: thread_ts)
   end
