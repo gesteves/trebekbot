@@ -23,7 +23,6 @@ class HomeViewPresenter < SimpleDelegator
         }
       }
     else
-
       blocks << {
         type: "section",
         text: {
@@ -42,18 +41,12 @@ class HomeViewPresenter < SimpleDelegator
         type: "section",
         text: {
           "type": "mrkdwn",
-          "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score."
+          "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score.\n\n"
         }
       }
     end
 
-    if team.games.present?
-      blocks << {
-        type: "divider"
-      }
-
-      blocks += ScoreboardPresenter.new(team).to_blocks(limit: 100)
-    end
+    blocks += ScoreboardPresenter.new(team).to_blocks(limit: 100) if team.games.present?
 
     {
       type: "home",

@@ -7,8 +7,12 @@ class ScoreboardPresenter < SimpleDelegator
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "*Top scores for #{name}*"
+        text: "*Here are the top scores for #{name}:*"
       }
+    }
+
+    blocks << {
+      type: "divider"
     }
 
     if users.present?
