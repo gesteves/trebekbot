@@ -6,6 +6,6 @@ class ScoreboardPresenterTest < ActiveSupport::TestCase
     blocks = ScoreboardPresenter.new(team).to_blocks
 
     assert_equal "section", blocks[0][:type]
-    assert_equal "context", blocks[1][:type]
+    assert_equal "divider", blocks[1][:type]
   end
 end
