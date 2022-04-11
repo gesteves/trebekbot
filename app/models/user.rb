@@ -132,4 +132,8 @@ class User < ApplicationRecord
   def update_app_home
     response = team.update_app_home(user_id: slack_id, view: HomeViewPresenter.new(self).to_view)
   end
+
+  def has_played?
+    answers.size > 0
+  end
 end

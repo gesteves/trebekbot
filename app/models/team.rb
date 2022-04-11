@@ -59,7 +59,7 @@ class Team < ApplicationRecord
   end
 
   def top_users(limit: 100)
-    users.order('score DESC').limit(limit)
+    users.limit(limit).select { |u| u.has_played? }
   end
 
   def bot_id
