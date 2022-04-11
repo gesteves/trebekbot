@@ -22,9 +22,4 @@ module Textable
   def is_question?(text)
     text.strip.match? QUESTION_REGEX
   end
-
-  def decode_html_entities(text)
-    coder = HTMLEntities.new
-    coder.decode(text)
-  end
 end

@@ -2,7 +2,7 @@
 
 one:
   slack_id: U1234ACBD
-  score: 0
+  score: 100
   team: one
 
 two:

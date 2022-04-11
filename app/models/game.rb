@@ -15,7 +15,7 @@ class Game < ApplicationRecord
   # Posts the game to Slack, and stores the resulting message's timestamp (ts)
   # so it can be looked up later.
   def post_to_slack
-    blocks = to_blocks
+    blocks = GamePresenter.new(self).to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
     response = team.post_message(channel_id: channel, text: text, blocks: blocks)
     self.ts = response.dig(:message, :ts)
@@ -25,7 +25,7 @@ class Game < ApplicationRecord
   # Updates the message posted for a game, when an answer is submitted or the game is closed.
   def update_message
     return if team.has_invalid_token?
-    blocks = to_blocks
+    blocks = GamePresenter.new(self).to_blocks
     text = "The category is #{category}, for $#{value}: “#{question}”"
     response = team.update_message(ts: ts, channel_id: channel, text: text, blocks: blocks)
   end
@@ -81,92 +81,6 @@ class Game < ApplicationRecord
 
     # Build an array with all the accepted answers
     [normalized_answer, without_parentheses, or_answers].flatten.uniq
-  end
-
-  # A representation of the game as Slack "blocks",
-  # which are sent as part of the Slack message.
-  def to_blocks
-    blocks = []
-    blocks << {
-			type: "context",
-			elements: [
-				{
-					type: "mrkdwn",
-					text: "*#{decode_html_entities(category).titleize}* | $#{value} | Aired #{air_date.strftime('%B %-d, %Y')}"
-				}
-			]
-		}
-
-    if is_closed?
-      blocks << {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "*#{decode_html_entities(question)}*"
-        }
-      }
-      blocks << {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "The answer is “#{decode_html_entities(answer)}”"
-        }
-      }
-    else
-      blocks << {
-        type: "input",
-        dispatch_action: true,
-        element: {
-          type: "plain_text_input",
-          action_id: "answer",
-          placeholder: {
-            type: "plain_text",
-            text: "Your answer, in the form of a question…"
-          },
-          dispatch_action_config: {
-            trigger_actions_on: [
-              "on_enter_pressed"
-            ]
-          }
-        },
-        label: {
-          type: "plain_text",
-          text: question
-        }
-      }
-    end
-
-    if answers.present?
-      blocks << {
-        type: "divider"
-      }
-      answers.each do |a|
-        blocks << {
-          type: "context",
-          elements: [
-            {
-              type: "plain_text",
-              text: a.to_emoji,
-              emoji: true
-            },
-            {
-              type: "image",
-              image_url: a.user.avatar,
-              alt_text: a.user.real_name || a.user.username
-            },
-            {
-              type: "plain_text",
-              text: a.answer,
-              emoji: true
-            }
-          ]
-        }
-      end
-    end
-    blocks << {
-      type: "divider"
-    }
-    blocks
   end
 
   private

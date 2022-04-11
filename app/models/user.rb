@@ -7,6 +7,7 @@ class User < ApplicationRecord
   validates :slack_id, presence: true
 
   def avatar
+    return if Rails.env.test?
     Rails.cache.fetch("slack/user/avatar/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
@@ -17,6 +18,7 @@ class User < ApplicationRecord
   end
 
   def real_name
+    return if Rails.env.test?
     Rails.cache.fetch("slack/user/real_name/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
@@ -27,6 +29,7 @@ class User < ApplicationRecord
   end
 
   def first_name
+    return if Rails.env.test?
     Rails.cache.fetch("slack/user/first_name/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
@@ -37,6 +40,7 @@ class User < ApplicationRecord
   end
 
   def username
+    return if Rails.env.test?
     Rails.cache.fetch("slack/user/username/#{id}-#{slack_id}", expires_in: 1.day) do
       slack = Slack.new
       response = slack.user_info(access_token: team.access_token, user_id: slack_id)
@@ -47,7 +51,7 @@ class User < ApplicationRecord
   end
 
   def display_name
-    return "test user" if Rails.env.test?
+    return if Rails.env.test?
     first_name || real_name || username
   end
 
@@ -126,68 +130,6 @@ class User < ApplicationRecord
   end
 
   def update_app_home
-    response = team.update_app_home(user_id: slack_id, view: app_home_view)
-  end
-
-  def app_home_view
-    blocks = []
-
-    blocks << {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: ":wave: Hi #{display_name},"
-      }
-    }
-
-    if answers.present?
-      score = "Your score is *#{pretty_score}*"
-      score += ", your current streak is *#{current_streak}* correct answers" if current_streak > 1
-      score += ", and your longest streak so far is *#{longest_streak}* correct answers" if longest_streak > 1
-      score += "."
-      blocks << {
-        type: "section",
-        text: {
-          "type": "mrkdwn",
-          "text": "#{score}\n\n"
-        }
-      }
-    else
-
-      blocks << {
-        type: "section",
-        text: {
-          "type": "mrkdwn",
-          "text": "Welcome to #{team.bot_name}! You haven’t played yet, but getting started is very easy:"
-        }
-      }
-      blocks << {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: ":one: Invite me into a channel by typing `/invite #{team.bot_mention}`, or join one in which I’m already invited \n\n :two: Mention me, typing `#{team.bot_mention}`, to start a new game \n\n :three: Submit your answer (in the form of a question) in the text input within the game message \n\n :four: View all available commands by typing `#{team.bot_mention} help`"
-        }
-      }
-      blocks << {
-        type: "section",
-        text: {
-          "type": "mrkdwn",
-          "text": "And that’s it! Come back here after you’ve played a few rounds and I’ll show you your current score."
-        }
-      }
-    end
-
-    if team.games.present?
-      blocks << {
-        type: "divider"
-      }
-
-      blocks += team.to_leaderboard_blocks(limit: 100)
-    end
-
-    {
-      type: "home",
-      blocks: blocks
-    }
+    response = team.update_app_home(user_id: slack_id, view: HomeViewPresenter.new(self).to_view)
   end
 end
