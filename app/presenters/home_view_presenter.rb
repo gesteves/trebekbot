@@ -34,7 +34,7 @@ class HomeViewPresenter < SimpleDelegator
         type: "section",
         text: {
           type: "mrkdwn",
-          text: ":one: Invite me into a channel by typing `/invite #{team.bot_mention}`, or join one in which I’m already invited \n\n :two: Mention me, typing `#{team.bot_mention}`, to start a new game \n\n :three: Submit your answer (in the form of a question) in the text input within the game message \n\n :four: View all available commands by typing `#{team.bot_mention} help`"
+          text: ":one: Invite me into a channel by typing `/invite #{team.bot_mention}` \n\n :two: Mention me, typing `#{team.bot_mention}`, to start a new game \n\n :three: Submit your answer (in the form of a question) in the text input within the game message \n\n :four: View all available commands by typing `#{team.bot_mention} help`"
         }
       }
       blocks << {
