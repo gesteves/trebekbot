@@ -64,8 +64,10 @@ class Team < ApplicationRecord
 
   def bot_user_id
     return if Rails.env.test?
-    Rails.cache.fetch("slack/#{slack_id}/bot/user_id/#{bot_id}", expires_in: 1.day) do
+    Rails.cache.fetch("slack/#{slack_id}/bot/user_id/", expires_in: 1.day) do
       slack = Slack.new
+      response = slack.auth_test(access_token: access_token)
+      bot_id = response.dig(:bot_id)
       response = slack.bot_info(access_token: access_token, bot_id: bot_id)
       return if response.blank?
       raise response[:error] unless response[:ok]
