@@ -1,7 +1,6 @@
 class ScoreboardPresenter < SimpleDelegator
   def to_blocks(limit: 10)
     users = top_users(limit: limit)
-    return if users.blank?
 
     blocks = []
 

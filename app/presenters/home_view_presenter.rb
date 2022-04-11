@@ -46,8 +46,7 @@ class HomeViewPresenter < SimpleDelegator
       }
     end
 
-    scoreboard = ScoreboardPresenter.new(team).to_blocks(limit: 100)
-    blocks += scoreboard if scoreboard.present?
+    blocks += ScoreboardPresenter.new(team).to_blocks(limit: 100)
 
     {
       type: "home",
