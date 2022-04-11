@@ -32,20 +32,7 @@ class Game < ApplicationRecord
 
   # Posts debug information about the game to Slack.
   def post_debug_to_slack
-    text = if answers.blank?
-      <<~DEBUG
-      ```
-      No answers to debug yet.
-      ```
-      DEBUG
-    else
-      <<~DEBUG
-      ```
-      #{answers.map(&:debug).join("\n")}
-      ```
-      DEBUG
-    end
-    response = team.post_message(channel_id: channel, text: text, thread_ts: ts)
+    response = team.post_message(channel_id: channel, text: GamePresenter.new(self).debug, thread_ts: ts)
   end
 
   # Closes the game, which shows the correct answer and prevents players from submitting more answers.

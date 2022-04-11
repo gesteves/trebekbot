@@ -83,6 +83,22 @@ class GamePresenter < SimpleDelegator
     blocks
   end
 
+  def debug
+    if answers.blank?
+      <<~DEBUG
+      ```
+      No answers to debug yet.
+      ```
+      DEBUG
+    else
+      <<~DEBUG
+      ```
+      #{answers.map(&:debug).join("\n")}
+      ```
+      DEBUG
+    end
+  end
+
   private
   def decode_html_entities(text)
     coder = HTMLEntities.new
