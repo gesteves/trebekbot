@@ -75,7 +75,7 @@ class Game < ApplicationRecord
   end
 
   def pretty_value
-    number_to_currency(score, precision: 0)
+    number_to_currency(value, precision: 0)
   end
 
   private
