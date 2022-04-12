@@ -34,7 +34,7 @@ class Answer < ApplicationRecord
   def similarity_score
     white = Text::WhiteSimilarity.new
     normalized = normalized_answer
-    game.accepted_answers.map { |a| white.similarity(normalized, a) }.max
+    game.accepted_answers.map { |a| white.similarity(normalized, a) }.reject(&:nan?).max
   end
 
   # Simply checks if the submitted answer was formatted in the form of a question.

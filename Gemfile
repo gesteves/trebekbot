@@ -61,6 +61,7 @@ gem "sidekiq"
 gem "text"
 gem "sanitize"
 gem "htmlentities"
+gem "numbers_and_words"
 
 # Caching
 gem "dalli"

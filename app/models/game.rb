@@ -66,8 +66,11 @@ class Game < ApplicationRecord
     # Consider answers with "or" or "/" as separate options
     or_answers = normalized_answer.split(/\s+or\s+|\//)
 
+    # Accept numeric answers as words
+    numeric_answer = normalized_answer.to_i.to_words if normalized_answer == normalized_answer.to_i.to_s
+
     # Build an array with all the accepted answers
-    [normalized_answer, without_parentheses, or_answers].flatten.uniq
+    [normalized_answer, without_parentheses, or_answers, numeric_answer].compact.flatten.uniq
   end
 
   private

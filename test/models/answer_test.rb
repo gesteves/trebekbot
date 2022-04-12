@@ -149,6 +149,18 @@ class AnswerTest < ActiveSupport::TestCase
     answer = Answer.new(answer: "What is 4?", game: game, user: user)
     answer.save!
     assert answer.is_correct?
+
+    answer.answer = "What is four?"
+    answer.save!
+    assert answer.is_correct?
+
+    answer.answer = "What is 5?"
+    answer.save!
+    assert_not answer.is_correct?
+
+    answer.answer = "What is five?"
+    answer.save!
+    assert_not answer.is_correct?
   end
 
   test "accepts answers with accents" do
