@@ -17,6 +17,9 @@
 
   <body>
     <div class="content">
+      <% flash.each do |name, msg| -%>
+        <p><%= msg %></p>
+      <% end -%>
       <h1>Trebekbot</h1>
       <%= yield %>
       <footer class="footer">
