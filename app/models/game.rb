@@ -1,4 +1,5 @@
 class Game < ApplicationRecord
+  include ActionView::Helpers::NumberHelper
   include Textable
 
   belongs_to :team
@@ -71,6 +72,10 @@ class Game < ApplicationRecord
 
     # Build an array with all the accepted answers
     [normalized_answer, without_parentheses, or_answers, numeric_answer].compact.flatten.uniq
+  end
+
+  def pretty_value
+    number_to_currency(score, precision: 0)
   end
 
   private
