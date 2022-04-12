@@ -11,7 +11,7 @@ class ProcessAnswerWorker < ApplicationWorker
     return if game.is_closed?
 
     if game.has_answer_by_user?(user)
-      PostMessageWorker.perform_async(user.duplicate_answer_message, team.slack_id, game.channel, game.ts, user.slack_id)
+      PostMessageWorker.perform_async(user.duplicate_answer_message, team.slack_id, game.channel, game.ts)
     else
       answer = Answer.new(game: game, user: user, answer: user_answer)
       answer.save!
