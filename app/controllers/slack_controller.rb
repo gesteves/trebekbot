@@ -17,7 +17,6 @@ class SlackController < ApplicationController
         team = Team.find_or_create_by(slack_id: team_id)
         team.access_token = access_token
         if team.save
-          logger.info "[LOG] [Team #{team_id}] Installed"
           notice = nil
           url = success_url
         else
@@ -142,7 +141,6 @@ class SlackController < ApplicationController
   def app_uninstalled
     team = Team.find_by(slack_id: @team)
     team.destroy
-    logger.info "[LOG] [Team #{@team}] Uninstalled"
   end
 
   # INTERACTION HANDLERS

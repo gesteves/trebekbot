@@ -6,8 +6,6 @@ class ProcessAnswerWorker < ApplicationWorker
     game = team.games.find_by(channel: channel_id, ts: ts)
     user = User.find_or_create_by(team_id: team.id, slack_id: user_id)
 
-    logger.info "[LOG] [Team #{team_id}] [Channel #{channel_id}] [Game #{game.id}] [User #{user_id}] Received answer: #{user_answer}"
-
     return if game.is_closed?
 
     if game.has_answer_by_user?(user)
