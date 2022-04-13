@@ -100,7 +100,7 @@ class Game < ApplicationRecord
     return if message.blank?
 
     if is_answered?
-      PostMessageWorker.perform_in(5.seconds, message.join("\n\n"), team.slack_id, channel, ts)
+      PostMessageWorker.perform_in(1.second, message.join("\n\n"), team.slack_id, channel, ts)
     else
       PostMessageWorker.perform_async(message.join("\n\n"), team.slack_id, channel, ts)
     end
