@@ -79,6 +79,10 @@ class Game < ApplicationRecord
     number_to_currency(value, precision: 0)
   end
 
+  def wikipedia_url
+    Wikipedia.search(answer)
+  end
+
   private
 
   # Enqueues a background job to update the game's message in Slack.
@@ -89,9 +93,7 @@ class Game < ApplicationRecord
   def send_closed_message
     return unless is_closed?
 
-    wikipedia_url = Wikipedia.search(answer)
     message = []
-
     message << "Time’s up! The answer is “#{answer}”." unless is_answered?
     message << "Learn more: #{wikipedia_url}" unless wikipedia_url.blank?
 

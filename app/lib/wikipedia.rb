@@ -1,14 +1,15 @@
 module Wikipedia
   def self.search(text)
-    uri = "https://en.wikipedia.org/w/api.php"
+    regex = Regexp.new(/#{text}/i)
     query = {
       action: "opensearch",
       search: text,
-      format: "json",
-      limit: 1
+      format: "json"
     }
     body = HTTParty.get("https://en.wikipedia.org/w/api.php", query: query).body
     response = JSON.parse(body, symbolize_names: true)
-    response&.last&.first
+    index = response[1].index { |e| e =~ regex }
+    return if index.blank?
+    response.last[index]
   end
 end
