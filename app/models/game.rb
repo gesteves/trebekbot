@@ -12,6 +12,7 @@ class Game < ApplicationRecord
   validates :air_date, presence: true
 
   after_commit :enqueue_message_update, if: :saved_change_to_is_closed?
+  after_commit :send_closed_message, if: :saved_change_to_is_closed?
 
   # Posts the game to Slack, and stores the resulting message's timestamp (ts)
   # so it can be looked up later.
@@ -83,5 +84,17 @@ class Game < ApplicationRecord
   # Enqueues a background job to update the game's message in Slack.
   def enqueue_message_update
     UpdateGameMessageWorker.perform_async(id)
+  end
+
+  def send_closed_message
+    return unless is_closed?
+
+    wikipedia_url = Wikipedia.search(answer)
+    message = []
+
+    message << "Time’s up! The answer is “#{answer}”." unless is_answered?
+    message << "Learn more: #{wikipedia_url}" unless wikipedia_url.blank?
+
+    PostMessageWorker.perform_async(message.join("\n\n"), team.slack_id, channel, ts) unless message.blank?
   end
 end
