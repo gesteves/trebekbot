@@ -202,6 +202,6 @@ class Slack
     response = HTTParty.post("https://slack.com/api/views.publish",
                             body: params.to_json,
                             headers: { 'Authorization': "Bearer #{access_token}", 'Content-Type': 'application/json' })
-    response.body
+    JSON.parse(response.body, symbolize_names: true)
   end
 end
