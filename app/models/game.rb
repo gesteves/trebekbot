@@ -95,6 +95,6 @@ class Game < ApplicationRecord
     message << "Time’s up! The answer is “#{answer}”." unless is_answered?
     message << "Learn more: #{wikipedia_url}" unless wikipedia_url.blank?
 
-    PostMessageWorker.perform_async(message.join("\n\n"), team.slack_id, channel, ts) unless message.blank?
+    PostMessageWorker.perform_in(30.seconds, message.join("\n\n"), team.slack_id, channel, ts) unless message.blank?
   end
 end

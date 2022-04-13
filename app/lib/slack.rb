@@ -52,7 +52,7 @@ class Slack
     text: nil,
     link_names: true,
     markdown: true,
-    parse: 'none',
+    parse: 'full',
     reply_broadcast: false,
     thread_ts: nil,
     unfurl_links: true,
@@ -98,7 +98,7 @@ class Slack
     blocks: nil,
     text: nil,
     link_names: true,
-    parse: 'none',
+    parse: 'full',
     reply_broadcast: false
   )
     return if (attachments.blank? && blocks.blank? && text.blank?) || ts.blank?
@@ -138,7 +138,7 @@ class Slack
     attachments: nil,
     blocks: nil,
     link_names: true,
-    parse: 'none',
+    parse: 'full',
     thread_ts: nil
   )
     return if attachments.blank? && blocks.blank? && text.blank?
