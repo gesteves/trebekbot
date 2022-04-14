@@ -2,6 +2,7 @@ module Jservice
   QUESTION_BLOCKLIST = %w{
     seen here
     audio clue
+    clue crew
   }
 
   def self.get_question
