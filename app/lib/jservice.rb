@@ -11,7 +11,7 @@ module Jservice
     response = JSON.parse(request.body, symbolize_names: true).first
     question = response[:question]
 
-    if question.strip.blank? || QUESTION_BLOCKLIST.any? { |phrase| question.include?(phrase) }
+    if QUESTION_BLOCKLIST.any? { |phrase| question.downcase.include?(phrase) } || response[:invalid_count].to_i > 0
       response = get_question
     end
 
