@@ -15,7 +15,6 @@ class Team < ApplicationRecord
   }
 
   def post_message(channel_id:, text:, attachments: nil, blocks: nil, thread_ts: nil)
-    return if has_invalid_token?
     slack = Slack.new
     response = slack.post_message(access_token: access_token, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks, thread_ts: thread_ts)
     return if response.blank?
@@ -24,7 +23,6 @@ class Team < ApplicationRecord
   end
 
   def update_message(ts:, channel_id:, text:, attachments: nil, blocks: nil)
-    return if has_invalid_token?
     slack = Slack.new
     response = slack.update_message(access_token: access_token, ts: ts, channel_id: channel_id, text: text, attachments: attachments, blocks: blocks)
     return if response.blank?
@@ -33,7 +31,6 @@ class Team < ApplicationRecord
   end
 
   def post_ephemeral_message(channel_id:, user_id:, text:, thread_ts: nil)
-    return if has_invalid_token?
     slack = Slack.new
     response = slack.post_ephemeral_message(access_token: access_token, channel_id: channel_id, text: text, user_id: user_id, thread_ts: thread_ts)
     return if response.blank?
@@ -42,7 +39,6 @@ class Team < ApplicationRecord
   end
 
   def update_app_home(user_id:, view:)
-    return if has_invalid_token?
     slack = Slack.new
     response = slack.views_publish(access_token: access_token, user_id: user_id, view: view)
     return if response.blank?
