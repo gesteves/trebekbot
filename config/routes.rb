@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   mount Sidekiq::Web, at: "/sidekiq"
 
   get  "/success"            => "home#success",       :as => "success"
+  get  "/privacy"            => "home#privacy",       :as => "privacy"
 
   # Slack endpoints
   get  "/slack/auth"         => "slack#auth",         :as => "auth"

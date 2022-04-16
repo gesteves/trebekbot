@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Trebekbot</title>
+    <title><%= @title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="slack-app-id" content="A039RFAS6Q5">
     <% if @noindex %>
@@ -16,14 +16,14 @@
   </head>
 
   <body>
-    <div class="content">
+    <div class="content <%= "content--#{action_name}" %>">
       <% flash.each do |name, msg| -%>
         <p><%= msg %></p>
       <% end -%>
       <h1>Trebekbot</h1>
       <%= yield %>
       <footer class="footer">
-        <p>Built by <a href="https://www.twitter.com/gesteves">@gesteves</a> • <a href="https://github.com/gesteves/trebekbot">GitHub</a> • Powered by <a href="http://jservice.io/">jService</a> • Just a fun side project, not affiliated with Jeopardy! in any way</p>
+        <p>Built by <a href="https://www.twitter.com/gesteves">@gesteves</a> • <a href="https://github.com/gesteves/trebekbot">GitHub</a> • <%= link_to "Privacy", privacy_path %> • Powered by <a href="http://jservice.io/">jService</a> • Just a fun side project, not affiliated with Jeopardy! in any way</p>
       </footer>
     </div>
   </body>

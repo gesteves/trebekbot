@@ -6,9 +6,15 @@ class HomeController < ApplicationController
     @players_count = User.all.count
     @games_count = Game.all.count
     @noindex = false
+    @title = "Trebekbot"
   end
 
   def success
     @noindex = true
+    @title = "Trebekbot • Success!"
+  end
+
+  def privacy
+    @title = "Trebekbot • Privacy"
   end
 end

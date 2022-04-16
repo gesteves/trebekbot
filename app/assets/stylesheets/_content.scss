@@ -1,5 +1,4 @@
 .content {
-  align-items: center;
   display: flex;
   flex-flow: column nowrap;
   font-family: 'IBM Plex Mono', monospace;
@@ -12,18 +11,24 @@
     text-align: center;
   }
 
-  p {
+  p, ul {
     font-size: 16px;
     line-height: 1.5;
-    margin: 1.5rem 0;
+    margin: 1.5rem 0 0 0;
     text-align: center;
   }
 
-  p + p {
-    margin-top: 0;
+  ul li {
+    list-style-type: disc;
   }
 
   img {
     max-width: 50%;
+  }
+
+  &--privacy {
+    p, ul {
+      text-align: left;
+    }
   }
 }
