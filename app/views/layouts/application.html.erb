@@ -9,22 +9,32 @@
     <% end %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= stylesheet_link_tag "application" %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
     <% if ENV['PLAUSIBLE_DOMAIN'].present? %>
       <script defer data-domain="<%= ENV['PLAUSIBLE_DOMAIN'] %>" src="/js/script.js"></script>
     <% end %>
   </head>
 
   <body>
-    <div class="content <%= "content--#{action_name}" %>">
-      <% flash.each do |name, msg| -%>
-        <p><%= msg %></p>
-      <% end -%>
-      <h1>Trebekbot</h1>
-      <%= yield %>
-      <footer class="footer">
-        <p>Built by <a href="https://www.twitter.com/gesteves">@gesteves</a> • <a href="https://github.com/gesteves/trebekbot">GitHub</a> • <%= link_to "Privacy", privacy_path %> • Powered by <a href="http://jservice.io/">jService</a> • Just a fun side project, not affiliated with Jeopardy! in any way</p>
-      </footer>
-    </div>
+    <% flash.each do |name, msg| -%>
+      <div class="bg-indigo-600">
+        <div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between flex-wrap">
+            <div class="w-0 flex-1 flex items-center">
+              <span class="flex p-2 rounded-lg bg-indigo-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </span>
+              <p class="ml-3 font-medium text-white truncate">
+                <span class="hidden md:inline"><%= msg %></span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end -%>
+    <%= yield %>
+    <%= render partial: 'partials/footer' %>
   </body>
 </html>

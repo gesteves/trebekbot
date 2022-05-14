@@ -27,6 +27,20 @@ services:
       - .:/app
       - bundle:/usr/local/bundle
       - /app/tmp
+  tailwind:
+    build: .
+    command: bundle exec rails tailwindcss:watch
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - '.env'
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+      - /app/tmp
   app:
     build: .
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
