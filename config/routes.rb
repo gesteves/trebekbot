@@ -9,5 +9,9 @@ Rails.application.routes.draw do
   get  "/slack/auth"         => "slack#auth",         :as => "auth"
   post "/slack/interactions" => "slack#interactions", :as => "interactions"
   post "/slack/events"       => "slack#events",       :as => "events"
-  root to: redirect('https://www.gesteves.com')
+
+  # Pages
+  get "/success" => "home#success", :as => "success"
+  get "/privacy" => "home#privacy", :as => "privacy"
+  root "home#index"
 end
