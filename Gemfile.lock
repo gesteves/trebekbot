@@ -109,7 +109,7 @@ GEM
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
-    lograge (0.12.0)
+    lograge (0.13.0)
       actionpack (>= 4)
       activesupport (>= 4)
       railties (>= 4)
@@ -126,7 +126,7 @@ GEM
     matrix (0.4.2)
     method_source (1.0.0)
     mini_mime (1.1.2)
-    minitest (5.18.1)
+    minitest (5.19.0)
     mock_redis (0.36.0)
       ruby2_keywords
     msgpack (1.7.1)
@@ -239,7 +239,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.6.8)
+    zeitwerk (2.6.9)
 
 PLATFORMS
   x86_64-darwin-21
