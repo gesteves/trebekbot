@@ -8,6 +8,7 @@ module Jservice
   def self.get_question
     uri = "http://jservice.io/api/random?count=1"
     request = HTTParty.get(uri)
+    return if response.code != 200
     response = JSON.parse(request.body, symbolize_names: true).first
     question = response[:question]
 
