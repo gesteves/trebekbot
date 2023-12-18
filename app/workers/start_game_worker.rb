@@ -23,7 +23,7 @@ class StartGameWorker < ApplicationWorker
       PostGameMessageWorker.perform_async(game.id)
       EndGameWorker.perform_in(ENV['CONFIG_GAME_TIME_LIMIT'].to_i.seconds, game.id)
     else
-      reply = "Apologies, but I can't reach jService.io at this time."
+      reply = "Unfortunately, jService.io, which is the third-party service from which Trebekbot sources the questions and answers, has shut down permanently. As such, Trebekbot will shut down on January 1st, 2024. Thanks for playing!"
       PostMessageWorker.perform_async(reply, team_id, channel_id)
     end
   end
