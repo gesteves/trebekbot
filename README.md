@@ -6,7 +6,7 @@ A Jeopardy! bot for Slack, powered by the [jService](http://jservice.io/) API. S
 
 ## Installation
 
-Unfortunately, jService.io, which is the third-party service from which Trebekbot sourced the questions and answers, has shut down permanently. As such, Trebekbot no longer works and cannot be installed any more. Thanks for playing!
+Unfortunately, jService.io, which is the third-party service from which Trebekbot sourced the questions and answers, has shut down permanently. As such, Trebekbot no longer works and cannot be installed. Thanks for playing!
 
 ## Usage
 
